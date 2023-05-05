@@ -5,15 +5,30 @@ application up and running.
 
 Things you may want to cover:
 
-* Ruby version
+- Ruby version
+  - ruby 3.1.2p20 (2022-04-12 revision 4491bb740a) [arm64-darwin21] 
+
+## Database initialization
+
+Testing: 
+```shell
+rake db:test:prepare
+```
+
+## Swagger
+
+Make swagger json file before spec file change
+```shell
+rake rswag:specs:swaggerize
+```
+
+## TODO
 
 * System dependencies
 
 * Configuration
 
 * Database creation
-
-* Database initialization
 
 * How to run the test suite
 
