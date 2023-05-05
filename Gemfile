@@ -15,6 +15,15 @@ gem "puma", "~> 5.0"
 # JSON Web Token [https://github.com/jwt/ruby-jwt]
 gem 'jwt'
 
+# Swagger api [https://github.com/rswag/rswag]
+gem 'rswag-api'
+gem 'rswag-ui'
+
+group :development, :test do
+  gem 'rspec-rails'
+  gem 'rswag-specs'
+end
+
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
 
