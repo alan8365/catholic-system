@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+basic:
+  name: basic
+  username: basic
+  password_digest: abc123!
+  comment: The basic user
+
+admin:
+  name: admin
+  username: admin
+  password_digest: <%= BCrypt::Password.create('!123abc', cost: 5) %>
+  comment: The administrator
