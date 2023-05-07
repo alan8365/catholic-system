@@ -5,9 +5,6 @@ module Api
     # POST /auth/login
     def login
       @user = User.find_by_username(params[:username])
-      puts "------"
-      puts params[:username]
-      puts "------"
       if @user&.authenticate(params[:password])
         token = JsonWebToken.encode(user_id: @user.id)
         time = Time.now + 48.hours.to_i
