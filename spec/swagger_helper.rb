@@ -2,9 +2,8 @@
 
 require 'rails_helper'
 
-# def authenticated_header(user)
-def authenticated_header
-  user = User.find_by_username("admin")
+def authenticated_header(username)
+  user = User.find_by_username(username)
   # token = JsonWebToken.encode(user_id: user.id)
   # { 'Authorization': "Bearer #{token}" }
   JsonWebToken.encode(user_id: user.id)
@@ -47,8 +46,6 @@ RSpec.configure do |config|
             type: :apiKey,
             name: 'authorization',
             in: :header,
-            default: "Bearer #{authenticated_header}",
-            value: "Bearer #{authenticated_header}",
           }
         }
       }

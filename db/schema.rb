@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_04_28_185527) do
+ActiveRecord::Schema[7.0].define(version: 2023_05_12_181229) do
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "username"
@@ -18,6 +18,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_04_28_185527) do
     t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "is_admin", default: false
+    t.boolean "is_modulator", default: false
   end
 
 end

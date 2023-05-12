@@ -8,7 +8,7 @@ RSpec.describe 'api/users', type: :request do
       security [Bearer: {}]
 
       response(200, 'successful') do
-        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -48,7 +48,21 @@ RSpec.describe 'api/users', type: :request do
       }
 
       response(201, "Created") do
-        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:user) { { name: '測試二號', username: 'test2', password: 'test123' } }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test!
+      end
+
+      response(403, "Forbidden") do
+        let(:"authorization") { "Bearer #{authenticated_header 'basic'}" }
         let(:user) { { name: '測試二號', username: 'test2', password: 'test123' } }
 
         after do |example|
@@ -63,7 +77,7 @@ RSpec.describe 'api/users', type: :request do
 
       # User already exist test
       response(422, "Unprocessable Entity") do
-        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:user) { { name: '測試', username: 'test1', password: 'test123' } }
 
         after do |example|
@@ -78,7 +92,7 @@ RSpec.describe 'api/users', type: :request do
 
       # User info incomplete test
       response(422, "Unprocessable Entity") do
-        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:user) { { name: '', username: '', password: '' } }
 
         after do |example|
@@ -100,7 +114,7 @@ RSpec.describe 'api/users', type: :request do
     get('show user') do
       security [Bearer: {}]
       response(200, 'successful') do
-        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'admin' }
 
         after do |example|
@@ -114,7 +128,7 @@ RSpec.describe 'api/users', type: :request do
       end
 
       response(404, 'Not Found') do
-        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'unknown_user_name' }
 
         after do |example|
@@ -141,7 +155,7 @@ RSpec.describe 'api/users', type: :request do
       }
 
       response(204, 'No Content') do
-        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: 'new1' } }
 
@@ -149,7 +163,7 @@ RSpec.describe 'api/users', type: :request do
       end
 
       response(422, 'No Content') do
-        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: '' } }
 
@@ -169,7 +183,7 @@ RSpec.describe 'api/users', type: :request do
         required: %w[name password]
       }
       response(204, 'No Content') do
-        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: 'new2', password: 'abc123' } }
 
@@ -180,7 +194,7 @@ RSpec.describe 'api/users', type: :request do
     delete('delete user') do
       security [Bearer: {}]
       response(204, 'successful') do
-        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
 
         run_test!

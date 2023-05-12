@@ -1,4 +1,9 @@
 class ApplicationController < ActionController::API
+  rescue_from "AccessGranted::AccessDenied" do |exception|
+    render json: { errors: "Access denied" },
+           status: :forbidden
+  end
+
   def not_found
     render json: { error: 'not_found' }
   end

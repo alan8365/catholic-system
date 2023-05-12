@@ -24,6 +24,10 @@ group :development, :test do
   gem 'rswag-specs'
 end
 
+# Access Granted [https://github.com/chaps-io/access-granted]
+gem 'access-granted', '~> 1.3'
+
+
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 # gem "jbuilder"
 
