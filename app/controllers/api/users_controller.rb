@@ -27,6 +27,7 @@ module Api
     end
 
     # PUT /users/{username}
+    # TODO change password
     def update
       unless @user.update(user_params)
         render json: { errors: @user.errors.full_messages },

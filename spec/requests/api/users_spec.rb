@@ -36,9 +36,50 @@ RSpec.describe 'api/users', type: :request do
 
     post('create user') do
       security [Bearer: {}]
+      consumes 'application/json'
+      parameter name: :user, in: :body, schema: {
+        type: :object,
+        properties: {
+          name: { type: :string },
+          username: { type: :string },
+          password: { type: :string },
+        },
+        required: %w[name username password]
+      }
 
-      response(200, 'successful') do
+      response(201, "Created") do
         let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:user) { { name: '測試二號', username: 'test2', password: 'test123' } }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test!
+      end
+
+      # User already exist test
+      response(422, "Unprocessable Entity") do
+        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:user) { { name: '測試', username: 'test1', password: 'test123' } }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test!
+      end
+
+      # User info incomplete test
+      response(422, "Unprocessable Entity") do
+        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:user) { { name: '', username: '', password: '' } }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -57,8 +98,24 @@ RSpec.describe 'api/users', type: :request do
     parameter name: '_username', in: :path, type: :string, description: '_username'
 
     get('show user') do
+      security [Bearer: {}]
       response(200, 'successful') do
-        let(:_username) { '123' }
+        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:_username) { 'admin' }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test!
+      end
+
+      response(404, 'Not Found') do
+        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:_username) { 'unknown_user_name' }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -71,47 +128,61 @@ RSpec.describe 'api/users', type: :request do
       end
     end
 
+    # TODO deny username change
     patch('update user') do
-      response(200, 'successful') do
-        let(:_username) { '123' }
+      security [Bearer: {}]
+      consumes 'application/json'
+      parameter name: :user, in: :body, schema: {
+        type: :object,
+        properties: {
+          name: { type: :string },
+          password: { type: :string },
+        },
+      }
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
+      response(204, 'No Content') do
+        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:_username) { 'test1' }
+        let(:user) { { name: 'new1' } }
+
+        run_test!
+      end
+
+      response(422, 'No Content') do
+        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:_username) { 'test1' }
+        let(:user) { { name: '' } }
+
         run_test!
       end
     end
 
     put('update user') do
-      response(200, 'successful') do
-        let(:_username) { '123' }
+      security [Bearer: {}]
+      consumes 'application/json'
+      parameter name: :user, in: :body, schema: {
+        type: :object,
+        properties: {
+          name: { type: :string },
+          password: { type: :string },
+        },
+        required: %w[name password]
+      }
+      response(204, 'No Content') do
+        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:_username) { 'test1' }
+        let(:user) { { name: 'new2', password: 'abc123' } }
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
         run_test!
       end
     end
 
     delete('delete user') do
-      response(200, 'successful') do
-        let(:_username) { '123' }
+      security [Bearer: {}]
+      response(204, 'successful') do
+        let(:"authorization") { "Bearer #{authenticated_header}" }
+        let(:_username) { 'test1' }
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
         run_test!
       end
     end
