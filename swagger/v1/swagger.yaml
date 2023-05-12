@@ -1,0 +1,149 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/api/auth/login":
+    post:
+      summary: login authentication
+      tags:
+      - Auth
+      parameters: []
+      responses:
+        '200':
+          description: successful
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+              - username
+              - password
+            examples:
+              admin:
+                summary: Admin login
+                value:
+                  username: admin
+                  password: "!123abc"
+  "/api/users":
+    get:
+      summary: list users
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create user
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+              - name
+              - username
+              - password
+  "/api/users/{_username}":
+    parameters:
+    - name: _username
+      in: path
+      description: _username
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show user
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update user
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '422':
+          description: No Content
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                password:
+                  type: string
+    put:
+      summary: update user
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                password:
+                  type: string
+              required:
+              - name
+              - password
+    delete:
+      summary: delete user
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: successful
+servers:
+- url: http://{defaultHost}
+  variables:
+    defaultHost:
+      default: 0.0.0.0:3000
+components:
+  securitySchemes:
+    Bearer:
+      description: JWT key necessary to use API calls
+      type: apiKey
+      name: authorization
+      in: header
+      default: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMzUxMzg2ODAsImV4cCI6MTY4NDA3OTAzOX0.pZiFGqQe6kSO07FvnCnzibHXjtByMHXdRX_gVavpc4o
+      value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMzUxMzg2ODAsImV4cCI6MTY4NDA3OTAzOX0.pZiFGqQe6kSO07FvnCnzibHXjtByMHXdRX_gVavpc4o
