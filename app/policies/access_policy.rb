@@ -15,7 +15,11 @@ class AccessPolicy
     # The most important role should be at the top.
     # In this case an administrator.
     role :admin, proc { |user| user.is_admin? } do
-      can :manage, User
+      can [:read, :create, :update], User
+
+      can [:destroy], User do |target_user, user|
+        !target_user.is_admin
+      end
     end
 
     role :modulator, proc {|user| user.is_modulator} do

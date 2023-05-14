@@ -32,9 +32,16 @@ paths:
                 value:
                   username: admin
                   password: "!123abc"
+              basic:
+                summary: Basic login
+                value:
+                  username: basic
+                  password: abc123!
   "/api/users":
     get:
       summary: list users
+      tags:
+      - User
       security:
       - Bearer: {}
       responses:
@@ -44,12 +51,16 @@ paths:
           description: unauthorized
     post:
       summary: create user
+      tags:
+      - User
       security:
       - Bearer: {}
       parameters: []
       responses:
         '201':
           description: Created
+        '403':
+          description: Forbidden
         '422':
           description: Unprocessable Entity
       requestBody:
@@ -68,6 +79,13 @@ paths:
               - name
               - username
               - password
+            examples:
+              test_user:
+                summary: Test user create
+                value:
+                  name: 測試二號
+                  username: test2
+                  password: test123
   "/api/users/{_username}":
     parameters:
     - name: _username
@@ -78,6 +96,8 @@ paths:
         type: string
     get:
       summary: show user
+      tags:
+      - User
       security:
       - Bearer: {}
       responses:
@@ -87,6 +107,8 @@ paths:
           description: Not Found
     patch:
       summary: update user
+      tags:
+      - User
       security:
       - Bearer: {}
       parameters: []
@@ -107,6 +129,8 @@ paths:
                   type: string
     put:
       summary: update user
+      tags:
+      - User
       security:
       - Bearer: {}
       parameters: []
@@ -128,6 +152,8 @@ paths:
               - password
     delete:
       summary: delete user
+      tags:
+      - User
       security:
       - Bearer: {}
       responses:
@@ -145,5 +171,3 @@ components:
       type: apiKey
       name: authorization
       in: header
-      default: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMzUxMzg2ODAsImV4cCI6MTY4NDA3OTAzOX0.pZiFGqQe6kSO07FvnCnzibHXjtByMHXdRX_gVavpc4o
-      value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMzUxMzg2ODAsImV4cCI6MTY4NDA3OTAzOX0.pZiFGqQe6kSO07FvnCnzibHXjtByMHXdRX_gVavpc4o

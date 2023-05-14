@@ -21,7 +21,6 @@ module Api
     def create
       authorize! :create, User
 
-
       @user = User.new(user_params)
       if @user.save
         render json: @user, status: :created
@@ -34,6 +33,7 @@ module Api
     # PUT /users/{username}
     # TODO change password
     def update
+      authorize! :update, @user
       unless @user.update(user_params)
         render json: { errors: @user.errors.full_messages },
                status: :unprocessable_entity
@@ -42,6 +42,8 @@ module Api
 
     # DELETE /users/{username}
     def destroy
+      authorize! :destroy, @user
+
       @user.destroy
     end
 
@@ -55,7 +57,7 @@ module Api
 
     def user_params
       params.permit(
-        :name, :username, :password, #:password_confirmation
+        :name, :username, :password, :is_admin, :is_modulator
       )
     end
 
