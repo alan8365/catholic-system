@@ -2,14 +2,41 @@ require 'swagger_helper'
 
 RSpec.describe 'api/users', type: :request do
   fixtures :users
+  before(:each) do
+    @example_test_user = {
+      name: '測試二號', username: 'test2', password: 'test123', comment: '測試用使用者', is_admin: false, is_modulator: true
+    }
+    @user_properties = {
+      name: { type: :string },
+      username: { type: :string },
+      password: { type: :string },
+      comment: { type: :string },
+      is_admin: { type: :string, format: 'binary' },
+      is_modulator: { type: :string, format: 'binary' },
+    }
+  end
 
   path '/api/users' do
     get('list users') do
       tags 'User'
       security [Bearer: {}]
+      parameter name: :search, in: :query, schema: {
+        type: :object,
+        properties: {
+          name: { type: :string },
+          username: { type: :string },
+          comment: { type: :string },
+          is_admin: { type: :string, format: 'binary' },
+          is_modulator: { type: :string, format: 'binary' },
+
+          any_field: { type: :string },
+        },
+        require: false
+      }
 
       response(200, 'successful') do
         let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:search) { {} }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -21,8 +48,30 @@ RSpec.describe 'api/users', type: :request do
         run_test!
       end
 
+      # Query search any_field
+      response(200, 'successful') do
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:search) { { any_field: "test" } }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data).to eq([{
+                                "comment" => "The CRUD test user", "is_admin" => false, "is_modulator" => false, "name" => "測試", "username" => "test1"
+                              }])
+        end
+      end
+
       response(401, 'unauthorized') do
         let(:"authorization") { "Bearer error token" }
+        let(:search) { {} }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -41,18 +90,17 @@ RSpec.describe 'api/users', type: :request do
       consumes 'application/json'
       parameter name: :user, in: :body, schema: {
         type: :object,
-        properties: {
-          name: { type: :string },
-          username: { type: :string },
-          password: { type: :string },
-        },
+        properties: @user_properties,
         required: %w[name username password]
       }
-      request_body_example value: { name: '測試二號', username: 'test2', password: 'test123' }, name: 'test_user', summary: 'Test user create'
+
+      request_body_example value: {
+        name: '測試二號', username: 'test2', password: 'test123', comment: '測試用使用者', is_admin: false, is_modulator: true
+      }, name: 'test_user', summary: 'Test user create'
 
       response(201, "Created") do
         let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
-        let(:user) { { name: '測試二號', username: 'test2', password: 'test123' } }
+        let(:user) { @example_test_user }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -61,7 +109,15 @@ RSpec.describe 'api/users', type: :request do
             }
           }
         end
-        run_test!
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          expect(data['name']).to eq(@example_test_user[:name])
+          expect(data['username']).to eq(@example_test_user[:username])
+          expect(data['comment']).to eq(@example_test_user[:comment])
+          expect(data['is_admin']).to eq(@example_test_user[:is_admin])
+          expect(data['is_modulator']).to eq(@example_test_user[:is_modulator])
+        end
       end
 
       # Current user dose not have permission
@@ -156,16 +212,23 @@ RSpec.describe 'api/users', type: :request do
       consumes 'application/json'
       parameter name: :user, in: :body, schema: {
         type: :object,
-        properties: {
-          name: { type: :string },
-          password: { type: :string },
-        },
+        properties: @user_properties,
       }
 
+      # Change name
       response(204, 'No Content') do
         let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: 'new1' } }
+
+        run_test!
+      end
+
+      # Change to admin
+      response(204, 'No Content') do
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:_username) { 'test1' }
+        let(:user) { { is_admin: true, is_modulator: false } }
 
         run_test!
       end
@@ -207,6 +270,9 @@ RSpec.describe 'api/users', type: :request do
         properties: {
           name: { type: :string },
           password: { type: :string },
+          comment: { type: :string },
+          is_admin: { type: :string, format: 'binary' },
+          is_modulator: { type: :string, format: 'binary' },
         },
         required: %w[name password]
       }

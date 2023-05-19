@@ -6,8 +6,20 @@ module Api
     # GET /users
     # @todo change the
     def index
-      @users = User.all
       authorize! :read, User
+      @query = params[:any_field]
+
+      if @query
+        @users = User
+                   .where(["name like ? or username like ? or comment like ?", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+      else
+        @users = User.all
+      end
+
+      @users = @users
+                 .select(*%w[username name comment is_admin is_modulator])
+                 .as_json(except: :id)
+
       render json: @users, status: :ok
     end
 
@@ -15,6 +27,17 @@ module Api
     def show
       authorize! :read, @user
       render json: @user, status: :ok
+    end
+
+    def search
+      authorize! :read, User
+      @query = params[:query]
+      puts "---"
+      puts @query
+      puts "---"
+
+      @users = User.where(["name = ? or username = ? or comment = ?", @query, @query, @query])
+      render json: @users, status: :ok
     end
 
     # POST /users
@@ -57,7 +80,7 @@ module Api
 
     def user_params
       params.permit(
-        :name, :username, :password, :is_admin, :is_modulator
+        :name, :username, :comment, :password, :is_admin, :is_modulator
       )
     end
 

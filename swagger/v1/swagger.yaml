@@ -12,7 +12,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: successful
+          description: OK
       requestBody:
         content:
           application/json:
@@ -69,12 +69,6 @@ paths:
             schema:
               type: object
               properties:
-                name:
-                  type: string
-                username:
-                  type: string
-                password:
-                  type: string
               required:
               - name
               - username
@@ -86,6 +80,9 @@ paths:
                   name: 測試二號
                   username: test2
                   password: test123
+                  comment: 測試用使用者
+                  is_admin: false
+                  is_modulator: true
   "/api/users/{_username}":
     parameters:
     - name: _username
@@ -115,8 +112,10 @@ paths:
       responses:
         '204':
           description: No Content
+        '403':
+          description: Forbidden
         '422':
-          description: No Content
+          description: Unprocessable Entity
       requestBody:
         content:
           application/json:
@@ -137,6 +136,8 @@ paths:
       responses:
         '204':
           description: No Content
+        '403':
+          description: Forbidden
       requestBody:
         content:
           application/json:
@@ -147,6 +148,14 @@ paths:
                   type: string
                 password:
                   type: string
+                comment:
+                  type: string
+                is_admin:
+                  type: string
+                  format: binary
+                is_modulator:
+                  type: string
+                  format: binary
               required:
               - name
               - password
@@ -159,6 +168,10 @@ paths:
       responses:
         '204':
           description: successful
+        '403':
+          description: successful
+        '404':
+          description: User not found
 servers:
 - url: http://{defaultHost}
   variables:
