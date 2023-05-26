@@ -44,6 +44,13 @@ paths:
       - User
       security:
       - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          description: aaa
+          require: false
       responses:
         '200':
           description: successful
@@ -122,10 +129,6 @@ paths:
             schema:
               type: object
               properties:
-                name:
-                  type: string
-                password:
-                  type: string
     put:
       summary: update user
       tags:

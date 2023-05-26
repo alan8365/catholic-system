@@ -20,23 +20,20 @@ RSpec.describe 'api/users', type: :request do
     get('list users') do
       tags 'User'
       security [Bearer: {}]
-      parameter name: :search, in: :query, schema: {
-        type: :object,
-        properties: {
-          name: { type: :string },
-          username: { type: :string },
-          comment: { type: :string },
-          is_admin: { type: :string, format: 'binary' },
-          is_modulator: { type: :string, format: 'binary' },
-
-          any_field: { type: :string },
-        },
+      # TODO add other field
+      parameter name: :any_field, in: :query, schema: {
+        type: :string,
+        description: "aaa",
         require: false
       }
 
+      request_body_example value: {
+        any_field: 'test'
+      }, name: 'query test user', summary: 'Finding all test user'
+
       response(200, 'successful') do
         let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
-        let(:search) { {} }
+        let(:any_field) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -51,7 +48,7 @@ RSpec.describe 'api/users', type: :request do
       # Query search any_field
       response(200, 'successful') do
         let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
-        let(:search) { { any_field: "test" } }
+        let(:any_field) { "test" }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -71,7 +68,7 @@ RSpec.describe 'api/users', type: :request do
 
       response(401, 'unauthorized') do
         let(:"authorization") { "Bearer error token" }
-        let(:search) { {} }
+        let(:any_field) {}
 
         after do |example|
           example.metadata[:response][:content] = {

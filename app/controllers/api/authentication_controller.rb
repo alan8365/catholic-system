@@ -13,7 +13,7 @@ module Api
           is_admin: @user.is_admin,
           is_modulator: @user.is_modulator
         )
-        time = Time.now + 48.hours.to_i
+        time = Time.now + 7.days.to_i
         render json: { token: token, exp: time.strftime("%m-%d-%Y %H:%M"),
                        username: @user.username }, status: :ok
       else
