@@ -6,4 +6,9 @@
 #   movies = Movie.create([{ name: "Star Wars" }, { name: "Lord of the Rings" }])
 #   Character.create(name: "Luke", movie: movies.first)
 
-admin = User.create([{ username: "admin", password: "!123abc" },])
+admin_user = User.create([
+                           { name: "管理員", username: "admin", password: "!123abc", is_admin: true },
+                         ])
+basic_user = User.create([
+                           { name: "普通使用者", username: "basic", password: "abc123!", is_modulator: true },
+                         ])

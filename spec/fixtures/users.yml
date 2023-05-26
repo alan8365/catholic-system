@@ -4,7 +4,15 @@ admin:
   name: admin
   username: admin
   password_digest: <%= BCrypt::Password.create('!123abc', cost: 5) %>
+  is_admin: true
   comment: The administrator
+
+basic:
+  name: basic
+  username: basic
+  password_digest: <%= BCrypt::Password.create('!123basic', cost: 5) %>
+  is_modulator: true
+  comment: The modulator
 
 test1:
   name: 測試

@@ -12,7 +12,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: successful
+          description: OK
       requestBody:
         content:
           application/json:
@@ -32,11 +32,25 @@ paths:
                 value:
                   username: admin
                   password: "!123abc"
+              basic:
+                summary: Basic login
+                value:
+                  username: basic
+                  password: abc123!
   "/api/users":
     get:
       summary: list users
+      tags:
+      - User
       security:
       - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          description: aaa
+          require: false
       responses:
         '200':
           description: successful
@@ -44,12 +58,16 @@ paths:
           description: unauthorized
     post:
       summary: create user
+      tags:
+      - User
       security:
       - Bearer: {}
       parameters: []
       responses:
         '201':
           description: Created
+        '403':
+          description: Forbidden
         '422':
           description: Unprocessable Entity
       requestBody:
@@ -58,16 +76,20 @@ paths:
             schema:
               type: object
               properties:
-                name:
-                  type: string
-                username:
-                  type: string
-                password:
-                  type: string
               required:
               - name
               - username
               - password
+            examples:
+              test_user:
+                summary: Test user create
+                value:
+                  name: 測試二號
+                  username: test2
+                  password: test123
+                  comment: 測試用使用者
+                  is_admin: false
+                  is_modulator: true
   "/api/users/{_username}":
     parameters:
     - name: _username
@@ -78,6 +100,8 @@ paths:
         type: string
     get:
       summary: show user
+      tags:
+      - User
       security:
       - Bearer: {}
       responses:
@@ -87,32 +111,36 @@ paths:
           description: Not Found
     patch:
       summary: update user
+      tags:
+      - User
       security:
       - Bearer: {}
       parameters: []
       responses:
         '204':
           description: No Content
+        '403':
+          description: Forbidden
         '422':
-          description: No Content
+          description: Unprocessable Entity
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
-                name:
-                  type: string
-                password:
-                  type: string
     put:
       summary: update user
+      tags:
+      - User
       security:
       - Bearer: {}
       parameters: []
       responses:
         '204':
           description: No Content
+        '403':
+          description: Forbidden
       requestBody:
         content:
           application/json:
@@ -123,16 +151,30 @@ paths:
                   type: string
                 password:
                   type: string
+                comment:
+                  type: string
+                is_admin:
+                  type: string
+                  format: binary
+                is_modulator:
+                  type: string
+                  format: binary
               required:
               - name
               - password
     delete:
       summary: delete user
+      tags:
+      - User
       security:
       - Bearer: {}
       responses:
         '204':
           description: successful
+        '403':
+          description: successful
+        '404':
+          description: User not found
 servers:
 - url: http://{defaultHost}
   variables:
@@ -145,5 +187,3 @@ components:
       type: apiKey
       name: authorization
       in: header
-      default: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMzUxMzg2ODAsImV4cCI6MTY4NDA3OTAzOX0.pZiFGqQe6kSO07FvnCnzibHXjtByMHXdRX_gVavpc4o
-      value: Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxMzUxMzg2ODAsImV4cCI6MTY4NDA3OTAzOX0.pZiFGqQe6kSO07FvnCnzibHXjtByMHXdRX_gVavpc4o

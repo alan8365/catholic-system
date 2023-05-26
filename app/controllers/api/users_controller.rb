@@ -6,17 +6,44 @@ module Api
     # GET /users
     # @todo change the
     def index
-      @users = User.all
+      authorize! :read, User
+      @query = params[:any_field]
+
+      if @query
+        @users = User
+                   .where(["name like ? or username like ? or comment like ?", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+      else
+        @users = User.all
+      end
+
+      @users = @users
+                 .select(*%w[username name comment is_admin is_modulator])
+                 .as_json(except: :id)
+
       render json: @users, status: :ok
     end
 
     # GET /users/{username}
     def show
+      authorize! :read, @user
       render json: @user, status: :ok
+    end
+
+    def search
+      authorize! :read, User
+      @query = params[:query]
+      puts "---"
+      puts @query
+      puts "---"
+
+      @users = User.where(["name = ? or username = ? or comment = ?", @query, @query, @query])
+      render json: @users, status: :ok
     end
 
     # POST /users
     def create
+      authorize! :create, User
+
       @user = User.new(user_params)
       if @user.save
         render json: @user, status: :created
@@ -29,6 +56,7 @@ module Api
     # PUT /users/{username}
     # TODO change password
     def update
+      authorize! :update, @user
       unless @user.update(user_params)
         render json: { errors: @user.errors.full_messages },
                status: :unprocessable_entity
@@ -37,6 +65,8 @@ module Api
 
     # DELETE /users/{username}
     def destroy
+      authorize! :destroy, @user
+
       @user.destroy
     end
 
@@ -50,8 +80,12 @@ module Api
 
     def user_params
       params.permit(
-        :name, :username, :password, #:password_confirmation
+        :name, :username, :comment, :password, :is_admin, :is_modulator
       )
+    end
+
+    def current_policy
+      @current_policy ||= ::AccessPolicy.new(@current_user)
     end
   end
 end
