@@ -1,21 +1,5 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-admin:
-  name: admin
-  username: admin
-  password_digest: <%= BCrypt::Password.create('!123abc', cost: 5) %>
-  is_admin: true
-  comment: The administrator
-
-basic:
-  name: basic
-  username: basic
-  password_digest: <%= BCrypt::Password.create('!123basic', cost: 5) %>
-  is_modulator: true
-  comment: The modulator
-
-test1:
-  name: 測試
-  username: test1
-  password_digest: <%= BCrypt::Password.create('test123', cost: 5) %>
-  comment: The CRUD test user
+tt520:
+  home_number: TT520
+  head_of_household: test_f
