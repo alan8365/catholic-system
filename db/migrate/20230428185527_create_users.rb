@@ -6,10 +6,6 @@ class CreateUsers < ActiveRecord::Migration[7.0]
       t.string :password_digest
       t.string :comment
 
-      # TODO RBAC
-      t.boolean :is_admin
-      t.boolean :is_modulator
-
       t.timestamps
     end
   end

@@ -31,8 +31,8 @@ class CreateParishioners < ActiveRecord::Migration[7.0]
       t.integer "father_id"
     end
 
-    add_foreign_key :parishioners, :parishioners, column: "spouse_id"
-    add_foreign_key :parishioners, :parishioners, column: "mother_id"
-    add_foreign_key :parishioners, :parishioners, column: "father_id"
+    add_foreign_key :parishioners, :parishioners, column: "spouse_id", on_delete: :nullify, on_update: :cascade
+    add_foreign_key :parishioners, :parishioners, column: "mother_id", on_delete: :nullify, on_update: :cascade
+    add_foreign_key :parishioners, :parishioners, column: "father_id", on_delete: :nullify, on_update: :cascade
   end
 end
