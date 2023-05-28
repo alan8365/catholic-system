@@ -10,8 +10,8 @@ test_m:
   spouse: 錢女人
   father: 趙爸爸
   mother: 孫媽媽
-  home_phone: 047221245
-  mobile_phone: 0987372612
+  home_phone: "047221245"
+  mobile_phone: "0987372612"
   nationality: 中華民國
   profession: 資訊
   company_name: 科技大學
@@ -28,8 +28,8 @@ test_f:
   spouse: 趙男人
   father: 錢爸爸
   mother: 李媽媽
-  home_phone: 047221245
-  mobile_phone: 0987372612
+  home_phone: "047221245"
+  mobile_phone: "0987372612"
   nationality: 中華民國
   profession: 資訊
   company_name: 科技大學

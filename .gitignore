@@ -35,3 +35,9 @@
 .idea
 
 .DS_Store
+
+solr/data
+solr/test/data
+solr/development/data
+solr/default/data
+solr/pids

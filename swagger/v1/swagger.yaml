@@ -113,12 +113,19 @@ paths:
       responses:
         '204':
           description: No Content
+        '403':
+          description: Forbidden
       requestBody:
         content:
           application/json:
             schema:
               type: object
               properties:
+            examples:
+              test home number change:
+                summary: Test household update
+                value:
+                  home_number: TT521
     delete:
       summary: delete household
       tags:
@@ -126,8 +133,132 @@ paths:
       security:
       - Bearer: {}
       responses:
+        '204':
+          description: successful
+        '403':
+          description: successful
+  "/api/parishioners":
+    get:
+      summary: list parishioners
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
         '200':
           description: successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+              required:
+              - name
+              - gender
+              - birth_at
+            examples:
+              test parishioner:
+                summary: Test parishioner create
+                value:
+                  name: 周男人
+                  gender: 男
+                  birth_at: '1990-01-01'
+                  postal_code: '433'
+                  address: 彰化縣田尾鄉福德巷359號
+                  photo_url: https://www.secmenu.com/apps/words/www/img/h/fb4a7cf15233d259a0fb0f724fa99f42.png
+                  father: ''
+                  mother: ''
+                  spouse: ''
+                  father_id:
+                  mother_id:
+                  spouse_id:
+                  home_phone: '12512515'
+                  mobile_phone: '09123124512'
+                  nationality: 越南
+                  profession: 醫生
+                  company_name: 恐龍牙醫診所
+                  comment: 測試用範例教友
+  "/api/parishioners/{_id}":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+            examples:
+              test name change:
+                summary: Test parishioner update
+                value:
+                  name: 台灣偉人
+                  photo_url: ''
+    delete:
+      summary: delete parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: successful
+        '403':
+          description: successful
+        '404':
+          description: User not found
   "/api/users":
     get:
       summary: list users

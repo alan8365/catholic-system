@@ -10,6 +10,7 @@ Rails.application.routes.draw do
     post '/auth/login', to: 'authentication#login', param: :_username
 
     resources :households, param: :_home_number
+    resources :parishioners, param: :_id
   end
 
   get '/*a', to: 'application#not_found'

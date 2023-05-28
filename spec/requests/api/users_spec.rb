@@ -222,13 +222,6 @@ RSpec.describe 'api/users', type: :request do
         let(:_username) { 'test1' }
         let(:user) { { name: 'new1' } }
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
         run_test!
       end
 

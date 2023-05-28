@@ -3,74 +3,97 @@ module Api
     before_action :authorize_request # , except: :index
     before_action :find_parishioner, except: %i[create index]
 
-    # GET /users
+    # GET /parishioners
     # @todo change the
     def index
-      authorize! :read, User
+      authorize! :read, Parishioner
       @query = params[:any_field]
 
       if @query
-        @users = User
-                   .where(["name like ? or username like ? or comment like ?", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+        # TODO change to full text search
+
+        puts "---"
+        puts @query
+        puts "---"
+        @parishioners = Parishioner
+                          .where(["name like ?  or
+                                  comment like ? or
+                                  father like ? or
+                                  mother like ? or
+                                  spouse like ?",
+                                  "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
       else
-        @users = User.all
+        @parishioners = Parishioner.all
       end
 
-      @users = @users
-                 .select(*%w[username name comment is_admin is_modulator])
-                 .as_json(except: :id)
+      @parishioners = @parishioners
+                        .select(*%w[
+                          name gender birth_at postal_code address photo_url
+                          father mother spouse father_id mother_id spouse_id
+                          home_phone mobile_phone nationality
+                          profession company_name comment
+                        ])
+                        .as_json(except: :id)
 
-      render json: @users, status: :ok
+      render json: @parishioners, status: :ok
     end
 
-    # GET /users/{username}
+    # GET /parishioners/{id}
     def show
-      authorize! :read, @user
-      render json: @user, status: :ok
+      authorize! :read, @parishioner
+      render json: @parishioner, status: :ok
     end
 
-    # POST /users
+    # POST /parishioners
+    # TODO upload image
     def create
-      authorize! :create, User
+      authorize! :create, Parishioner
 
-      @user = User.new(user_params)
-      if @user.save
-        render json: @user, status: :created
+      @parishioner = Parishioner.new(parishioner_params)
+      if @parishioner.save
+        render json: @parishioner, status: :created
       else
-        render json: { errors: @user.errors.full_messages },
+        render json: { errors: @parishioner.errors.full_messages },
                status: :unprocessable_entity
       end
     end
 
-    # PUT /users/{username}
-    # TODO change password
+    # PUT /parishioners/{id}
     def update
-      authorize! :update, @user
-      unless @user.update(user_params)
-        render json: { errors: @user.errors.full_messages },
+      authorize! :update, @parishioner
+      unless @parishioner.update(parishioner_params)
+        render json: { errors: @parishioner.errors.full_messages },
                status: :unprocessable_entity
       end
     end
 
-    # DELETE /users/{username}
+    # DELETE /parishioners/{id}
     def destroy
-      authorize! :destroy, @user
+      authorize! :destroy, @parishioner
 
-      @user.destroy
+      @parishioner.destroy
     end
 
     private
 
     def find_parishioner
-      @parishioner = Parishioner.find_by_id!(params[:_username])
+      @parishioner = Parishioner.find_by_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
       render json: { errors: 'Parishioner not found' }, status: :not_found
     end
 
-    def user_params
-      params.permit(
-        :name, :username, :comment, :password, :is_admin, :is_modulator
-      )
+    def parishioner_params
+      # params.permit(
+      #   :name, :gender, :birth_at, :postal_code, :address, :photo_url,
+      #   :father, :mother, :spouse, :home_phone, :mobile_phone, :nationality,
+      #   :profession, :company_name, :comment
+      # )
+      params.permit(%i[
+                          name gender birth_at postal_code address photo_url
+                          father mother spouse home_phone mobile_phone nationality
+                          profession company_name comment
+      ])
+
     end
 
     def current_policy
