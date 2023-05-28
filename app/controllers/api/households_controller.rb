@@ -1,86 +1,80 @@
 module Api
-  class UsersController < ApplicationController
-    before_action :authorize_request # , except: :index
-    before_action :find_user, except: %i[create index]
+  class HouseholdsController < ApplicationController
+    before_action :authorize_request
+    before_action :find_household, except: %i[create index]
 
-    # GET /users
-    # @todo change the
+    # GET /households
     def index
-      authorize! :read, User
+      authorize! :read, Household
       @query = params[:any_field]
 
       if @query
-        @users = User
-                   .where(["name like ? or username like ? or comment like ?", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+        @households = Household
+                        .where(["home_number like ?", "%#{@query}%"])
       else
-        @users = User.all
+        @households = Household.all
       end
 
-      @users = @users
-                 .select(*%w[username name comment is_admin is_modulator])
-                 .as_json(except: :id)
+      @households = @households
+                      .select(*%w[home_number head_of_household])
 
-      render json: @users, status: :ok
+      render json: @households, status: :ok
     end
 
-    # GET /users/{username}
+    # GET /households/{home_number}
     def show
-      authorize! :read, @user
-      render json: @user, status: :ok
+      authorize! :read, @household
+      render json: @household, status: :ok
     end
 
-    def search
-      authorize! :read, User
-      @query = params[:query]
-      puts "---"
-      puts @query
-      puts "---"
-
-      @users = User.where(["name = ? or username = ? or comment = ?", @query, @query, @query])
-      render json: @users, status: :ok
-    end
-
-    # POST /users
+    # POST /households
     def create
-      authorize! :create, User
+      authorize! :create, Household
 
-      @user = User.new(user_params)
-      if @user.save
-        render json: @user, status: :created
+      create_params = household_params.to_h
+      if "head_of_household_id".in? household_params.keys
+        create_params['head_of_household'] = Parishioner.find_by_id(household_params['head_of_household_id'])
+        create_params.delete('head_of_household_id')
+      end
+
+      @household = Household.new(create_params)
+      if @household.save
+        render json: @household, status: :created
       else
-        render json: { errors: @user.errors.full_messages },
+        render json: { errors: @household.errors.full_messages },
                status: :unprocessable_entity
       end
     end
 
-    # PUT /users/{username}
-    # TODO change password
+    # PUT /households/{home_number}
     def update
-      authorize! :update, @user
-      unless @user.update(user_params)
-        render json: { errors: @user.errors.full_messages },
+      authorize! :update, @household
+      puts "---"
+      puts @household.parishioners
+      puts "---"
+      unless @household.update(household_params)
+        render json: { errors: @household.errors.full_messages },
                status: :unprocessable_entity
       end
     end
 
-    # DELETE /users/{username}
+    # DELETE /households/{home_number}
     def destroy
-      authorize! :destroy, @user
-
-      @user.destroy
+      authorize! :destroy, @household
+      @household.destroy
     end
 
     private
 
-    def find_user
-      @user = User.find_by_username!(params[:_username])
+    def find_household
+      @household = Household.find_by_home_number!(params[:_home_number])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'User not found' }, status: :not_found
+      render json: { errors: 'Household not found' }, status: :not_found
     end
 
-    def user_params
+    def household_params
       params.permit(
-        :name, :username, :comment, :password, :is_admin, :is_modulator
+        :home_number, :head_of_household, :head_of_household_id
       )
     end
 

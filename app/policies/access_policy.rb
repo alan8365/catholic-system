@@ -11,28 +11,34 @@ class AccessPolicy
     # - :admin has permissions defined in :member, :guest and himself
     # - :member has permissions from :guest and himself
     # - :guest has only its own permissions since it's the first role.
+    common_model = [
+      Household,
+      Parishioner,
+    ]
 
-    # The most important role should be at the top.
-    # In this case an administrator.
     role :admin, proc { |user| user.is_admin? } do
+      # User feature
       can [:read, :create, :update], User
 
       can [:destroy], User do |target_user, user|
         !target_user.is_admin
       end
+
+      # Common feature
+      common_model.each { |model| can :manage, model }
     end
 
-    role :modulator, proc {|user| user.is_modulator} do
+    role :modulator, proc { |user| user.is_modulator } do
+      # User feature
       can :read, User
+
+      # Common feature
+      common_model.each { |model| can :manage, model }
     end
 
-    # More privileged role, applies to registered users.
-    # role :member, proc { |user| user.registered? } do
-    #   can :create, Post
-    #   can :create, Comment
-    #   can [:update, :destroy], Post do |post, user|
-    #     post.author == user
-    #   end
-    # end
+    role :member, proc { |user| !user.nil? } do
+      # Common feature
+      common_model.each { |model| can :read, model }
+    end
   end
 end
