@@ -37,6 +37,97 @@ paths:
                 value:
                   username: basic
                   password: abc123!
+  "/api/households":
+    get:
+      summary: list households
+      tags:
+      - Households
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          description: aaa
+          require: false
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create household
+      tags:
+      - Households
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+              required:
+              - home_number
+            examples:
+              test_user:
+                summary: Test user create
+                value:
+                  home_number: TT123
+                  head_of_household_id: '55866'
+  "/api/households/{_home_number}":
+    parameters:
+    - name: _home_number
+      in: path
+      description: _home_number
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show household
+      tags:
+      - Households
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update household
+      tags:
+      - Households
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+    delete:
+      summary: delete household
+      tags:
+      - Households
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
   "/api/users":
     get:
       summary: list users
@@ -129,6 +220,13 @@ paths:
             schema:
               type: object
               properties:
+            examples:
+              test name change:
+                summary: Test user update
+                value:
+                  name: new1
+                  is_admin: true
+                  is_modulator: false
     put:
       summary: update user
       tags:
@@ -162,6 +260,16 @@ paths:
               required:
               - name
               - password
+            examples:
+              test put change:
+                summary: Test user update in put method
+                value:
+                  name: 測試二號
+                  username: test2
+                  password: test123
+                  comment: 測試用使用者
+                  is_admin: false
+                  is_modulator: true
     delete:
       summary: delete user
       tags:
