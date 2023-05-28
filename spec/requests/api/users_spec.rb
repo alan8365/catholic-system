@@ -212,12 +212,23 @@ RSpec.describe 'api/users', type: :request do
         properties: @user_properties,
       }
 
+      request_body_example value: {
+        name: 'new1', is_admin: true, is_modulator: false
+      }, name: 'test name change', summary: 'Test user update'
+
       # Change name
       response(204, 'No Content') do
         let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: 'new1' } }
 
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
         run_test!
       end
 
@@ -273,6 +284,10 @@ RSpec.describe 'api/users', type: :request do
         },
         required: %w[name password]
       }
+
+      request_body_example value: {
+        name: '測試二號', username: 'test2', password: 'test123', comment: '測試用使用者', is_admin: false, is_modulator: true
+      }, name: 'test put change', summary: 'Test user update in put method'
 
       response(204, 'No Content') do
         let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
