@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Api
   class HouseholdsController < ApplicationController
     before_action :authorize_request
@@ -8,15 +10,15 @@ module Api
       authorize! :read, Household
       @query = params[:any_field]
 
-      if @query
-        @households = Household
-                        .where(["home_number like ?", "%#{@query}%"])
-      else
-        @households = Household.all
-      end
+      @households = if @query
+                      Household
+                        .where(['home_number like ?', "%#{@query}%"])
+                    else
+                      Household.all
+                    end
 
       @households = @households
-                      .select(*%w[home_number head_of_household])
+                    .select(*%w[home_number head_of_household])
 
       render json: @households, status: :ok
     end
@@ -32,7 +34,7 @@ module Api
       authorize! :create, Household
 
       create_params = household_params.to_h
-      if "head_of_household_id".in? household_params.keys
+      if 'head_of_household_id'.in? household_params.keys
         create_params['head_of_household'] = Parishioner.find_by_id(household_params['head_of_household_id'])
         create_params.delete('head_of_household_id')
       end
@@ -49,10 +51,10 @@ module Api
     # PUT /households/{home_number}
     def update
       authorize! :update, @household
-      unless @household.update(household_params)
-        render json: { errors: @household.errors.full_messages },
-               status: :unprocessable_entity
-      end
+      return if @household.update(household_params)
+
+      render json: { errors: @household.errors.full_messages },
+             status: :unprocessable_entity
     end
 
     # DELETE /households/{home_number}

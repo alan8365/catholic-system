@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'swagger_helper'
 
 RSpec.describe 'api/users', type: :request do
@@ -12,7 +14,7 @@ RSpec.describe 'api/users', type: :request do
       password: { type: :string },
       comment: { type: :string },
       is_admin: { type: :string },
-      is_modulator: { type: :string },
+      is_modulator: { type: :string }
     }
   end
 
@@ -20,10 +22,10 @@ RSpec.describe 'api/users', type: :request do
     get('list users') do
       tags 'User'
       security [Bearer: {}]
-      # TODO add other field
+      # TODO: add other field
       parameter name: :any_field, in: :query, schema: {
         type: :string,
-        description: "aaa",
+        description: 'aaa',
         require: false
       }
 
@@ -32,7 +34,7 @@ RSpec.describe 'api/users', type: :request do
       }, name: 'query test user', summary: 'Finding all test user'
 
       response(200, 'successful') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
 
         after do |example|
@@ -47,8 +49,8 @@ RSpec.describe 'api/users', type: :request do
 
       # Query search any_field
       response(200, 'successful') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
-        let(:any_field) { "test" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:any_field) { 'test' }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -61,13 +63,13 @@ RSpec.describe 'api/users', type: :request do
         run_test! do |response|
           data = JSON.parse(response.body)
           expect(data).to eq([{
-                                "comment" => "The CRUD test user", "is_admin" => false, "is_modulator" => false, "name" => "測試", "username" => "test1"
-                              }])
+                               'comment' => 'The CRUD test user', 'is_admin' => false, 'is_modulator' => false, 'name' => '測試', 'username' => 'test1'
+                             }])
         end
       end
 
       response(401, 'unauthorized') do
-        let(:"authorization") { "Bearer error token" }
+        let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
 
         after do |example|
@@ -94,8 +96,8 @@ RSpec.describe 'api/users', type: :request do
         name: '測試二號', username: 'test2', password: 'test123', comment: '測試用使用者', is_admin: false, is_modulator: true
       }, name: 'test_user', summary: 'Test user create'
 
-      response(201, "Created") do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+      response(201, 'Created') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:user) { @example_test_user }
 
         after do |example|
@@ -117,8 +119,8 @@ RSpec.describe 'api/users', type: :request do
       end
 
       # Current user dose not have permission
-      response(403, "Forbidden") do
-        let(:"authorization") { "Bearer #{authenticated_header 'basic'}" }
+      response(403, 'Forbidden') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:user) { { name: '測試二號', username: 'test2', password: 'test123' } }
 
         after do |example|
@@ -132,8 +134,8 @@ RSpec.describe 'api/users', type: :request do
       end
 
       # User already exist test
-      response(422, "Unprocessable Entity") do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+      response(422, 'Unprocessable Entity') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:user) { { name: '測試', username: 'test1', password: 'test123' } }
 
         after do |example|
@@ -147,8 +149,8 @@ RSpec.describe 'api/users', type: :request do
       end
 
       # User info incomplete test
-      response(422, "Unprocessable Entity") do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+      response(422, 'Unprocessable Entity') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:user) { { name: '', username: '', password: '' } }
 
         after do |example|
@@ -172,7 +174,7 @@ RSpec.describe 'api/users', type: :request do
       security [Bearer: {}]
 
       response(200, 'successful') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'admin' }
 
         after do |example|
@@ -187,7 +189,7 @@ RSpec.describe 'api/users', type: :request do
 
       # input the unknown user name
       response(404, 'Not Found') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'unknown_user_name' }
 
         after do |example|
@@ -201,14 +203,14 @@ RSpec.describe 'api/users', type: :request do
       end
     end
 
-    # TODO deny username change
+    # TODO: deny username change
     patch('update user') do
       tags 'User'
       security [Bearer: {}]
       consumes 'application/json'
       parameter name: :user, in: :body, schema: {
         type: :object,
-        properties: @user_properties,
+        properties: @user_properties
       }
 
       request_body_example value: {
@@ -217,7 +219,7 @@ RSpec.describe 'api/users', type: :request do
 
       # Change name
       response(204, 'No Content') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: 'new1' } }
 
@@ -226,7 +228,7 @@ RSpec.describe 'api/users', type: :request do
 
       # Change to admin
       response(204, 'No Content') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { is_admin: true, is_modulator: false } }
 
@@ -235,7 +237,7 @@ RSpec.describe 'api/users', type: :request do
 
       # Current user have not permission
       response(403, 'Forbidden') do
-        let(:"authorization") { "Bearer #{authenticated_header 'basic'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: 'new1' } }
 
@@ -253,7 +255,7 @@ RSpec.describe 'api/users', type: :request do
 
       # Field is blank
       response(422, 'Unprocessable Entity') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: '' } }
 
@@ -272,7 +274,7 @@ RSpec.describe 'api/users', type: :request do
           password: { type: :string },
           comment: { type: :string },
           is_admin: { type: :string, format: 'binary' },
-          is_modulator: { type: :string, format: 'binary' },
+          is_modulator: { type: :string, format: 'binary' }
         },
         required: %w[name password]
       }
@@ -282,7 +284,7 @@ RSpec.describe 'api/users', type: :request do
       }, name: 'test put change', summary: 'Test user update in put method'
 
       response(204, 'No Content') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: 'new2', password: 'abc123' } }
 
@@ -291,7 +293,7 @@ RSpec.describe 'api/users', type: :request do
 
       # Current user have not permission
       response(403, 'Forbidden') do
-        let(:"authorization") { "Bearer #{authenticated_header 'basic'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: 'new2', password: 'abc123' } }
 
@@ -303,7 +305,7 @@ RSpec.describe 'api/users', type: :request do
       tags 'User'
       security [Bearer: {}]
       response(204, 'successful') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
 
         run_test!
@@ -311,7 +313,7 @@ RSpec.describe 'api/users', type: :request do
 
       # Admin user can't be delete
       response(403, 'successful') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'admin' }
 
         run_test!
@@ -319,7 +321,7 @@ RSpec.describe 'api/users', type: :request do
 
       # Current user have not permission
       response(403, 'successful') do
-        let(:"authorization") { "Bearer #{authenticated_header 'basic'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:_username) { 'test1' }
 
         run_test!
@@ -327,7 +329,7 @@ RSpec.describe 'api/users', type: :request do
 
       # The user does not exist
       response(404, 'User not found') do
-        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'unknown_user' }
 
         run_test!

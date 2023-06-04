@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Api
   class ParishionersController < ApplicationController
     before_action :authorize_request, except: :picture
@@ -10,28 +12,28 @@ module Api
       @query = params[:any_field]
 
       if @query
-        # TODO change to full text search
+        # TODO: change to full text search
 
         @parishioners = Parishioner
-                          .where(["
+                        .where(["
                             name like ?  or
                             comment like ? or
                             father like ? or
                             mother like ? or
                             spouse like ?",
-                                  "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+                                "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
       else
         @parishioners = Parishioner.all
       end
 
       @parishioners = @parishioners
-                        .select(*%w[
-                          name gender birth_at postal_code address photo_url
-                          father mother spouse father_id mother_id spouse_id
-                          home_phone mobile_phone nationality
-                          profession company_name comment
-                        ])
-                        .as_json(except: :id)
+                      .select(*%w[
+                                name gender birth_at postal_code address photo_url
+                                father mother spouse father_id mother_id spouse_id
+                                home_phone mobile_phone nationality
+                                profession company_name comment
+                              ])
+                      .as_json(except: :id)
 
       render json: @parishioners, status: :ok
     end
@@ -56,11 +58,7 @@ module Api
       authorize! :create, Parishioner
 
       create_params = parishioner_params.to_h
-      if "picture".in? create_params.keys
-        if create_params["picture"].is_a? String
-          create_params.delete('picture')
-        end
-      end
+      create_params.delete('picture') if 'picture'.in?(create_params.keys) && (create_params['picture'].is_a? String)
 
       @parishioner = Parishioner.new(create_params)
       if @parishioner.save
@@ -74,10 +72,10 @@ module Api
     # PUT /parishioners/{id}
     def update
       authorize! :update, @parishioner
-      unless @parishioner.update(parishioner_params)
-        render json: { errors: @parishioner.errors.full_messages },
-               status: :unprocessable_entity
-      end
+      return if @parishioner.update(parishioner_params)
+
+      render json: { errors: @parishioner.errors.full_messages },
+             status: :unprocessable_entity
     end
 
     # DELETE /parishioners/{id}
@@ -97,12 +95,12 @@ module Api
 
     def parishioner_params
       params.permit(%i[
-        name gender birth_at postal_code address photo_url
-        father mother spouse father_id mother_id spouse_id
-        home_phone mobile_phone nationality
-        profession company_name comment
-        picture
-      ])
+                      name gender birth_at postal_code address photo_url
+                      father mother spouse father_id mother_id spouse_id
+                      home_phone mobile_phone nationality
+                      profession company_name comment
+                      picture
+                    ])
     end
 
     def current_policy

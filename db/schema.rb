@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_01_065330) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_04_224246) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -37,6 +37,18 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_01_065330) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "baptisms", force: :cascade do |t|
+    t.date "baptized_at"
+    t.string "baptized_location"
+    t.string "christian_name"
+    t.string "godfather"
+    t.string "godmother"
+    t.string "baptist"
+    t.integer "baptized_person"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "households", primary_key: "home_number", id: :string, force: :cascade do |t|
@@ -82,6 +94,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_01_065330) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "baptisms", "parishioners", column: "baptized_person", on_update: :cascade, on_delete: :cascade
   add_foreign_key "households", "parishioners", column: "head_of_household", on_update: :cascade, on_delete: :nullify
   add_foreign_key "parishioners", "households", column: "home_number", primary_key: "home_number", on_update: :cascade, on_delete: :nullify
   add_foreign_key "parishioners", "parishioners", column: "father_id", on_update: :cascade, on_delete: :nullify

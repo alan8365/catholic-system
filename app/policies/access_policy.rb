@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# Access policy setting
 class AccessPolicy
   include AccessGranted::Policy
 
@@ -13,14 +16,14 @@ class AccessPolicy
     # - :guest has only its own permissions since it's the first role.
     common_model = [
       Household,
-      Parishioner,
+      Parishioner
     ]
 
     role :admin, proc { |user| user.is_admin? } do
       # User feature
-      can [:read, :create, :update], User
+      can %i[read create update], User
 
-      can [:destroy], User do |target_user, user|
+      can [:destroy], User do |target_user, _user|
         !target_user.is_admin
       end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Api
   class UsersController < ApplicationController
     before_action :authorize_request # , except: :index
@@ -9,16 +11,17 @@ module Api
       authorize! :read, User
       @query = params[:any_field]
 
-      if @query
-        @users = User
-                   .where(["name like ? or username like ? or comment like ?", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
-      else
-        @users = User.all
-      end
+      @users = if @query
+                 User
+                   .where(['name like ? or username like ? or comment like ?', "%#{@query}%", "%#{@query}%",
+                           "%#{@query}%"])
+               else
+                 User.all
+               end
 
       @users = @users
-                 .select(*%w[username name comment is_admin is_modulator])
-                 .as_json(except: :id)
+               .select(*%w[username name comment is_admin is_modulator])
+               .as_json(except: :id)
 
       render json: @users, status: :ok
     end
@@ -46,10 +49,10 @@ module Api
     # TODO change password
     def update
       authorize! :update, @user
-      unless @user.update(user_params)
-        render json: { errors: @user.errors.full_messages },
-               status: :unprocessable_entity
-      end
+      return if @user.update(user_params)
+
+      render json: { errors: @user.errors.full_messages },
+             status: :unprocessable_entity
     end
 
     # DELETE /users/{username}
