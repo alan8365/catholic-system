@@ -160,7 +160,7 @@ paths:
       tags:
       - Parishioner
       security:
-      - Bearer: {}
+      - Bearer: []
       parameters: []
       responses:
         '201':
@@ -171,36 +171,62 @@ paths:
           description: Unprocessable Entity
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
+                name:
+                  type: string
+                  example: 周男人
+                gender:
+                  type: string
+                  example: 男
+                birth_at:
+                  type: string
+                  example: '1990-01-01'
+                postal_code:
+                  type: string
+                  example: '433'
+                address:
+                  type: string
+                  example: 彰化縣田尾鄉福德巷359號
+                picture:
+                  type: string
+                  format: binary
+                father:
+                  type: string
+                mother:
+                  type: string
+                spouse:
+                  type: string
+                father_id:
+                  type: integer
+                mother_id:
+                  type: integer
+                spouse_id:
+                  type: integer
+                home_phone:
+                  type: string
+                  example: '12512515'
+                mobile_phone:
+                  type: string
+                  example: '09123124512'
+                nationality:
+                  type: string
+                  example: 越南
+                profession:
+                  type: string
+                  example: 醫生
+                company_name:
+                  type: string
+                  example: 恐龍牙醫診所
+                comment:
+                  type: string
+                  example: 測試用範例教友
               required:
               - name
               - gender
               - birth_at
-            examples:
-              test parishioner:
-                summary: Test parishioner create
-                value:
-                  name: 周男人
-                  gender: 男
-                  birth_at: '1990-01-01'
-                  postal_code: '433'
-                  address: 彰化縣田尾鄉福德巷359號
-                  photo_url: https://www.secmenu.com/apps/words/www/img/h/fb4a7cf15233d259a0fb0f724fa99f42.png
-                  father: ''
-                  mother: ''
-                  spouse: ''
-                  father_id:
-                  mother_id:
-                  spouse_id:
-                  home_phone: '12512515'
-                  mobile_phone: '09123124512'
-                  nationality: 越南
-                  profession: 醫生
-                  company_name: 恐龍牙醫診所
-                  comment: 測試用範例教友
   "/api/parishioners/{_id}":
     parameters:
     - name: _id
@@ -259,6 +285,23 @@ paths:
           description: successful
         '404':
           description: User not found
+  "/api/parishioners/{_id}/picture":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: profile picture of parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
   "/api/users":
     get:
       summary: list users
@@ -297,7 +340,6 @@ paths:
           application/json:
             schema:
               type: object
-              properties:
               required:
               - name
               - username

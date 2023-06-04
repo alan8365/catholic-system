@@ -49,9 +49,6 @@ module Api
     # PUT /households/{home_number}
     def update
       authorize! :update, @household
-      puts "---"
-      puts @household.parishioners
-      puts "---"
       unless @household.update(household_params)
         render json: { errors: @household.errors.full_messages },
                status: :unprocessable_entity

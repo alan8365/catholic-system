@@ -10,6 +10,13 @@ class Parishioner < ApplicationRecord
   has_one :mother_instance, class_name: "Parishioner", foreign_key: "mother_id"
   has_one :father_instance, class_name: "Parishioner", foreign_key: "father_id"
 
+  # Image
+  has_one_attached :picture
+
+  def picture_url
+    ActiveStorage::Blob.service.path_for(picture.key)
+  end
+
   validates :name, presence: true
   validates :gender, presence: true
   validates :birth_at, presence: true

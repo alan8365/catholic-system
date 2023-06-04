@@ -6,13 +6,14 @@ RSpec.describe 'api/parishioners', type: :request do
   fixtures :household
 
   before(:each) do
+    @file = fixture_file_upload('profile-pic.jpeg', 'image/jpeg')
     @example_test_parishioner = {
       name: "周男人",
       gender: "男",
       birth_at: Date.strptime("1990/01/01", "%Y/%m/%d"),
       postal_code: "433",
       address: "彰化縣田尾鄉福德巷359號",
-      photo_url: "https://www.secmenu.com/apps/words/www/img/h/fb4a7cf15233d259a0fb0f724fa99f42.png",
+      picture: @file,
 
       father: "",
       mother: "",
@@ -27,7 +28,6 @@ RSpec.describe 'api/parishioners', type: :request do
       profession: "醫生",
       company_name: "恐龍牙醫診所",
       comment: "測試用範例教友",
-
     }
     @parishioner_properties = {
       name: { type: :string },
@@ -36,6 +36,7 @@ RSpec.describe 'api/parishioners', type: :request do
       postal_code: { type: :string },
       address: { type: :string },
       photo_url: { type: :string },
+      picture: { type: :string, format: :binary },
 
       father: { type: :string },
       mother: { type: :string },
@@ -51,10 +52,12 @@ RSpec.describe 'api/parishioners', type: :request do
       company_name: { type: :string },
       comment: { type: :string },
     }
+
+    @parishioner = Parishioner.all[0]
+    @parishioner.picture.attach(@file)
   end
 
   path '/api/parishioners' do
-
     get('list parishioners') do
       tags 'Parishioner'
       security [Bearer: {}]
@@ -139,40 +142,46 @@ RSpec.describe 'api/parishioners', type: :request do
 
     post('create parishioner') do
       tags 'Parishioner'
-      security [Bearer: {}]
-      consumes 'application/json'
-      parameter name: :parishioner, in: :body, schema: {
+      security [Bearer: []]
+      # consumes 'application/json'
+      # parameter name: :parishioner, in: :body, schema: {
+      #   type: :object,
+      #   properties: @parishioner_properties,
+      #   required: %w[name gender birth_at]
+      # }
+      consumes 'multipart/form-data'
+      # Name should be blank for the nesting problem
+      parameter name: "", in: :formData, schema: {
         type: :object,
-        properties: @parishioner_properties,
-        required: %w[name gender birth_at]
+        properties: {
+          name: { type: :string, example: "周男人" },
+          gender: { type: :string, example: "男" },
+          birth_at: { type: :string, example: Date.strptime("1990/01/01", "%Y/%m/%d") },
+          postal_code: { type: :string, example: "433" },
+          address: { type: :string, example: "彰化縣田尾鄉福德巷359號" },
+          # photo_url: { type: :string, example: },
+          picture: { type: :string, format: :binary },
+
+          father: { type: :string },
+          mother: { type: :string },
+          spouse: { type: :string },
+          father_id: { type: :integer },
+          mother_id: { type: :integer },
+          spouse_id: { type: :integer },
+
+          home_phone: { type: :string, example: "12512515" },
+          mobile_phone: { type: :string, example: "09123124512" },
+          nationality: { type: :string, example: "越南" },
+          profession: { type: :string, example: "醫生" },
+          company_name: { type: :string, example: "恐龍牙醫診所" },
+          comment: { type: :string, example: "測試用範例教友" },
+        },
+        required: %w[name gender birth_at],
       }
-
-      request_body_example value: {
-        name: "周男人",
-        gender: "男",
-        birth_at: Date.strptime("1990/01/01", "%Y/%m/%d"),
-        postal_code: "433",
-        address: "彰化縣田尾鄉福德巷359號",
-        photo_url: "https://www.secmenu.com/apps/words/www/img/h/fb4a7cf15233d259a0fb0f724fa99f42.png",
-
-        father: "",
-        mother: "",
-        spouse: "",
-        father_id: nil,
-        mother_id: nil,
-        spouse_id: nil,
-
-        home_phone: "12512515",
-        mobile_phone: "09123124512",
-        nationality: "越南",
-        profession: "醫生",
-        company_name: "恐龍牙醫診所",
-        comment: "測試用範例教友",
-      }, name: 'test parishioner', summary: 'Test parishioner create'
 
       response(201, "Created") do
         let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
-        let(:parishioner) { @example_test_parishioner }
+        let(:"") { @example_test_parishioner }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -188,6 +197,7 @@ RSpec.describe 'api/parishioners', type: :request do
           @example_test_parishioner.keys.each { |key|
             if key == :birth_at
               expect(Date.strptime(data["#{key}"])).to eq(@example_test_parishioner[key])
+            elsif key == :picture
             else
               expect(data["#{key}"]).to eq(@example_test_parishioner[key])
             end
@@ -198,7 +208,7 @@ RSpec.describe 'api/parishioners', type: :request do
       # Current user dose not have permission
       response(403, "Forbidden") do
         let(:"authorization") { "Bearer #{authenticated_header 'viewer'}" }
-        let(:parishioner) {}
+        let(:"") {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -213,7 +223,7 @@ RSpec.describe 'api/parishioners', type: :request do
       # Parishioner info incomplete test
       response(422, "Unprocessable Entity") do
         let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
-        let(:parishioner) { {
+        let(:"") { {
           name: '', gender: '', birth_at: ''
         } }
 
@@ -329,6 +339,31 @@ RSpec.describe 'api/parishioners', type: :request do
       response(404, 'User not found') do
         let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { 'unknown_id' }
+
+        run_test!
+      end
+    end
+  end
+
+  path '/api/parishioners/{_id}/picture' do
+    # You'll want to customize the parameter types...
+    parameter name: '_id', in: :path, type: :string, description: '_id'
+
+    get('profile picture of parishioner') do
+      tags 'Parishioner'
+      security [Bearer: {}]
+      produces 'image/*'
+
+      response(200, 'Not Found') do
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { @parishioner.id }
+
+        run_test!
+      end
+
+      response(404, 'Not Found') do
+        let(:"authorization") { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { Parishioner.all[1].id }
 
         run_test!
       end

@@ -11,6 +11,8 @@ Rails.application.routes.draw do
 
     resources :households, param: :_home_number
     resources :parishioners, param: :_id
+
+    get 'parishioners/:_id/picture', to: 'parishioners#picture', param: :_id
   end
 
   get '/*a', to: 'application#not_found'

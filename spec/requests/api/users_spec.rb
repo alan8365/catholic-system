@@ -11,8 +11,8 @@ RSpec.describe 'api/users', type: :request do
       username: { type: :string },
       password: { type: :string },
       comment: { type: :string },
-      is_admin: { type: :string, format: 'binary' },
-      is_modulator: { type: :string, format: 'binary' },
+      is_admin: { type: :string },
+      is_modulator: { type: :string },
     }
   end
 
@@ -87,7 +87,6 @@ RSpec.describe 'api/users', type: :request do
       consumes 'application/json'
       parameter name: :user, in: :body, schema: {
         type: :object,
-        properties: @user_properties,
         required: %w[name username password]
       }
 
