@@ -92,6 +92,9 @@ GEM
     io-console (0.6.0)
     irb (1.6.4)
       reline (>= 0.3.0)
+    jbuilder (2.11.5)
+      actionview (>= 5.0.0)
+      activesupport (>= 5.0.0)
     json-schema (3.0.0)
       addressable (>= 2.8)
     jwt (2.7.0)
@@ -215,6 +218,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   bootsnap
   debug
+  jbuilder
   jwt
   puma (~> 5.0)
   rack-cors
