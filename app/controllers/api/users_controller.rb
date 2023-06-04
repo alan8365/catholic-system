@@ -29,17 +29,6 @@ module Api
       render json: @user, status: :ok
     end
 
-    def search
-      authorize! :read, User
-      @query = params[:query]
-      puts "---"
-      puts @query
-      puts "---"
-
-      @users = User.where(["name = ? or username = ? or comment = ?", @query, @query, @query])
-      render json: @users, status: :ok
-    end
-
     # POST /users
     def create
       authorize! :create, User

@@ -4,8 +4,6 @@ require 'rails_helper'
 
 def authenticated_header(username)
   user = User.find_by_username(username)
-  # token = JsonWebToken.encode(user_id: user.id)
-  # { 'Authorization': "Bearer #{token}" }
   JsonWebToken.encode(user_id: user.id)
 end
 

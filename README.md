@@ -16,11 +16,16 @@ rake db:test:prepare
 ```
 
 ## Swagger
+Create an integration spec to describe and test your API.
+```shell
+rails generate rspec:swagger API::MyController
+```
 
 Make swagger json file before spec file change
 ```shell
 rake rswag:specs:swaggerize
 ```
+
 
 ## TODO
 

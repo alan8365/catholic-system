@@ -1,0 +1,37 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+test_m:
+  name: 趙男人
+  gender: 男
+  birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
+  postal_code: 433
+  address: 台中市北區三民路某段某號
+  photo_url: https://pp.qianp.com/zidian/kai/37/8d99.png
+  spouse: 錢女人
+  father: 趙爸爸
+  mother: 孫媽媽
+  home_phone: "047221245"
+  mobile_phone: "0987372612"
+  nationality: 中華民國
+  profession: 資訊
+  company_name: 科技大學
+  home_number: TT520
+  comment: 測試用男性教友一號
+
+test_f:
+  name: 錢女人
+  gender: 女
+  birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
+  postal_code: 433
+  address: 台中市北區三民路某段某號
+  photo_url: https://kanji.jitenon.jp/shotai2/5949.gif
+  spouse: 趙男人
+  father: 錢爸爸
+  mother: 李媽媽
+  home_phone: "047221245"
+  mobile_phone: "0987372612"
+  nationality: 中華民國
+  profession: 資訊
+  company_name: 科技大學
+  home_number: TT520
+  comment: 測試用女性教友一號
