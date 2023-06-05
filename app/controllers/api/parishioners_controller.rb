@@ -28,7 +28,7 @@ module Api
 
       @parishioners = @parishioners
                       .select(*%w[
-                                name gender birth_at postal_code address photo_url
+                                name gender birth_at postal_code address home_number
                                 father mother spouse father_id mother_id spouse_id
                                 home_phone mobile_phone nationality
                                 profession company_name comment
@@ -95,7 +95,7 @@ module Api
 
     def parishioner_params
       params.permit(%i[
-                      name gender birth_at postal_code address photo_url
+                      name gender birth_at postal_code address home_number
                       father mother spouse father_id mother_id spouse_id
                       home_phone mobile_phone nationality
                       profession company_name comment

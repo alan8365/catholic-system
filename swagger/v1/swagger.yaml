@@ -37,6 +37,123 @@ paths:
                 value:
                   username: basic
                   password: abc123!
+  "/api/baptism":
+    get:
+      summary: list baptisms
+      tags:
+      - Baptism
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create baptism
+      tags:
+      - Baptism
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - baptized_at
+              - baptized_location
+              - christian_name
+              - baptist
+              - baptized_person
+            examples:
+              test_baptism:
+                summary: Test baptism create
+                value:
+                  baptized_at: '1981-11-11'
+                  baptized_location: 彰化市聖十字架天主堂
+                  christian_name: 聖施達
+                  godfather: ''
+                  godfather_id:
+                  godmother: 許00
+                  godmother_id:
+                  baptist: 黃世明神父
+                  baptist_id:
+                  baptized_person: 1
+  "/api/baptism/{_id}":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show baptism
+      tags:
+      - Baptism
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update baptism
+      tags:
+      - Baptism
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              test_baptism:
+                summary: Test baptism update
+                value:
+                  baptized_at: '1981-11-11'
+                  baptized_location: 彰化市聖十字架天主堂
+                  christian_name: 聖施達
+                  godmother: 許00
+                  baptist: 黃世明神父
+    delete:
+      summary: delete baptism
+      tags:
+      - Baptism
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: successful
+        '403':
+          description: successful
+        '404':
+          description: Baptism not found
   "/api/households":
     get:
       summary: list households
@@ -271,7 +388,6 @@ paths:
                 summary: Test parishioner update
                 value:
                   name: 台灣偉人
-                  photo_url: ''
     delete:
       summary: delete parishioner
       tags:
@@ -301,7 +417,9 @@ paths:
       - Bearer: {}
       responses:
         '200':
-          description: successful
+          description: Not Found
+        '404':
+          description: Not Found
   "/api/users":
     get:
       summary: list users

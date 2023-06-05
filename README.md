@@ -27,6 +27,13 @@ rake rswag:specs:swaggerize
 ```
 
 
+Make swagger json file before spec file change with auto generate example
+```shell
+SWAGGER_DRY_RUN=0 rake rswag:specs:swaggerize
+```
+
+
+
 ## TODO
 
 * System dependencies

@@ -27,14 +27,14 @@ module Api
                     Baptism.all
                   end
 
-      @baptisms = @baptisms
-                  .select(*%w[
-                            baptized_at baptized_location christian_name
-                            godfather godmother
-                            baptist
-                            baptized_person
-                          ])
-                  .as_json(except: :id)
+      @baptisms = @baptisms.select(*%w[
+                                     baptized_at baptized_location christian_name
+                                     godfather godmother
+                                     godfather_id godmother_id
+                                     baptist baptist_id
+                                     baptized_person
+                                   ])
+                           .as_json(except: :id)
 
       render json: @baptisms, status: :ok
     end
@@ -58,10 +58,7 @@ module Api
     def create
       authorize! :create, Baptism
 
-      create_params = baptism_params.to_h
-      create_params.delete('picture') if 'picture'.in?(create_params.keys) && (create_params['picture'].is_a? String)
-
-      @baptism = Baptism.new(create_params)
+      @baptism = Baptism.new(baptism_params)
       if @baptism.save
         render json: @baptism, status: :created
       else
@@ -99,7 +96,8 @@ module Api
       params.permit(%i[
                       baptized_at baptized_location christian_name
                       godfather godmother
-                      baptist
+                      godfather_id godmother_id
+                      baptist baptist_id
                       baptized_person
                     ])
     end

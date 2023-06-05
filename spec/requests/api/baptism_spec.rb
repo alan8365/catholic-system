@@ -38,11 +38,17 @@ RSpec.describe 'api/baptism', type: :request do
         let(:any_field) {}
 
         after do |example|
-          example.metadata[:response][:content] = {
+          content = example.metadata[:response][:content] || {}
+          example_spec = {
             'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
+              examples: {
+                test_example: {
+                  value: JSON.parse(response.body, symbolize_names: true)
+                }
+              }
             }
           }
+          example.metadata[:response][:content] = content.deep_merge(example_spec)
         end
         run_test!
       end
@@ -67,8 +73,11 @@ RSpec.describe 'api/baptism', type: :request do
                                 'christian_name' => '安東尼',
 
                                 'godfather' => '張00',
+                                'godfather_id' => nil,
                                 'godmother' => nil,
+                                'godmother_id' => nil,
                                 'baptist' => '黃世明神父',
+                                'baptist_id' => nil,
 
                                 'baptized_person' => 0 }])
         end
@@ -285,7 +294,6 @@ RSpec.describe 'api/baptism', type: :request do
           expect(@temp).to eq(nil)
         end
       end
-
 
       # Current user have not permission
       response(403, 'successful') do

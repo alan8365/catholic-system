@@ -9,12 +9,11 @@
 #   Character.create(name: "Luke", movie: movies.first)
 
 User.create([
-              { name: '管理員', username: 'admin', password: '!123abc', is_admin: true }
-            ])
-User.create([
+              { name: '管理員', username: 'admin', password: '!123abc', is_admin: true },
               { name: '普通使用者', username: 'basic', password: 'abc123!', is_modulator: true }
             ])
 
+# Parishioner
 first_parishioner = Parishioner.create({
                                          name: '許某某',
                                          gender: '男',
@@ -51,10 +50,13 @@ second_parishioner = Parishioner.create({
                                           comment: '測試用教友二號'
                                         })
 
+# Household
+
 first_household = Household.create({
                                      home_number: 'CK123'
                                    })
 
+# Parishioner association
 first_parishioner.household = first_household
 second_parishioner.household = first_household
 
@@ -64,5 +66,20 @@ second_parishioner.spouse_instance = first_parishioner
 first_parishioner.save
 second_parishioner.save
 
+# Household association
 first_household.head_of_household = first_parishioner
 first_household.save
+
+# Baptism
+Baptism.create({
+                 baptized_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
+                 baptized_location: '彰化市聖十字架天主堂',
+                 christian_name: '安東尼',
+
+                 godfather: '張00',
+                 baptist: '黃世明神父',
+
+                 baptized_person: first_parishioner.id
+               })
+
+

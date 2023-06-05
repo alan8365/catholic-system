@@ -14,7 +14,6 @@ class CreateParishioners < ActiveRecord::Migration[7.0]
       t.string 'address'
 
       # Household related fields
-      t.string 'photo_url'
       t.string 'father'
       t.string 'mother'
       t.string 'spouse'

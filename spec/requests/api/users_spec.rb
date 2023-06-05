@@ -63,8 +63,8 @@ RSpec.describe 'api/users', type: :request do
         run_test! do |response|
           data = JSON.parse(response.body)
           expect(data).to eq([{
-                               'comment' => 'The CRUD test user', 'is_admin' => false, 'is_modulator' => false, 'name' => '測試', 'username' => 'test1'
-                             }])
+                                'comment' => 'The CRUD test user', 'is_admin' => false, 'is_modulator' => false, 'name' => '測試', 'username' => 'test1'
+                              }])
         end
       end
 
@@ -110,11 +110,12 @@ RSpec.describe 'api/users', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data['name']).to eq(@example_test_user[:name])
-          expect(data['username']).to eq(@example_test_user[:username])
-          expect(data['comment']).to eq(@example_test_user[:comment])
-          expect(data['is_admin']).to eq(@example_test_user[:is_admin])
-          expect(data['is_modulator']).to eq(@example_test_user[:is_modulator])
+
+          @example_test_user.each_key do |key|
+            next if key == :password
+
+            expect(data[key.to_s]).to eq(@example_test_user[key])
+          end
         end
       end
 

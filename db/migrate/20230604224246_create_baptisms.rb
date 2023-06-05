@@ -19,11 +19,19 @@ class CreateBaptisms < ActiveRecord::Migration[7.0]
       # Create a new column for the baptist string
       t.string 'baptist', comment: 'The name of the person who baptized the parishioner'
 
+      t.integer 'godfather_id'
+      t.integer 'godmother_id'
+      t.integer 'baptist_id'
+
       t.integer 'baptized_person'
 
       t.timestamps
     end
 
     add_foreign_key :baptisms, :parishioners, column: 'baptized_person', on_update: :cascade, on_delete: :cascade
+
+    add_foreign_key :baptisms, :parishioners, column: 'godfather_id', on_delete: :nullify, on_update: :cascade
+    add_foreign_key :baptisms, :parishioners, column: 'godmother_id', on_delete: :nullify, on_update: :cascade
+    add_foreign_key :baptisms, :parishioners, column: 'baptist_id', on_delete: :nullify, on_update: :cascade
   end
 end

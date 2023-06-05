@@ -1,5 +1,11 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-tt520:
-  home_number: TT520
-  head_of_household: test_f
+first_baptism:
+  baptized_at: 1980-10-29
+  baptized_location: 彰化市聖十字架天主堂
+  christian_name: 安東尼
+
+  godfather: 張00
+  baptist: 黃世明神父
+
+  baptized_person: 0
