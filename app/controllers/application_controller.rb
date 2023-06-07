@@ -1,6 +1,9 @@
+# frozen_string_literal: true
+
+# Root controller
 class ApplicationController < ActionController::API
-  rescue_from "AccessGranted::AccessDenied" do |exception|
-    render json: { errors: "Access denied" },
+  rescue_from 'AccessGranted::AccessDenied' do |_exception|
+    render json: { errors: 'Access denied' },
            status: :forbidden
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   mount Rswag::Ui::Engine => '/api-docs'
   mount Rswag::Api::Engine => '/api-docs'
@@ -11,6 +13,7 @@ Rails.application.routes.draw do
 
     resources :households, param: :_home_number
     resources :parishioners, param: :_id
+    resources :baptism, param: :_id
 
     get 'parishioners/:_id/picture', to: 'parishioners#picture', param: :_id
   end

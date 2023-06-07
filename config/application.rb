@@ -1,12 +1,15 @@
-require_relative "boot"
+# frozen_string_literal: true
 
-require "rails/all"
+require_relative 'boot'
+
+require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
 module Catholic
+  # Application setting
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
@@ -26,17 +29,22 @@ module Catholic
   end
 end
 
-module Rswag::Ui::CSP
-  def call env
-    _, headers, _ = response = super
-    headers['Content-Security-Policy'] = <<~POLICY.gsub "\n", ' '
-      default-src 'self';
-      img-src 'self' data: * blob:;
-      font-src 'self' https://fonts.gstatic.com;
-      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-      script-src 'self' 'unsafe-inline' 'unsafe-eval';
-    POLICY
-    response
+module Rswag
+  module Ui
+    # Use for CSP setting
+    module CSP
+      def call(env)
+        _, headers, = response = super
+        headers['Content-Security-Policy'] = <<~POLICY.gsub "\n", ' '
+          default-src 'self';
+          img-src 'self' data: * blob:;
+          font-src 'self' https://fonts.gstatic.com;
+          style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+          script-src 'self' 'unsafe-inline' 'unsafe-eval';
+        POLICY
+        response
+      end
+    end
   end
 end
 

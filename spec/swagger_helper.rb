@@ -43,7 +43,7 @@ RSpec.configure do |config|
             description: 'JWT key necessary to use API calls',
             type: :apiKey,
             name: 'authorization',
-            in: :header,
+            in: :header
           }
         }
       }
