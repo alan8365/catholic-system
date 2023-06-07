@@ -276,10 +276,33 @@ RSpec.describe 'api/parishioners', type: :request do
     patch('update parishioner') do
       tags 'Parishioner'
       security [Bearer: {}]
-      consumes 'application/json'
-      parameter name: :parishioner, in: :body, schema: {
+
+      consumes 'multipart/form-data'
+      # Name should be blank for the nesting problem
+      parameter name: '', in: :formData, schema: {
         type: :object,
-        properties: @parishioner_properties
+        properties: {
+          name: { type: :string, example: '周男人' },
+          gender: { type: :string, example: '男' },
+          birth_at: { type: :string, example: Date.strptime('1990/01/01', '%Y/%m/%d') },
+          postal_code: { type: :string, example: '433' },
+          address: { type: :string, example: '彰化縣田尾鄉福德巷359號' },
+          picture: { type: :string, format: :binary },
+
+          father: { type: :string },
+          mother: { type: :string },
+          spouse: { type: :string },
+          father_id: { type: :integer },
+          mother_id: { type: :integer },
+          spouse_id: { type: :integer },
+
+          home_phone: { type: :string, example: '12512515' },
+          mobile_phone: { type: :string, example: '09123124512' },
+          nationality: { type: :string, example: '越南' },
+          profession: { type: :string, example: '醫生' },
+          company_name: { type: :string, example: '恐龍牙醫診所' },
+          comment: { type: :string, example: '測試用範例教友' }
+        },
       }
 
       request_body_example value: {
@@ -289,7 +312,7 @@ RSpec.describe 'api/parishioners', type: :request do
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:parishioner) { { name: '台灣偉人' } }
+        let(:"") { { name: '台灣偉人' } }
 
         run_test!
       end
@@ -298,7 +321,7 @@ RSpec.describe 'api/parishioners', type: :request do
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:parishioner) { { name: '台灣偉人' } }
+        let(:"") { { name: '台灣偉人' } }
 
         run_test!
       end
@@ -307,7 +330,7 @@ RSpec.describe 'api/parishioners', type: :request do
       response(422, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:parishioner) { { name: '' } }
+        let(:"") { { name: '' } }
 
         run_test!
       end

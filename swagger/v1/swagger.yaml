@@ -379,10 +379,58 @@ paths:
           description: Unprocessable Entity
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
+                name:
+                  type: string
+                  example: 周男人
+                gender:
+                  type: string
+                  example: 男
+                birth_at:
+                  type: string
+                  example: '1990-01-01'
+                postal_code:
+                  type: string
+                  example: '433'
+                address:
+                  type: string
+                  example: 彰化縣田尾鄉福德巷359號
+                picture:
+                  type: string
+                  format: binary
+                father:
+                  type: string
+                mother:
+                  type: string
+                spouse:
+                  type: string
+                father_id:
+                  type: integer
+                mother_id:
+                  type: integer
+                spouse_id:
+                  type: integer
+                home_phone:
+                  type: string
+                  example: '12512515'
+                mobile_phone:
+                  type: string
+                  example: '09123124512'
+                nationality:
+                  type: string
+                  example: 越南
+                profession:
+                  type: string
+                  example: 醫生
+                company_name:
+                  type: string
+                  example: 恐龍牙醫診所
+                comment:
+                  type: string
+                  example: 測試用範例教友
             examples:
               test name change:
                 summary: Test parishioner update
