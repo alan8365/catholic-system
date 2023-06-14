@@ -31,6 +31,7 @@ module Api
                                                godfather godmother
                                                godfather_id godmother_id
                                                presbyter presbyter_id
+                                               parishioner_id
                                              ])
                                      .as_json(except: :id)
 
@@ -40,7 +41,7 @@ module Api
     # GET /confirmations/{id}
     def show
       authorize! :read, @confirmation
-      render json: @confirmation, status: :ok
+      render json: @confirmation, include: %i[parishioner], status: :ok
     end
 
     # POST /confirmations
@@ -77,7 +78,7 @@ module Api
     private
 
     def find_confirmation
-      @confirmation = Confirmation.find_by_id!(params[:_id])
+      @confirmation = Confirmation.find_by_parishioner_id!(params[:_parishioner_id])
     rescue ActiveRecord::RecordNotFound
       render json: { errors: 'Confirmation not found' }, status: :not_found
     end

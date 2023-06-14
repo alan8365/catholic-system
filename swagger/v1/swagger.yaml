@@ -78,8 +78,8 @@ paths:
               - baptized_at
               - baptized_location
               - christian_name
-              - baptist
-              - baptized_person
+              - presbyter
+              - parishioner_id
             examples:
               test_baptism:
                 summary: Test baptism create
@@ -91,14 +91,14 @@ paths:
                   godfather_id:
                   godmother: 許00
                   godmother_id:
-                  baptist: 黃世明神父
-                  baptist_id:
-                  baptized_person: 1
-  "/api/baptisms/{_id}":
+                  presbyter: 黃世明神父
+                  presbyter_id:
+                  parishioner_id: 1
+  "/api/baptisms/{_parishioner_id}":
     parameters:
-    - name: _id
+    - name: _parishioner_id
       in: path
-      description: _id
+      description: _parishioner_id
       required: true
       schema:
         type: string
@@ -140,7 +140,7 @@ paths:
                   baptized_location: 彰化市聖十字架天主堂
                   christian_name: 聖施達
                   godmother: 許00
-                  baptist: 黃世明神父
+                  presbyter: 黃世明神父
     delete:
       summary: delete baptism
       tags:
@@ -211,11 +211,11 @@ paths:
                   presbyter: 黃世明神父
                   presbyter_id:
                   parishioner_id: 1
-  "/api/confirmations/{_id}":
+  "/api/confirmations/{_parishioner_id}":
     parameters:
-    - name: _id
+    - name: _parishioner_id
       in: path
-      description: _id
+      description: _parishioner_id
       required: true
       schema:
         type: string

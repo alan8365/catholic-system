@@ -14,7 +14,7 @@ RSpec.describe 'api/confirmations', type: :request do
       godmother: '許00',
       presbyter: '黃世明神父',
 
-      parishioner_id: 1
+      parishioner_id: 2
     }
     @confirmation = Confirmation.all[0]
   end
@@ -64,11 +64,11 @@ RSpec.describe 'api/confirmations', type: :request do
 
           # ApplicationRecord to hash
           @confirmation_hash = @confirmation.as_json
+
           # Delete unused fields
           @confirmation_hash.except!(*%w[
                                        id
                                        created_at updated_at
-                                       parishioner_id
                                      ])
 
           expect(data).to eq([@confirmation_hash])
@@ -183,8 +183,8 @@ RSpec.describe 'api/confirmations', type: :request do
     end
   end
 
-  path '/api/confirmations/{_id}' do
-    parameter name: '_id', in: :path, type: :string, description: '_id'
+  path '/api/confirmations/{_parishioner_id}' do
+    parameter name: '_parishioner_id', in: :path, type: :string, description: '_parishioner_id'
 
     get('show confirmation') do
       tags 'Confirmation'
@@ -192,7 +192,7 @@ RSpec.describe 'api/confirmations', type: :request do
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_id) { @confirmation.id }
+        let(:_parishioner_id) { @confirmation.parishioner_id }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -206,7 +206,7 @@ RSpec.describe 'api/confirmations', type: :request do
 
       response(404, 'Not Found') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_id) { 'unknown_id' }
+        let(:_parishioner_id) { 'unknown_id' }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -248,7 +248,7 @@ RSpec.describe 'api/confirmations', type: :request do
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_id) { @confirmation.id }
+        let(:_parishioner_id) { @confirmation.parishioner_id }
         let(:confirmation) { { confirmed_location: '台中市聖十字架天主堂' } }
 
         run_test! do
@@ -259,7 +259,7 @@ RSpec.describe 'api/confirmations', type: :request do
       # Current user have not permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:_id) { @confirmation.id }
+        let(:_parishioner_id) { @confirmation.parishioner_id }
         let(:confirmation) {}
 
         run_test!
@@ -268,7 +268,7 @@ RSpec.describe 'api/confirmations', type: :request do
       # Field is blank
       response(422, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_id) { @confirmation.id }
+        let(:_parishioner_id) { @confirmation.parishioner_id }
         let(:confirmation) { { confirmed_location: '' } }
 
         run_test!
@@ -281,7 +281,7 @@ RSpec.describe 'api/confirmations', type: :request do
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_id) { @confirmation.id }
+        let(:_parishioner_id) { @confirmation.parishioner_id }
 
         run_test!
       end
@@ -289,7 +289,7 @@ RSpec.describe 'api/confirmations', type: :request do
       # Current user dose not have permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:_id) { @confirmation.id }
+        let(:_parishioner_id) { @confirmation.parishioner_id }
 
         run_test!
       end
@@ -297,7 +297,7 @@ RSpec.describe 'api/confirmations', type: :request do
       # The confirmation dose not exist
       response(404, 'Not Found') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_id) { 'unknown_id' }
+        let(:_parishioner_id) { 'unknown_id' }
 
         run_test!
       end

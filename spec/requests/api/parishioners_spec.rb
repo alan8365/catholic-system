@@ -54,7 +54,7 @@ RSpec.describe 'api/parishioners', type: :request do
       comment: { type: :string }
     }
 
-    @parishioner = Parishioner.find_by_id(0)
+    @parishioner = Parishioner.find_by_id(1)
     @parishioner.picture.attach(@file)
   end
 
@@ -101,7 +101,8 @@ RSpec.describe 'api/parishioners', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data).to eq([{ 'name' => '趙男人',
+          expect(data).to eq([{ 'id' => @parishioner.id,
+                                'name' => '趙男人',
                                 'gender' => '男',
                                 'birth_at' => '1990-01-01',
                                 'postal_code' => '433',
@@ -111,7 +112,7 @@ RSpec.describe 'api/parishioners', type: :request do
                                 'father' => '趙爸爸',
                                 'mother' => '孫媽媽',
                                 'spouse' => '錢女人',
-                                'spouse_id' => 1,
+                                'spouse_id' => 2,
                                 'father_id' => nil,
                                 'mother_id' => nil,
 

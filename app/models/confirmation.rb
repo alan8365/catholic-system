@@ -14,6 +14,7 @@ class Confirmation < ApplicationRecord
 
   validates :presbyter, presence: true
   validates :parishioner_id, presence: true, uniqueness: true
+
   validate :godfather_xor_godmother
 
   private

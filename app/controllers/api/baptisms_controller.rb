@@ -21,7 +21,7 @@ module Api
                             christian_name like ? or
                             godfather like ? or
                             godmother like ? or
-                            baptist like ?",
+                            presbyter like ?",
                               "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
                   else
                     Baptism.all
@@ -31,8 +31,8 @@ module Api
                                      baptized_at baptized_location christian_name
                                      godfather godmother
                                      godfather_id godmother_id
-                                     baptist baptist_id
-                                     baptized_person
+                                     presbyter presbyter_id
+                                     parishioner_id
                                    ])
                            .as_json(except: :id)
 
@@ -42,11 +42,10 @@ module Api
     # GET /baptisms/{id}
     def show
       authorize! :read, @baptism
-      render json: @baptism, status: :ok
+      render json: @baptism, include: %i[parishioner], status: :ok
     end
 
     # POST /baptisms
-    # TODO upload image
     def create
       authorize! :create, Baptism
 
@@ -79,7 +78,7 @@ module Api
     private
 
     def find_baptism
-      @baptism = Baptism.find_by_id!(params[:_id])
+      @baptism = Baptism.find_by_parishioner_id!(params[:_parishioner_id])
     rescue ActiveRecord::RecordNotFound
       render json: { errors: 'Baptism not found' }, status: :not_found
     end
@@ -89,8 +88,8 @@ module Api
                       baptized_at baptized_location christian_name
                       godfather godmother
                       godfather_id godmother_id
-                      baptist baptist_id
-                      baptized_person
+                      presbyter presbyter_id
+                      parishioner_id
                     ])
     end
 

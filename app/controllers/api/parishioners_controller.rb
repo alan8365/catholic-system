@@ -28,12 +28,12 @@ module Api
 
       @parishioners = @parishioners
                         .select(*%w[
+                                  id
                                   name gender birth_at postal_code address home_number
                                   father mother spouse father_id mother_id spouse_id
                                   home_phone mobile_phone nationality
                                   profession company_name comment
                                 ])
-                        .as_json(except: :id)
 
       render json: @parishioners, status: :ok
     end

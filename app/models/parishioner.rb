@@ -13,7 +13,7 @@ class Parishioner < ApplicationRecord
   has_one :father_instance, class_name: 'Parishioner', foreign_key: 'father_id'
 
   # Sacrament association
-  has_one :baptism, class_name: 'Baptism', foreign_key: 'baptized_person'
+  has_one :baptism, class_name: 'Baptism', foreign_key: 'parishioner_id'
   has_one :confirmation, class_name: 'Confirmation', foreign_key: 'parishioner_id'
 
   # Image

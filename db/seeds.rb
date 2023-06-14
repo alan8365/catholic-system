@@ -20,7 +20,6 @@ first_parishioner = Parishioner.create({
                                          birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
                                          postal_code: '433',
                                          address: '台中市北區三民路某段某號',
-                                         photo_url: 'https://www.moedict.tw/%E6%9F%90%E6%9F%90%E4%BA%BA.png?font=wt064',
                                          spouse: '王某某',
                                          father: '許某某',
                                          mother: '張某某',
@@ -38,7 +37,6 @@ second_parishioner = Parishioner.create({
                                           birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
                                           postal_code: '433',
                                           address: '台中市北區三民路某段某號',
-                                          photo_url: 'https://www.moedict.tw/%E6%9F%90%E6%9F%90%E4%BA%BA.png?font=wt064',
                                           spouse: '許某某',
                                           father: '王某某',
                                           mother: '陳某某',
@@ -77,9 +75,9 @@ Baptism.create({
                  christian_name: '安東尼',
 
                  godfather: '張00',
-                 baptist: '黃世明神父',
+                 presbyter: '黃世明神父',
 
-                 baptized_person: first_parishioner.id
+                 parishioner_id: first_parishioner.id
                })
 
 # Confirmation
