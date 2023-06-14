@@ -1,104 +1,94 @@
 # frozen_string_literal: true
 
 module Api
-  # CRUD for baptism
-  class BaptismController < ApplicationController
-    before_action :authorize_request, except: :picture
-    before_action :find_baptism, except: %i[create index]
+  # Confirmations controller
+  class ConfirmationsController < ApplicationController
+    before_action :authorize_request
+    before_action :find_confirmation, except: %i[create index]
 
-    # GET /baptisms
-    # @todo change the
+    # GET /confirmations
     # @return [nil]
     def index
-      authorize! :read, Baptism
+      authorize! :read, Confirmation
       @query = params[:any_field]
 
-      @baptisms = if @query
-                    # TODO: change to full text search
-                    Baptism
-                      .where(["
-                            baptized_location like ?  or
+      @confirmations = if @query
+                         # TODO: change to full text search
+                         Confirmation
+                           .where(["
+                            confirmed_location like ? or
                             christian_name like ? or
                             godfather like ? or
                             godmother like ? or
-                            baptist like ?",
-                              "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
-                  else
-                    Baptism.all
-                  end
+                            presbyter like ?",
+                                   "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+                       else
+                         Confirmation.all
+                       end
 
-      @baptisms = @baptisms.select(*%w[
-                                     baptized_at baptized_location christian_name
-                                     godfather godmother
-                                     godfather_id godmother_id
-                                     baptist baptist_id
-                                     baptized_person
-                                   ])
-                           .as_json(except: :id)
+      @confirmations = @confirmations.select(*%w[
+                                               confirmed_at confirmed_location christian_name
+                                               godfather godmother
+                                               godfather_id godmother_id
+                                               presbyter presbyter_id
+                                             ])
+                                     .as_json(except: :id)
 
-      render json: @baptisms, status: :ok
+      render json: @confirmations, status: :ok
     end
 
-    # GET /baptisms/{id}
+    # GET /confirmations/{id}
     def show
-      authorize! :read, @baptism
-      render json: @baptism, status: :ok
+      authorize! :read, @confirmation
+      render json: @confirmation, status: :ok
     end
 
-    def picture
-      if @baptism.picture.attached?
-        send_file @baptism.picture_url, type: 'image/png', disposition: 'inline'
-      else
-        head :not_found
-      end
-    end
-
-    # POST /baptisms
+    # POST /confirmations
     # TODO upload image
     def create
-      authorize! :create, Baptism
+      authorize! :create, Confirmation
 
-      @baptism = Baptism.new(baptism_params)
-      if @baptism.save
-        render json: @baptism, status: :created
+      @confirmation = Confirmation.new(confirmation_params)
+      if @confirmation.save
+        render json: @confirmation, status: :created
       else
-        render json: { errors: @baptism.errors.full_messages },
+        render json: { errors: @confirmation.errors.full_messages },
                status: :unprocessable_entity
       end
     end
 
-    # PUT /baptisms/{id}
+    # PUT /confirmations/{id}
     def update
-      authorize! :update, @baptism
+      authorize! :update, @confirmation
 
-      return if @baptism.update(baptism_params)
+      return if @confirmation.update(confirmation_params)
 
-      render json: { errors: @baptism.errors.full_messages },
+      render json: { errors: @confirmation.errors.full_messages },
              status: :unprocessable_entity
     end
 
-    # DELETE /baptisms/{id}
+    # DELETE /confirmations/{id}
     def destroy
-      authorize! :destroy, @baptism
+      authorize! :destroy, @confirmation
 
-      @baptism.destroy
+      @confirmation.destroy
     end
 
     private
 
-    def find_baptism
-      @baptism = Baptism.find_by_id!(params[:_id])
+    def find_confirmation
+      @confirmation = Confirmation.find_by_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Baptism not found' }, status: :not_found
+      render json: { errors: 'Confirmation not found' }, status: :not_found
     end
 
-    def baptism_params
+    def confirmation_params
       params.permit(%i[
-                      baptized_at baptized_location christian_name
+                      confirmed_at confirmed_location christian_name
                       godfather godmother
                       godfather_id godmother_id
-                      baptist baptist_id
-                      baptized_person
+                      presbyter presbyter_id
+                      parishioner_id
                     ])
     end
 

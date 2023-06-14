@@ -2,7 +2,7 @@
 
 module Api
   # CRUD for baptism
-  class BaptismController < ApplicationController
+  class BaptismsController < ApplicationController
     before_action :authorize_request
     before_action :find_baptism, except: %i[create index]
 
@@ -43,14 +43,6 @@ module Api
     def show
       authorize! :read, @baptism
       render json: @baptism, status: :ok
-    end
-
-    def picture
-      if @baptism.picture.attached?
-        send_file @baptism.picture_url, type: 'image/png', disposition: 'inline'
-      else
-        head :not_found
-      end
     end
 
     # POST /baptisms

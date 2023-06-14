@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# ENV["RAILS_ENV"] ||= "test"
-Rails.env.test?
+ENV["RAILS_ENV"] ||= "test"
+# Rails.env.test?
 require_relative '../config/environment'
 require 'rails/test_help'
 

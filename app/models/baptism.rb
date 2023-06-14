@@ -11,6 +11,7 @@ class Baptism < ApplicationRecord
   validates :baptized_at, presence: true
   validates :baptized_location, presence: true
   validates :christian_name, presence: true
+
   validates :baptist, presence: true
   validates :baptized_person, presence: true
   validate :godfather_xor_godmother

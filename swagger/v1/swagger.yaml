@@ -37,7 +37,7 @@ paths:
                 value:
                   username: basic
                   password: abc123!
-  "/api/baptism":
+  "/api/baptisms":
     get:
       summary: list baptisms
       tags:
@@ -94,7 +94,7 @@ paths:
                   baptist: 黃世明神父
                   baptist_id:
                   baptized_person: 1
-  "/api/baptism/{_id}":
+  "/api/baptisms/{_id}":
     parameters:
     - name: _id
       in: path
@@ -151,9 +151,137 @@ paths:
         '204':
           description: successful
         '403':
-          description: successful
+          description: Forbidden
         '404':
           description: Baptism not found
+  "/api/confirmations":
+    get:
+      summary: list confirmations
+      tags:
+      - Confirmation
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create confirmation
+      tags:
+      - Confirmation
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - confirmed_at
+              - confirmed_location
+              - christian_name
+              - presbyter
+              - parishioner_id
+            examples:
+              test_confirmation:
+                summary: Test confirmation create
+                value:
+                  confirmed_at: '1981-11-11'
+                  confirmed_location: 彰化市聖十字架天主堂
+                  christian_name: 聖施達
+                  godfather: ''
+                  godfather_id:
+                  godmother: 許00
+                  godmother_id:
+                  presbyter: 黃世明神父
+                  presbyter_id:
+                  parishioner_id: 1
+  "/api/confirmations/{_id}":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show confirmation
+      tags:
+      - Confirmation
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update confirmation
+      tags:
+      - Confirmation
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - confirmed_at
+              - confirmed_location
+              - christian_name
+              - presbyter
+              - parishioner_id
+            examples:
+              test_confirmation:
+                summary: Test confirmation update
+                value:
+                  confirmed_at: '1981-11-11'
+                  confirmed_location: 彰化市聖十字架天主堂
+                  christian_name: 聖施達
+                  godfather: ''
+                  godfather_id:
+                  godmother: 許00
+                  godmother_id:
+                  presbyter: 黃世明神父
+                  presbyter_id:
+                  parishioner_id: 1
+    delete:
+      summary: delete confirmation
+      tags:
+      - Confirmation
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
   "/api/households":
     get:
       summary: list households

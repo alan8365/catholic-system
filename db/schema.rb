@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_04_224246) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_07_171003) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -50,6 +50,21 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_04_224246) do
     t.integer "godmother_id"
     t.integer "baptist_id"
     t.integer "baptized_person"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "confirmations", force: :cascade do |t|
+    t.date "confirmed_at"
+    t.string "confirmed_location"
+    t.string "christian_name"
+    t.string "godfather"
+    t.string "godmother"
+    t.string "presbyter"
+    t.integer "godfather_id"
+    t.integer "godmother_id"
+    t.integer "presbyter_id"
+    t.integer "parishioner_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -101,6 +116,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_04_224246) do
   add_foreign_key "baptisms", "parishioners", column: "baptized_person", on_update: :cascade, on_delete: :cascade
   add_foreign_key "baptisms", "parishioners", column: "godfather_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "baptisms", "parishioners", column: "godmother_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "confirmations", "parishioners", column: "godfather_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "confirmations", "parishioners", column: "godmother_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "confirmations", "parishioners", column: "presbyter_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "confirmations", "parishioners", on_update: :cascade, on_delete: :cascade
   add_foreign_key "households", "parishioners", column: "head_of_household", on_update: :cascade, on_delete: :nullify
   add_foreign_key "parishioners", "households", column: "home_number", primary_key: "home_number", on_update: :cascade, on_delete: :nullify
   add_foreign_key "parishioners", "parishioners", column: "father_id", on_update: :cascade, on_delete: :nullify

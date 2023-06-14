@@ -1,12 +1,12 @@
 require 'swagger_helper'
 
-RSpec.describe 'api/baptism', type: :request do
+RSpec.describe 'api/baptisms', type: :request do
   fixtures :users
   fixtures :parishioners
-  fixtures :baptism
+  fixtures :baptisms
 
   before(:each) do
-    @example_test_baptism = {
+    @example_test = {
       baptized_at: '1981-11-11',
       baptized_location: '彰化市聖十字架天主堂',
       christian_name: '聖施達',
@@ -19,8 +19,7 @@ RSpec.describe 'api/baptism', type: :request do
     @baptism = Baptism.all[0]
   end
 
-  path '/api/baptism' do
-
+  path '/api/baptisms' do
     get('list baptisms') do
       tags 'Baptism'
       security [Bearer: {}]
@@ -126,7 +125,7 @@ RSpec.describe 'api/baptism', type: :request do
 
       response(201, 'Created') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:baptism) { @example_test_baptism }
+        let(:baptism) { @example_test }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -139,8 +138,8 @@ RSpec.describe 'api/baptism', type: :request do
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          @example_test_baptism.each_key do |key|
-            expect(data[key.to_s]).to eq(@example_test_baptism[key])
+          @example_test.each_key do |key|
+            expect(data[key.to_s]).to eq(@example_test[key])
           end
         end
       end
@@ -180,9 +179,9 @@ RSpec.describe 'api/baptism', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         # let(:baptism) {  @example_test_baptism  }
         let(:baptism) do
-          @example_test_baptism[:godfather] = 'ADD'
+          @example_test[:godfather] = 'ADD'
 
-          @example_test_baptism
+          @example_test
         end
 
         after do |example|
@@ -197,7 +196,7 @@ RSpec.describe 'api/baptism', type: :request do
     end
   end
 
-  path '/api/baptism/{_id}' do
+  path '/api/baptisms/{_id}' do
     # You'll want to customize the parameter types...
     parameter name: '_id', in: :path, type: :string, description: '_id'
 
@@ -296,7 +295,7 @@ RSpec.describe 'api/baptism', type: :request do
       end
 
       # Current user have not permission
-      response(403, 'successful') do
+      response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
         let(:_id) { @baptism.id }
 

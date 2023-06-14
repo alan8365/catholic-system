@@ -8,7 +8,8 @@ class AccessPolicy
     common_model = [
       Household,
       Parishioner,
-      Baptism
+      Baptism,
+      Confirmation
     ]
 
     role :admin, proc { |user| user.is_admin? } do

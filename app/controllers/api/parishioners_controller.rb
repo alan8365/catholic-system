@@ -15,25 +15,25 @@ module Api
         # TODO: change to full text search
 
         @parishioners = Parishioner
-                        .where(["
+                          .where(["
                             name like ?  or
                             comment like ? or
                             father like ? or
                             mother like ? or
                             spouse like ?",
-                                "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+                                  "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
       else
         @parishioners = Parishioner.all
       end
 
       @parishioners = @parishioners
-                      .select(*%w[
-                                name gender birth_at postal_code address home_number
-                                father mother spouse father_id mother_id spouse_id
-                                home_phone mobile_phone nationality
-                                profession company_name comment
-                              ])
-                      .as_json(except: :id)
+                        .select(*%w[
+                                  name gender birth_at postal_code address home_number
+                                  father mother spouse father_id mother_id spouse_id
+                                  home_phone mobile_phone nationality
+                                  profession company_name comment
+                                ])
+                        .as_json(except: :id)
 
       render json: @parishioners, status: :ok
     end
@@ -41,7 +41,8 @@ module Api
     # GET /parishioners/{id}
     def show
       authorize! :read, @parishioner
-      render json: @parishioner, status: :ok
+
+      render json: @parishioner, include: %i[baptism confirmation], status: :ok
     end
 
     def picture

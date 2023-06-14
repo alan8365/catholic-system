@@ -87,6 +87,7 @@ RSpec.describe 'api/confirmations', type: :request do
       tags 'Confirmation'
       security [Bearer: {}]
 
+      consumes 'application/json'
       parameter name: :confirmation, in: :body, schema: {
         type: :object,
         required: %w[confirmed_at confirmed_location christian_name presbyter parishioner_id]
@@ -129,16 +130,83 @@ RSpec.describe 'api/confirmations', type: :request do
           end
         end
       end
+
+      # Current user dose not have permission
+      response(403, 'Forbidden') do
+        let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
+        let(:confirmation) {}
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test!
+      end
+
+      # Confirmation info incomplete test
+      response(422, 'Unprocessable Entity') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:confirmation) { {} }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test!
+      end
+
+      # Godparent xor test
+      response(422, 'Unprocessable Entity') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        # let(:baptism) {  @example_test_baptism  }
+        let(:baptism) do
+          @example_test[:godfather] = 'ADD'
+
+          @example_test
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test!
+      end
     end
   end
 
   path '/api/confirmations/{_id}' do
-    # You'll want to customize the parameter types...
     parameter name: '_id', in: :path, type: :string, description: '_id'
 
     get('show confirmation') do
+      tags 'Confirmation'
+      security [Bearer: {}]
+
       response(200, 'successful') do
-        let(:_id) { '123' }
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:_id) { @confirmation.id }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test!
+      end
+
+      response(404, 'Not Found') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:_id) { 'unknown_id' }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -152,46 +220,85 @@ RSpec.describe 'api/confirmations', type: :request do
     end
 
     patch('update confirmation') do
-      response(200, 'successful') do
-        let(:_id) { '123' }
+      tags 'Confirmation'
+      security [Bearer: {}]
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
+      consumes 'application/json'
+      parameter name: :confirmation, in: :body, schema: {
+        type: :object,
+        required: %w[confirmed_at confirmed_location christian_name presbyter parishioner_id]
+      }
+
+      request_body_example value: {
+        confirmed_at: '1981-11-11',
+        confirmed_location: '彰化市聖十字架天主堂',
+        christian_name: '聖施達',
+
+        godfather: '',
+        godfather_id: nil,
+
+        godmother: '許00',
+        godmother_id: nil,
+
+        presbyter: '黃世明神父',
+        presbyter_id: nil,
+
+        parishioner_id: 1
+      }, name: 'test_confirmation', summary: 'Test confirmation update'
+
+      response(204, 'No Content') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:_id) { @confirmation.id }
+        let(:confirmation) { { confirmed_location: '台中市聖十字架天主堂' } }
+
+        run_test! do
+          expect(Confirmation.all[0].confirmed_location).to eq('台中市聖十字架天主堂')
         end
+      end
+
+      # Current user have not permission
+      response(403, 'Forbidden') do
+        let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
+        let(:_id) { @confirmation.id }
+        let(:confirmation) {}
+
         run_test!
       end
-    end
 
-    put('update confirmation') do
-      response(200, 'successful') do
-        let(:_id) { '123' }
+      # Field is blank
+      response(422, 'Unprocessable Entity') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:_id) { @confirmation.id }
+        let(:confirmation) { { confirmed_location: '' } }
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
         run_test!
       end
     end
 
     delete('delete confirmation') do
-      response(200, 'successful') do
-        let(:_id) { '123' }
+      tags 'Confirmation'
+      security [Bearer: {}]
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
+      response(204, 'No Content') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:_id) { @confirmation.id }
+
+        run_test!
+      end
+
+      # Current user dose not have permission
+      response(403, 'Forbidden') do
+        let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
+        let(:_id) { @confirmation.id }
+
+        run_test!
+      end
+
+      # The confirmation dose not exist
+      response(404, 'Not Found') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:_id) { 'unknown_id' }
+
         run_test!
       end
     end
