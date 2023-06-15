@@ -3,7 +3,7 @@ require 'swagger_helper'
 RSpec.describe 'api/baptisms', type: :request do
   fixtures :users
   fixtures :parishioners
-  # fixtures :baptisms
+  fixtures :baptisms
 
   before(:each) do
     @example_test = {

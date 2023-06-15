@@ -392,9 +392,11 @@ paths:
       parameters:
       - name: any_field
         in: query
+        description: |-
+          Search from the following fields: name, comment, father, mother, spouse,
+          home_number, nationality, profession, and company_name.
         schema:
           type: string
-          require: false
       responses:
         '200':
           description: successful

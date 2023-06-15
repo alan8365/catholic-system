@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_07_171003) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_15_055247) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.bigint "record_id", null: false
-    t.bigint "blob_id", null: false
+    t.integer "record_id", null: false
+    t.integer "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -34,7 +34,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_07_171003) do
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
-    t.bigint "blob_id", null: false
+    t.integer "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
@@ -96,6 +96,13 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_07_171003) do
     t.integer "mother_id"
     t.integer "father_id"
     t.string "home_number"
+    t.integer "sibling_number", default: 0
+    t.integer "children_number", default: 0
+    t.date "move_in_date"
+    t.string "original_parish"
+    t.date "move_out_date"
+    t.string "move_out_reason"
+    t.string "destination_parish"
   end
 
   create_table "users", force: :cascade do |t|

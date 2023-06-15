@@ -28,6 +28,17 @@ first_parishioner = Parishioner.create({
                                          nationality: '中華民國',
                                          profession: '資訊',
                                          company_name: '科技大學',
+
+                                         sibling_number: 0,
+                                         children_number: 0,
+
+                                         move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
+                                         original_parish: 'ＯＯ堂區',
+
+                                         move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
+                                         move_out_reason: '搬家',
+                                         destination_parish: 'ＸＸ堂區',
+
                                          comment: '測試用教友一號'
                                        })
 
@@ -45,6 +56,17 @@ second_parishioner = Parishioner.create({
                                           nationality: '中華民國',
                                           profession: '資訊',
                                           company_name: '科技大學',
+
+                                          sibling_number: 0,
+                                          children_number: 0,
+
+                                          move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
+                                          original_parish: 'ＯＯ堂區',
+
+                                          move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
+                                          move_out_reason: '搬家',
+                                          destination_parish: 'ＸＸ堂區',
+
                                           comment: '測試用教友二號'
                                         })
 

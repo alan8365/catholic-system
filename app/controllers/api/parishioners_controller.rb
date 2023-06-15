@@ -20,7 +20,13 @@ module Api
                             comment like ? or
                             father like ? or
                             mother like ? or
-                            spouse like ?",
+                            spouse like ? or
+                            home_number like ? or
+                            nationality like ? or
+                            profession like ? or
+                            company_name like ?
+                          ",
+                                  "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%",
                                   "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
       else
         @parishioners = Parishioner.all
@@ -33,9 +39,12 @@ module Api
                                   father mother spouse father_id mother_id spouse_id
                                   home_phone mobile_phone nationality
                                   profession company_name comment
+                                  sibling_number children_number
+                                  move_in_date original_parish
+                                  move_out_date move_out_reason destination_parish
                                 ])
 
-      render json: @parishioners, status: :ok
+      render json: @parishioners, include: %i[baptism confirmation], status: :ok
     end
 
     # GET /parishioners/{id}
@@ -100,6 +109,9 @@ module Api
                       father mother spouse father_id mother_id spouse_id
                       home_phone mobile_phone nationality
                       profession company_name comment
+                      sibling_number children_number
+                      move_in_date original_parish
+                      move_out_date move_out_reason destination_parish
                       picture
                     ])
     end

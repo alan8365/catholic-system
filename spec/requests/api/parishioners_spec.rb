@@ -29,31 +29,19 @@ RSpec.describe 'api/parishioners', type: :request do
       nationality: '越南',
       profession: '醫生',
       company_name: '恐龍牙醫診所',
+
+      sibling_number: 0,
+      children_number: 0,
+
+      move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
+      original_parish: '',
+
+      move_out_date: nil,
+      move_out_reason: '',
+      destination_parish: '',
+
       comment: '測試用範例教友'
     }
-    @parishioner_properties = {
-      name: { type: :string },
-      gender: { type: :string },
-      birth_at: { type: :string },
-      postal_code: { type: :string },
-      address: { type: :string },
-      picture: { type: :string, format: :binary },
-
-      father: { type: :string },
-      mother: { type: :string },
-      spouse: { type: :string },
-      father_id: { type: :integer },
-      mother_id: { type: :integer },
-      spouse_id: { type: :integer },
-
-      home_phone: { type: :string },
-      mobile_phone: { type: :string },
-      nationality: { type: :string },
-      profession: { type: :string },
-      company_name: { type: :string },
-      comment: { type: :string }
-    }
-
     @parishioner = Parishioner.find_by_id(1)
     @parishioner.picture.attach(@file)
   end
@@ -62,9 +50,11 @@ RSpec.describe 'api/parishioners', type: :request do
     get('list parishioners') do
       tags 'Parishioner'
       security [Bearer: {}]
-      parameter name: :any_field, in: :query, schema: {
-        type: :string,
-        require: false
+
+      description = 'Search from the following fields: name, comment, father, mother, spouse,
+home_number, nationality, profession, and company_name.'
+      parameter name: :any_field, in: :query, description: description, schema: {
+        type: :string
       }
 
       request_body_example value: {
@@ -101,28 +91,19 @@ RSpec.describe 'api/parishioners', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data).to eq([{ 'id' => @parishioner.id,
-                                'name' => '趙男人',
-                                'gender' => '男',
-                                'birth_at' => '1990-01-01',
-                                'postal_code' => '433',
-                                'address' => '台中市北區三民路某段某號',
-                                'home_number' => 'TT520',
 
-                                'father' => '趙爸爸',
-                                'mother' => '孫媽媽',
-                                'spouse' => '錢女人',
-                                'spouse_id' => 2,
-                                'father_id' => nil,
-                                'mother_id' => nil,
+          # ApplicationRecord to hash
+          @parishioner_hash = @parishioner.as_json
 
-                                'home_phone' => '047221245',
-                                'mobile_phone' => '0987372612',
-                                'nationality' => '中華民國',
+          # Delete unused fields
+          @parishioner_hash.except!(*%w[
+                                      created_at updated_at
+                                    ])
 
-                                'profession' => '資訊',
-                                'company_name' => '科技大學',
-                                'comment' => '測試用男性教友一號' }])
+          @parishioner_hash['baptism'] = @parishioner.baptism.as_json
+          @parishioner_hash['confirmation'] = @parishioner.confirmation.as_json
+
+          expect(data).to eq([@parishioner_hash])
         end
       end
 
@@ -191,8 +172,12 @@ RSpec.describe 'api/parishioners', type: :request do
           @example_test_parishioner.each_key do |key|
             next if key == :picture
 
-            if key == :birth_at
-              expect(Date.strptime(data[key.to_s])).to eq(@example_test_parishioner[key])
+            date_field = %i[birth_at move_in_date move_out_date]
+            if date_field.include?(key)
+              date_data = data[key.to_s]
+              date_data = date_data.nil? ? nil : Date.strptime(data[key.to_s])
+
+              expect(date_data).to eq(@example_test_parishioner[key])
             else
               expect(data[key.to_s]).to eq(@example_test_parishioner[key])
             end
