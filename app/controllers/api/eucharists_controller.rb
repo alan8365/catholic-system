@@ -1,91 +1,91 @@
 # frozen_string_literal: true
 
 module Api
-  # Confirmations controller
-  class ConfirmationsController < ApplicationController
+  # Eucharists controller
+  class EucharistsController < ApplicationController
     before_action :authorize_request
-    before_action :find_confirmation, except: %i[create index]
+    before_action :find_eucharist, except: %i[create index]
 
-    # GET /confirmations
+    # GET /eucharists
     # @return [nil]
     def index
-      authorize! :read, Confirmation
+      authorize! :read, Eucharist
       @query = params[:any_field]
 
-      @confirmations = if @query
-                         # TODO: change to full text search
-                         Confirmation
-                           .where(["
-                            confirmed_location like ? or
+      @eucharists = if @query
+                      # TODO: change to full text search
+                      Eucharist
+                        .where(["
+                            eucharist_location like ? or
                             christian_name like ? or
                             godfather like ? or
                             godmother like ? or
                             presbyter like ?",
-                                   "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
-                       else
-                         Confirmation.all
-                       end
+                                "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+                    else
+                      Eucharist.all
+                    end
 
-      @confirmations = @confirmations.select(*%w[
-                                               confirmed_at confirmed_location christian_name
-                                               godfather godmother
-                                               godfather_id godmother_id
-                                               presbyter presbyter_id
-                                               parishioner_id
-                                             ])
-                                     .as_json(except: :id)
+      @eucharists = @eucharists.select(*%w[
+                                         eucharist_at eucharist_location christian_name
+                                         godfather godmother
+                                         godfather_id godmother_id
+                                         presbyter presbyter_id
+                                         parishioner_id
+                                       ])
+                               .as_json(except: :id)
 
-      render json: @confirmations, status: :ok
+      render json: @eucharists, status: :ok
     end
 
-    # GET /confirmations/{id}
+    # GET /eucharists/{id}
     def show
-      authorize! :read, @confirmation
-      render json: @confirmation, include: %i[parishioner], status: :ok
+      authorize! :read, @eucharist
+      render json: @eucharist, include: %i[parishioner], status: :ok
     end
 
-    # POST /confirmations
+    # POST /eucharists
     # TODO upload image
     def create
-      authorize! :create, Confirmation
+      authorize! :create, Eucharist
 
-      @confirmation = Confirmation.new(confirmation_params)
-      if @confirmation.save
-        render json: @confirmation, status: :created
+      @eucharist = Eucharist.new(eucharist_params)
+      if @eucharist.save
+        render json: @eucharist, status: :created
       else
-        render json: { errors: @confirmation.errors.full_messages },
+        render json: { errors: @eucharist.errors.full_messages },
                status: :unprocessable_entity
       end
     end
 
-    # PUT /confirmations/{id}
+    # PUT /eucharists/{id}
     def update
-      authorize! :update, @confirmation
+      authorize! :update, @eucharist
 
-      return if @confirmation.update(confirmation_params)
+      return if @eucharist.update(eucharist_params)
 
-      render json: { errors: @confirmation.errors.full_messages },
+      render json: { errors: @eucharist.errors.full_messages },
              status: :unprocessable_entity
     end
 
-    # DELETE /confirmations/{id}
+    # DELETE /eucharists/{id}
     def destroy
-      authorize! :destroy, @confirmation
+      authorize! :destroy, @eucharist
 
-      @confirmation.destroy
+      @eucharist.destroy
     end
 
     private
 
-    def find_confirmation
-      @confirmation = Confirmation.find_by_parishioner_id!(params[:_parishioner_id])
+    def find_eucharist
+      @eucharist = Eucharist.find_by_parishioner_id!(params[:_parishioner_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Confirmation not found' }, status: :not_found
+      render json: { errors: 'Eucharist not found' }, status: :not_found
     end
 
-    def confirmation_params
+    def eucharist_params
       params.permit(%i[
-                      confirmed_at confirmed_location christian_name
+                      eucharist_at eucharist_location christian_name
                       godfather godmother
                       godfather_id godmother_id
                       presbyter presbyter_id

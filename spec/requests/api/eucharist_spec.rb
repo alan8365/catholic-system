@@ -1,14 +1,14 @@
 require 'swagger_helper'
 
-RSpec.describe 'api/confirmations', type: :request do
+RSpec.describe 'api/eucharists', type: :request do
   fixtures :users
   fixtures :parishioners
-  fixtures :confirmation
+  fixtures :eucharist
 
   before(:each) do
     @example_test = {
-      confirmed_at: '1981-11-11',
-      confirmed_location: '彰化市聖十字架天主堂',
+      eucharist_at: '1981-11-11',
+      eucharist_location: '彰化市聖十字架天主堂',
       christian_name: '聖施達',
 
       godmother: '許00',
@@ -16,12 +16,12 @@ RSpec.describe 'api/confirmations', type: :request do
 
       parishioner_id: 2
     }
-    @confirmation = Confirmation.all[0]
+    @eucharist = Eucharist.all[0]
   end
 
-  path '/api/confirmations' do
-    get('list confirmations') do
-      tags 'Confirmation'
+  path '/api/eucharists' do
+    get('list eucharists') do
+      tags 'Eucharist'
       security [Bearer: {}]
       parameter name: :any_field, in: :query, schema: {
         type: :string,
@@ -30,7 +30,7 @@ RSpec.describe 'api/confirmations', type: :request do
 
       request_body_example value: {
         any_field: '彰化'
-      }, name: 'query test confirmation', summary: 'Finding the specific confirmation'
+      }, name: 'query test eucharist', summary: 'Finding the specific eucharist'
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
@@ -63,15 +63,15 @@ RSpec.describe 'api/confirmations', type: :request do
           data = JSON.parse(response.body)
 
           # ApplicationRecord to hash
-          @confirmation_hash = @confirmation.as_json
+          @eucharist_hash = @eucharist.as_json
 
           # Delete unused fields
-          @confirmation_hash.except!(*%w[
+          @eucharist_hash.except!(*%w[
                                        id
                                        created_at updated_at
                                      ])
 
-          expect(data).to eq([@confirmation_hash])
+          expect(data).to eq([@eucharist_hash])
         end
       end
 
@@ -83,19 +83,19 @@ RSpec.describe 'api/confirmations', type: :request do
       end
     end
 
-    post('create confirmation') do
-      tags 'Confirmation'
+    post('create eucharist') do
+      tags 'Eucharist'
       security [Bearer: {}]
 
       consumes 'application/json'
-      parameter name: :confirmation, in: :body, schema: {
+      parameter name: :eucharist, in: :body, schema: {
         type: :object,
-        required: %w[confirmed_at confirmed_location christian_name presbyter parishioner_id]
+        required: %w[eucharist_at eucharist_location christian_name presbyter parishioner_id]
       }
 
       request_body_example value: {
-        confirmed_at: '1981-11-11',
-        confirmed_location: '彰化市聖十字架天主堂',
+        eucharist_at: '1981-11-11',
+        eucharist_location: '彰化市聖十字架天主堂',
         christian_name: '聖施達',
 
         godfather: '',
@@ -108,11 +108,11 @@ RSpec.describe 'api/confirmations', type: :request do
         presbyter_id: nil,
 
         parishioner_id: 1
-      }, name: 'test_confirmation', summary: 'Test confirmation create'
+      }, name: 'test_eucharist', summary: 'Test eucharist create'
 
       response(201, 'Created') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:confirmation) { @example_test }
+        let(:eucharist) { @example_test }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -134,7 +134,7 @@ RSpec.describe 'api/confirmations', type: :request do
       # Current user dose not have permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:confirmation) {}
+        let(:eucharist) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -146,10 +146,10 @@ RSpec.describe 'api/confirmations', type: :request do
         run_test!
       end
 
-      # Confirmation info incomplete test
+      # Eucharist info incomplete test
       response(422, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:confirmation) { {} }
+        let(:eucharist) { {} }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -183,16 +183,16 @@ RSpec.describe 'api/confirmations', type: :request do
     end
   end
 
-  path '/api/confirmations/{_parishioner_id}' do
+  path '/api/eucharists/{_parishioner_id}' do
     parameter name: '_parishioner_id', in: :path, type: :string, description: '_parishioner_id'
 
-    get('show confirmation') do
-      tags 'Confirmation'
+    get('show eucharist') do
+      tags 'Eucharist'
       security [Bearer: {}]
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @confirmation.parishioner_id }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -219,19 +219,19 @@ RSpec.describe 'api/confirmations', type: :request do
       end
     end
 
-    patch('update confirmation') do
-      tags 'Confirmation'
+    patch('update eucharist') do
+      tags 'Eucharist'
       security [Bearer: {}]
 
       consumes 'application/json'
-      parameter name: :confirmation, in: :body, schema: {
+      parameter name: :eucharist, in: :body, schema: {
         type: :object,
-        required: %w[confirmed_at confirmed_location christian_name presbyter parishioner_id]
+        required: %w[eucharist_at eucharist_location christian_name presbyter parishioner_id]
       }
 
       request_body_example value: {
-        confirmed_at: '1981-11-11',
-        confirmed_location: '彰化市聖十字架天主堂',
+        eucharist_at: '1981-11-11',
+        eucharist_location: '彰化市聖十字架天主堂',
         christian_name: '聖施達',
 
         godfather: '',
@@ -244,23 +244,23 @@ RSpec.describe 'api/confirmations', type: :request do
         presbyter_id: nil,
 
         parishioner_id: 1
-      }, name: 'test_confirmation', summary: 'Test confirmation update'
+      }, name: 'test_eucharist', summary: 'Test eucharist update'
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @confirmation.parishioner_id }
-        let(:confirmation) { { confirmed_location: '台中市聖十字架天主堂' } }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
+        let(:eucharist) { { eucharist_location: '台中市聖十字架天主堂' } }
 
         run_test! do
-          expect(Confirmation.all[0].confirmed_location).to eq('台中市聖十字架天主堂')
+          expect(Eucharist.all[0].eucharist_location).to eq('台中市聖十字架天主堂')
         end
       end
 
       # Current user have not permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:_parishioner_id) { @confirmation.parishioner_id }
-        let(:confirmation) {}
+        let(:_parishioner_id) { @eucharist.parishioner_id }
+        let(:eucharist) {}
 
         run_test!
       end
@@ -268,20 +268,20 @@ RSpec.describe 'api/confirmations', type: :request do
       # Field is blank
       response(422, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @confirmation.parishioner_id }
-        let(:confirmation) { { confirmed_location: '' } }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
+        let(:eucharist) { { eucharist_location: '' } }
 
         run_test!
       end
     end
 
-    delete('delete confirmation') do
-      tags 'Confirmation'
+    delete('delete eucharist') do
+      tags 'Eucharist'
       security [Bearer: {}]
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @confirmation.parishioner_id }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
 
         run_test!
       end
@@ -289,12 +289,12 @@ RSpec.describe 'api/confirmations', type: :request do
       # Current user dose not have permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:_parishioner_id) { @confirmation.parishioner_id }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
 
         run_test!
       end
 
-      # The confirmation dose not exist
+      # The eucharist dose not exist
       response(404, 'Not Found') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:_parishioner_id) { 'unknown_id' }

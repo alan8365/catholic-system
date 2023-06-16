@@ -15,6 +15,7 @@ class Parishioner < ApplicationRecord
   # Sacrament association
   has_one :baptism, class_name: 'Baptism', foreign_key: 'parishioner_id'
   has_one :confirmation, class_name: 'Confirmation', foreign_key: 'parishioner_id'
+  has_one :eucharist, class_name: 'Eucharist', foreign_key: 'parishioner_id'
 
   # Image
   has_one_attached :picture

@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     resources :parishioners, param: :_id
     resources :baptisms, param: :_parishioner_id
     resources :confirmations, param: :_parishioner_id
+    resources :eucharists, param: :_parishioner_id
 
     get 'parishioners/:_id/picture', to: 'parishioners#picture', param: :_id
   end

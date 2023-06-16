@@ -44,14 +44,14 @@ module Api
                                   move_out_date move_out_reason destination_parish
                                 ])
 
-      render json: @parishioners, include: %i[baptism confirmation], status: :ok
+      render json: @parishioners, include: %i[baptism confirmation eucharist], status: :ok
     end
 
     # GET /parishioners/{id}
     def show
       authorize! :read, @parishioner
 
-      render json: @parishioner, include: %i[baptism confirmation], status: :ok
+      render json: @parishioner, include: %i[baptism confirmation eucharist], status: :ok
     end
 
     def picture

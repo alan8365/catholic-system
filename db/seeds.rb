@@ -113,3 +113,15 @@ Confirmation.create({
 
                       parishioner: first_parishioner
                     })
+
+# Eucharist
+Eucharist.create({
+                   eucharist_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
+                   eucharist_location: '彰化市聖十字架天主堂',
+                   christian_name: '安東尼',
+
+                   godfather: '張00',
+                   presbyter: '黃世明神父',
+
+                   parishioner: first_parishioner
+                 })

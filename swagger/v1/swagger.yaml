@@ -282,6 +282,134 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+  "/api/eucharists":
+    get:
+      summary: list eucharists
+      tags:
+      - Eucharist
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create eucharist
+      tags:
+      - Eucharist
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - eucharist_at
+              - eucharist_location
+              - christian_name
+              - presbyter
+              - parishioner_id
+            examples:
+              test_eucharist:
+                summary: Test eucharist create
+                value:
+                  eucharist_at: '1981-11-11'
+                  eucharist_location: 彰化市聖十字架天主堂
+                  christian_name: 聖施達
+                  godfather: ''
+                  godfather_id:
+                  godmother: 許00
+                  godmother_id:
+                  presbyter: 黃世明神父
+                  presbyter_id:
+                  parishioner_id: 1
+  "/api/eucharists/{_parishioner_id}":
+    parameters:
+    - name: _parishioner_id
+      in: path
+      description: _parishioner_id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show eucharist
+      tags:
+      - Eucharist
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update eucharist
+      tags:
+      - Eucharist
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - eucharist_at
+              - eucharist_location
+              - christian_name
+              - presbyter
+              - parishioner_id
+            examples:
+              test_eucharist:
+                summary: Test eucharist update
+                value:
+                  eucharist_at: '1981-11-11'
+                  eucharist_location: 彰化市聖十字架天主堂
+                  christian_name: 聖施達
+                  godfather: ''
+                  godfather_id:
+                  godmother: 許00
+                  godmother_id:
+                  presbyter: 黃世明神父
+                  presbyter_id:
+                  parishioner_id: 1
+    delete:
+      summary: delete eucharist
+      tags:
+      - Eucharist
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
   "/api/households":
     get:
       summary: list households

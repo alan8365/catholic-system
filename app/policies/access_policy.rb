@@ -9,7 +9,8 @@ class AccessPolicy
       Household,
       Parishioner,
       Baptism,
-      Confirmation
+      Confirmation,
+      Eucharist
     ]
 
     role :admin, proc { |user| user.is_admin? } do

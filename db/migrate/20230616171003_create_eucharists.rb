@@ -1,9 +1,10 @@
 # frozen_string_literal: true
-class CreateConfirmations < ActiveRecord::Migration[7.0]
+
+class CreateEucharists < ActiveRecord::Migration[7.0]
   def change
-    create_table :confirmations do |t|
-      t.date 'confirmed_at', comment: 'The date the parishioner was confirmed'
-      t.string 'confirmed_location', comment: 'The location where the parishioner was confirmed'
+    create_table :eucharists do |t|
+      t.date 'eucharist_at'
+      t.string 'eucharist_location'
       t.string 'christian_name', comment: "The parishioner's Christian name"
 
       t.string 'godfather', comment: "The name of the parishioner's godfather"
@@ -19,10 +20,10 @@ class CreateConfirmations < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_foreign_key :confirmations, :parishioners, column: 'parishioner_id', on_update: :cascade, on_delete: :cascade
+    add_foreign_key :eucharists, :parishioners, column: 'parishioner_id', on_update: :cascade, on_delete: :cascade
 
-    add_foreign_key :confirmations, :parishioners, column: 'godfather_id', on_delete: :nullify, on_update: :cascade
-    add_foreign_key :confirmations, :parishioners, column: 'godmother_id', on_delete: :nullify, on_update: :cascade
-    add_foreign_key :confirmations, :parishioners, column: 'presbyter_id', on_delete: :nullify, on_update: :cascade
+    add_foreign_key :eucharists, :parishioners, column: 'godfather_id', on_delete: :nullify, on_update: :cascade
+    add_foreign_key :eucharists, :parishioners, column: 'godmother_id', on_delete: :nullify, on_update: :cascade
+    add_foreign_key :eucharists, :parishioners, column: 'presbyter_id', on_delete: :nullify, on_update: :cascade
   end
 end

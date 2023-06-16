@@ -102,6 +102,7 @@ home_number, nationality, profession, and company_name.'
 
           @parishioner_hash['baptism'] = @parishioner.baptism.as_json
           @parishioner_hash['confirmation'] = @parishioner.confirmation.as_json
+          @parishioner_hash['eucharist'] = @parishioner.eucharist.as_json
 
           expect(data).to eq([@parishioner_hash])
         end
