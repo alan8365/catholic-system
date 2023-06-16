@@ -1,7 +1,7 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 test_m:
-  id: 0
+  id: 1
 
   name: 趙男人
   gender: 男
@@ -10,7 +10,7 @@ test_m:
   address: 台中市北區三民路某段某號
 
   spouse: 錢女人
-  spouse_id: 1
+  spouse_id: 2
 
   father: 趙爸爸
   mother: 孫媽媽
@@ -20,10 +20,21 @@ test_m:
   profession: 資訊
   company_name: 科技大學
   home_number: TT520
+
+  sibling_number: 0
+  children_number: 0
+
+  move_in_date: <%= Date.strptime('2013/01/01', '%Y/%m/%d') %>
+  original_parish: 'ＯＯ堂區'
+
+  move_out_date: <%= Date.strptime('2093/01/01', '%Y/%m/%d') %>
+  move_out_reason: '搬家'
+  destination_parish: 'XX堂區'
+
   comment: 測試用男性教友一號
 
 test_f:
-  id: 1
+  id: 2
 
   name: 錢女人
   gender: 女
@@ -32,7 +43,7 @@ test_f:
   address: 台中市北區三民路某段某號
 
   spouse: 趙男人
-  spouse_id: 0
+  spouse_id: 1
   father: 錢爸爸
   mother: 李媽媽
 
@@ -42,4 +53,15 @@ test_f:
   profession: 資訊
   company_name: 科技大學
   home_number: TT520
+
+  sibling_number: 0
+  children_number: 0
+
+  move_in_date: <%= Date.strptime('2013/01/01', '%Y/%m/%d') %>
+  original_parish: 'ＯＯ堂區'
+
+  move_out_date: <%= Date.strptime('2093/01/01', '%Y/%m/%d') %>
+  move_out_reason: '搬家'
+  destination_parish: 'XX堂區'
+
   comment: 測試用女性教友一號

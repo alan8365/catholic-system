@@ -2,8 +2,8 @@
 
 module Api
   # CRUD for baptism
-  class BaptismController < ApplicationController
-    before_action :authorize_request, except: :picture
+  class BaptismsController < ApplicationController
+    before_action :authorize_request
     before_action :find_baptism, except: %i[create index]
 
     # GET /baptisms
@@ -21,7 +21,7 @@ module Api
                             christian_name like ? or
                             godfather like ? or
                             godmother like ? or
-                            baptist like ?",
+                            presbyter like ?",
                               "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
                   else
                     Baptism.all
@@ -31,8 +31,8 @@ module Api
                                      baptized_at baptized_location christian_name
                                      godfather godmother
                                      godfather_id godmother_id
-                                     baptist baptist_id
-                                     baptized_person
+                                     presbyter presbyter_id
+                                     parishioner_id
                                    ])
                            .as_json(except: :id)
 
@@ -42,19 +42,10 @@ module Api
     # GET /baptisms/{id}
     def show
       authorize! :read, @baptism
-      render json: @baptism, status: :ok
-    end
-
-    def picture
-      if @baptism.picture.attached?
-        send_file @baptism.picture_url, type: 'image/png', disposition: 'inline'
-      else
-        head :not_found
-      end
+      render json: @baptism, include: %i[parishioner], status: :ok
     end
 
     # POST /baptisms
-    # TODO upload image
     def create
       authorize! :create, Baptism
 
@@ -87,7 +78,7 @@ module Api
     private
 
     def find_baptism
-      @baptism = Baptism.find_by_id!(params[:_id])
+      @baptism = Baptism.find_by_parishioner_id!(params[:_parishioner_id])
     rescue ActiveRecord::RecordNotFound
       render json: { errors: 'Baptism not found' }, status: :not_found
     end
@@ -97,8 +88,8 @@ module Api
                       baptized_at baptized_location christian_name
                       godfather godmother
                       godfather_id godmother_id
-                      baptist baptist_id
-                      baptized_person
+                      presbyter presbyter_id
+                      parishioner_id
                     ])
     end
 

@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 # Baptism model
-class Baptism < ApplicationRecord
+class Confirmation < ApplicationRecord
   belongs_to :parishioner, class_name: 'Parishioner', foreign_key: 'parishioner_id'
 
   belongs_to :godfather_instance, class_name: 'Parishioner', foreign_key: 'godfather_id', optional: true
   belongs_to :godmother_instance, class_name: 'Parishioner', foreign_key: 'godmother_id', optional: true
   belongs_to :presbyter_instance, class_name: 'Parishioner', foreign_key: 'presbyter_id', optional: true
 
-  validates :baptized_at, presence: true
-  validates :baptized_location, presence: true
+  validates :confirmed_at, presence: true
+  validates :confirmed_location, presence: true
   validates :christian_name, presence: true
 
   validates :presbyter, presence: true

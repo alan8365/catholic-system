@@ -20,7 +20,6 @@ first_parishioner = Parishioner.create({
                                          birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
                                          postal_code: '433',
                                          address: '台中市北區三民路某段某號',
-                                         photo_url: 'https://www.moedict.tw/%E6%9F%90%E6%9F%90%E4%BA%BA.png?font=wt064',
                                          spouse: '王某某',
                                          father: '許某某',
                                          mother: '張某某',
@@ -29,6 +28,17 @@ first_parishioner = Parishioner.create({
                                          nationality: '中華民國',
                                          profession: '資訊',
                                          company_name: '科技大學',
+
+                                         sibling_number: 0,
+                                         children_number: 0,
+
+                                         move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
+                                         original_parish: 'ＯＯ堂區',
+
+                                         move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
+                                         move_out_reason: '搬家',
+                                         destination_parish: 'ＸＸ堂區',
+
                                          comment: '測試用教友一號'
                                        })
 
@@ -38,7 +48,6 @@ second_parishioner = Parishioner.create({
                                           birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
                                           postal_code: '433',
                                           address: '台中市北區三民路某段某號',
-                                          photo_url: 'https://www.moedict.tw/%E6%9F%90%E6%9F%90%E4%BA%BA.png?font=wt064',
                                           spouse: '許某某',
                                           father: '王某某',
                                           mother: '陳某某',
@@ -47,6 +56,17 @@ second_parishioner = Parishioner.create({
                                           nationality: '中華民國',
                                           profession: '資訊',
                                           company_name: '科技大學',
+
+                                          sibling_number: 0,
+                                          children_number: 0,
+
+                                          move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
+                                          original_parish: 'ＯＯ堂區',
+
+                                          move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
+                                          move_out_reason: '搬家',
+                                          destination_parish: 'ＸＸ堂區',
+
                                           comment: '測試用教友二號'
                                         })
 
@@ -77,9 +97,19 @@ Baptism.create({
                  christian_name: '安東尼',
 
                  godfather: '張00',
-                 baptist: '黃世明神父',
+                 presbyter: '黃世明神父',
 
-                 baptized_person: first_parishioner.id
+                 parishioner_id: first_parishioner.id
                })
 
+# Confirmation
+Confirmation.create({
+                      confirmed_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
+                      confirmed_location: '彰化市聖十字架天主堂',
+                      christian_name: '安東尼',
 
+                      godfather: '張00',
+                      presbyter: '黃世明神父',
+
+                      parishioner: first_parishioner
+                    })
