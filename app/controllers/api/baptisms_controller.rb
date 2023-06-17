@@ -64,6 +64,13 @@ module Api
 
       # TODO: update associations
 
+      update_params = baptism_params.to_h
+      if update_params.include?('parishioner_id')
+        @parishioner = Parishioner.find_by_id(update_params['parishioner_id'])
+
+        update_params.delete('parishioner_id')
+      end
+
       return if @baptism.update(baptism_params)
 
       render json: { errors: @baptism.errors.full_messages },

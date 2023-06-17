@@ -196,30 +196,32 @@ RSpec.describe 'api/households', type: :request do
       security [Bearer: {}]
       consumes 'application/json'
       parameter name: :household, in: :body, schema: {
-        type: :object,
+        type: :object
       }
 
       request_body_example value: {
-        home_number: 'TT521'
+        home_number: 'TT521',
+        head_of_household_id: 2,
       }, name: 'test home number change', summary: 'Test household update'
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_home_number) { 'TT520' }
-        let(:household) { { home_number: 'TT521' } }
+        let(:household) { { home_number: 'TT521', head_of_household_id: 2 } }
 
         run_test! do
           expect(Household.find_by_home_number('TT521').home_number).to eq('TT521')
+          expect(Household.find_by_home_number('TT521').head_of_household.id).to eq(2)
         end
       end
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_home_number) { 'TT520' }
-        let(:household) { { head_of_household_id: 1 } }
+        let(:household) { { head_of_household_id: 2 } }
 
         run_test! do
-          expect(Household.find_by_home_number('TT520').head_of_household.id).to eq(1)
+          expect(Household.find_by_home_number('TT520').head_of_household.id).to eq(2)
         end
       end
 

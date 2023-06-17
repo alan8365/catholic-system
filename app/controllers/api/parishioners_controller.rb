@@ -51,7 +51,7 @@ module Api
     def show
       authorize! :read, @parishioner
 
-      render json: @parishioner, include: %i[baptism confirmation eucharist], status: :ok
+      render json: @parishioner, include: %i[spouse_instance mother_instance father_instance baptism confirmation eucharist], status: :ok
     end
 
     def picture
@@ -82,9 +82,6 @@ module Api
     # PUT /parishioners/{id}
     def update
       authorize! :update, @parishioner
-
-      # TODO: update image
-      # TODO: update associations
 
       update_params = parishioner_params.to_h
       if update_params.include?('spouse_id')

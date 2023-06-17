@@ -103,7 +103,7 @@ RSpec.describe 'api/baptisms', type: :request do
       consumes 'application/json'
       parameter name: :baptism, in: :body, schema: {
         type: :object,
-        required: %w[baptized_at baptized_location christian_name presbyter parishioner_id],
+        required: %w[baptized_at baptized_location christian_name presbyter parishioner_id]
       }
 
       request_body_example value: {
@@ -126,14 +126,6 @@ RSpec.describe 'api/baptisms', type: :request do
       response(201, 'Created') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:baptism) { @example_test }
-
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -254,10 +246,11 @@ RSpec.describe 'api/baptisms', type: :request do
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:_parishioner_id) { @baptism.parishioner_id }
-        let(:baptism) { { baptized_location: '台中市聖十字架天主堂' } }
+        let(:baptism) { { baptized_location: '台中市聖十字架天主堂', parishioner_id: 2 } }
 
         run_test! do
-          expect(Baptism.all[0].baptized_location).to eq('台中市聖十字架天主堂')
+          expect(Baptism.find_by_id(@baptism.id).baptized_location).to eq('台中市聖十字架天主堂')
+          expect(Baptism.find_by_id(@baptism.id).parishioner_id).to eq(2)
         end
       end
 

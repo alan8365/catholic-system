@@ -295,7 +295,7 @@ home_number, nationality, profession, and company_name.'
           profession: { type: :string, example: '醫生' },
           company_name: { type: :string, example: '恐龍牙醫診所' },
           comment: { type: :string, example: '測試用範例教友' }
-        },
+        }
       }
 
       request_body_example value: {
@@ -305,16 +305,24 @@ home_number, nationality, profession, and company_name.'
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:"") { { name: '台灣偉人', spouse_id: 3, father_id: 4, mother_id: 5, picture: @file2 } }
+        let(:"") { { name: '台灣偉人', spouse_id: 3, mother_id: 4, father_id: 5, picture: @file2 } }
 
         run_test! do
           parishioner = Parishioner.all[0]
           spouse = Parishioner.find_by_id(3)
+          mother = Parishioner.find_by_id(4)
+          father = Parishioner.find_by_id(5)
 
           expect(parishioner.name).to eq('台灣偉人')
 
           expect(parishioner.spouse_instance.id).to eq(spouse.id)
           expect(parishioner.spouse).to eq(spouse.name)
+
+          expect(parishioner.father_instance.id).to eq(father.id)
+          expect(parishioner.father).to eq(father.name)
+
+          expect(parishioner.mother_instance.id).to eq(mother.id)
+          expect(parishioner.mother).to eq(mother.name)
         end
       end
 
