@@ -62,6 +62,8 @@ module Api
     def update
       authorize! :update, @baptism
 
+      # TODO: update associations
+
       return if @baptism.update(baptism_params)
 
       render json: { errors: @baptism.errors.full_messages },

@@ -62,6 +62,8 @@ module Api
     def update
       authorize! :update, @eucharist
 
+      # TODO: update associations
+
       return if @eucharist.update(eucharist_params)
 
       render json: { errors: @eucharist.errors.full_messages },

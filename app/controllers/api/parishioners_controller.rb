@@ -82,6 +82,10 @@ module Api
     # PUT /parishioners/{id}
     def update
       authorize! :update, @parishioner
+
+      # TODO: update image
+      # TODO: update associations
+
       return if @parishioner.update(parishioner_params)
 
       render json: { errors: @parishioner.errors.full_messages },

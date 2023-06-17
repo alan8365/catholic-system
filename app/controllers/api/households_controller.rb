@@ -18,7 +18,7 @@ module Api
                     end
 
       @households = @households
-                    .select(*%w[home_number head_of_household])
+                      .select(*%w[home_number head_of_household])
 
       render json: @households, status: :ok
     end
@@ -51,7 +51,14 @@ module Api
     # PUT /households/{home_number}
     def update
       authorize! :update, @household
-      return if @household.update(household_params)
+
+      update_params = household_params.to_h
+      if 'head_of_household_id'.in?(update_params.keys)
+        @household.head_of_household = Parishioner.find_by_id(update_params['head_of_household_id'])
+        update_params.delete('head_of_household_id')
+      end
+
+      return if @household.update(update_params)
 
       render json: { errors: @household.errors.full_messages },
              status: :unprocessable_entity

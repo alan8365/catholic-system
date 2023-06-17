@@ -62,6 +62,8 @@ module Api
     def update
       authorize! :update, @confirmation
 
+      # TODO: update associations
+
       return if @confirmation.update(confirmation_params)
 
       render json: { errors: @confirmation.errors.full_messages },
