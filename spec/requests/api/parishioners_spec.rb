@@ -9,6 +9,7 @@ RSpec.describe 'api/parishioners', type: :request do
 
   before(:each) do
     @file = fixture_file_upload('profile-pic.jpeg', 'image/jpeg')
+    @file2 = fixture_file_upload('profile-pic2.jpeg', 'image/jpeg')
     @example_test_parishioner = {
       name: '周男人',
       gender: '男',
@@ -42,6 +43,7 @@ RSpec.describe 'api/parishioners', type: :request do
 
       comment: '測試用範例教友'
     }
+
     @parishioner = Parishioner.find_by_id(1)
     @parishioner.picture.attach(@file)
   end
@@ -93,18 +95,22 @@ home_number, nationality, profession, and company_name.'
           data = JSON.parse(response.body)
 
           # ApplicationRecord to hash
-          @parishioner_hash = @parishioner.as_json
+          parishioner_hash = @parishioner.as_json
+          parishioner2_hash = Parishioner.find_by_id(5).as_json
 
           # Delete unused fields
-          @parishioner_hash.except!(*%w[
+          parishioner_hash.except!(*%w[
+                                     created_at updated_at
+                                   ])
+          parishioner2_hash.except!(*%w[
                                       created_at updated_at
                                     ])
 
-          @parishioner_hash['baptism'] = @parishioner.baptism.as_json
-          @parishioner_hash['confirmation'] = @parishioner.confirmation.as_json
-          @parishioner_hash['eucharist'] = @parishioner.eucharist.as_json
+          parishioner_hash['baptism'] = @parishioner.baptism.as_json
+          parishioner_hash['confirmation'] = @parishioner.confirmation.as_json
+          parishioner_hash['eucharist'] = @parishioner.eucharist.as_json
 
-          expect(data).to eq([@parishioner_hash])
+          expect(data).to eq([parishioner_hash, parishioner2_hash])
         end
       end
 
@@ -299,9 +305,30 @@ home_number, nationality, profession, and company_name.'
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:"") { { name: '台灣偉人' } }
+        let(:"") { { name: '台灣偉人', spouse_id: 3, father_id: 4, mother_id: 5, picture: @file2 } }
 
-        run_test!
+        run_test! do
+          parishioner = Parishioner.all[0]
+          spouse = Parishioner.find_by_id(3)
+
+          expect(parishioner.name).to eq('台灣偉人')
+
+          expect(parishioner.spouse_instance.id).to eq(spouse.id)
+          expect(parishioner.spouse).to eq(spouse.name)
+        end
+      end
+
+      # Delete association
+      response(204, 'No Content') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { Parishioner.all[0].id }
+        let(:"") { { spouse_id: '', father_id: '', mother_id: '' } }
+
+        run_test! do
+          parishioner = Parishioner.all[0]
+
+          expect(parishioner.spouse_instance).to eq(nil)
+        end
       end
 
       # Current user have not permission

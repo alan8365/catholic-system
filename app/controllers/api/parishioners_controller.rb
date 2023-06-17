@@ -86,7 +86,38 @@ module Api
       # TODO: update image
       # TODO: update associations
 
-      return if @parishioner.update(parishioner_params)
+      update_params = parishioner_params.to_h
+      if update_params.include?('spouse_id')
+        spouse = Parishioner.find_by_id(update_params['spouse_id'])
+
+        @parishioner.spouse_instance = spouse
+        @parishioner.spouse = spouse.name if spouse
+
+        update_params.delete('spouse_id')
+        update_params.delete('spouse')
+      end
+
+      if update_params.include?('father_id')
+        father = Parishioner.find_by_id(update_params['father_id'])
+
+        @parishioner.father_instance = father
+        @parishioner.father = father.name if father
+
+        update_params.delete('father_id')
+        update_params.delete('father')
+      end
+
+      if update_params.include?('mother_id')
+        mother = Parishioner.find_by_id(update_params['mother_id'])
+
+        @parishioner.mother_instance = mother
+        @parishioner.mother = mother.name if mother
+
+        update_params.delete('mother_id')
+        update_params.delete('mother')
+      end
+
+      return if @parishioner.update(update_params)
 
       render json: { errors: @parishioner.errors.full_messages },
              status: :unprocessable_entity

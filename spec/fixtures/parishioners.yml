@@ -65,3 +65,25 @@ test_f:
   destination_parish: 'XX堂區'
 
   comment: 測試用女性教友一號
+
+
+test_o:
+  id: 3
+
+  name: 路人甲
+  gender: 女
+  birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
+
+test_mother:
+  id: 4
+
+  name: 孫媽媽
+  gender: 女
+  birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
+
+test_father:
+  id: 5
+
+  name: 趙爸爸
+  gender: 男
+  birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
