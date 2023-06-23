@@ -63,15 +63,15 @@ RSpec.describe 'api/eucharists', type: :request do
           data = JSON.parse(response.body)
 
           # ApplicationRecord to hash
-          @eucharist_hash = @eucharist.as_json
+          eucharist_hash = @eucharist.as_json
 
           # Delete unused fields
-          @eucharist_hash.except!(*%w[
-                                       id
-                                       created_at updated_at
-                                     ])
+          eucharist_hash.except!(*%w[
+                                    created_at updated_at
+                                  ])
+          eucharist_hash['parishioner'] = @eucharist.parishioner.as_json
 
-          expect(data).to eq([@eucharist_hash])
+          expect(data).to eq([eucharist_hash])
         end
       end
 

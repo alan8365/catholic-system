@@ -27,15 +27,15 @@ module Api
                        end
 
       @confirmations = @confirmations.select(*%w[
+                                               id
                                                confirmed_at confirmed_location christian_name
                                                godfather godmother
                                                godfather_id godmother_id
                                                presbyter presbyter_id
                                                parishioner_id
                                              ])
-                                     .as_json(except: :id)
 
-      render json: @confirmations, status: :ok
+      render json: @confirmations, include: %i[parishioner], status: :ok
     end
 
     # GET /confirmations/{id}

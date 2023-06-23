@@ -67,18 +67,17 @@ RSpec.describe 'api/baptisms', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data).to eq([{ 'baptized_at' => '1980-10-29',
-                                'baptized_location' => '彰化市聖十字架天主堂',
-                                'christian_name' => '安東尼',
 
-                                'godfather' => '張00',
-                                'godfather_id' => nil,
-                                'godmother' => nil,
-                                'godmother_id' => nil,
-                                'presbyter' => '黃世明神父',
-                                'presbyter_id' => nil,
+          # ApplicationRecord to hash
+          baptism_hash = @baptism.as_json
 
-                                'parishioner_id' => 1 }])
+          # Delete unused fields
+          baptism_hash.except!(*%w[
+                                 created_at updated_at
+                               ])
+          baptism_hash['parishioner'] = @baptism.parishioner.as_json
+
+          expect(data).to eq([baptism_hash])
         end
       end
 

@@ -28,15 +28,15 @@ module Api
                   end
 
       @baptisms = @baptisms.select(*%w[
+                                     id
                                      baptized_at baptized_location christian_name
                                      godfather godmother
                                      godfather_id godmother_id
                                      presbyter presbyter_id
                                      parishioner_id
                                    ])
-                           .as_json(except: :id)
 
-      render json: @baptisms, status: :ok
+      render json: @baptisms, include: %i[parishioner], status: :ok
     end
 
     # GET /baptisms/{id}

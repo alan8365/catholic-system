@@ -27,15 +27,15 @@ module Api
                     end
 
       @eucharists = @eucharists.select(*%w[
+                                         id
                                          eucharist_at eucharist_location christian_name
                                          godfather godmother
                                          godfather_id godmother_id
                                          presbyter presbyter_id
                                          parishioner_id
                                        ])
-                               .as_json(except: :id)
 
-      render json: @eucharists, status: :ok
+      render json: @eucharists, include: %i[parishioner], status: :ok
     end
 
     # GET /eucharists/{id}
