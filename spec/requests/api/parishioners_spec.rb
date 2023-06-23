@@ -53,8 +53,8 @@ RSpec.describe 'api/parishioners', type: :request do
       tags 'Parishioner'
       security [Bearer: {}]
 
-      description = 'Search from the following fields: name, comment, father, mother, spouse,
-home_number, nationality, profession, and company_name.'
+      description = 'Search from the following fields: name home_number gender address father mother spouse nationality
+profession company_name home_phone mobile_phone comment.'
       parameter name: :any_field, in: :query, description: description, schema: {
         type: :string
       }
@@ -81,7 +81,6 @@ home_number, nationality, profession, and company_name.'
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { '%E8%B6%99%E7%88%B8%E7%88%B8' }
-        # let(:any_field) { '%E9%8C%A2%E7%88%B8%E7%88%B8' }
 
         after do |example|
           example.metadata[:response][:content] = {

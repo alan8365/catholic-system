@@ -27,7 +27,7 @@ module Api
                     end
 
       @eucharists = @eucharists.select(*%w[
-                                         id
+      id
                                          eucharist_at eucharist_location christian_name
                                          godfather godmother
                                          godfather_id godmother_id

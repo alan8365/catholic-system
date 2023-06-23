@@ -9,40 +9,40 @@ module Api
     # @todo change the
     def index
       authorize! :read, Parishioner
-      @query = params[:any_field]
+      query = params[:any_field]
 
-      if @query
+      if query
         # TODO: change to full text search
 
+        string_filed = %w[
+          name home_number gender address
+          father mother spouse
+          nationality profession company_name
+          home_phone mobile_phone
+          comment
+        ]
+
+        query_string = string_filed.join(" like ? or \n")
+        query_string += ' like ?'
+
+        query_array = string_filed.map {|_| "%#{query}%" }.compact
+
         @parishioners = Parishioner
-                          .where(["
-                            name like ?  or
-                            comment like ? or
-                            father like ? or
-                            mother like ? or
-                            spouse like ? or
-                            home_number like ? or
-                            nationality like ? or
-                            profession like ? or
-                            company_name like ?
-                          ",
-                                  "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%",
-                                  "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+                          .where([query_string, *query_array])
       else
         @parishioners = Parishioner.all
       end
 
-      @parishioners = @parishioners
-                        .select(*%w[
-                                  id
-                                  name gender birth_at postal_code address home_number
-                                  father mother spouse father_id mother_id spouse_id
-                                  home_phone mobile_phone nationality
-                                  profession company_name comment
-                                  sibling_number children_number
-                                  move_in_date original_parish
-                                  move_out_date move_out_reason destination_parish
-                                ])
+      @parishioners = @parishioners.select(*%w[
+                                             id
+                                             name gender birth_at postal_code address home_number
+                                             father mother spouse father_id mother_id spouse_id
+                                             home_phone mobile_phone nationality
+                                             profession company_name comment
+                                             sibling_number children_number
+                                             move_in_date original_parish
+                                             move_out_date move_out_reason destination_parish
+                                           ])
 
       render json: @parishioners, include: %i[baptism confirmation eucharist], status: :ok
     end
