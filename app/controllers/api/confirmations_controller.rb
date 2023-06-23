@@ -10,18 +10,18 @@ module Api
     # @return [nil]
     def index
       authorize! :read, Confirmation
-      @query = params[:any_field]
+      query = params[:any_field]
 
-      @confirmations = if @query
-                         # TODO: change to full text search
-                         Confirmation
-                           .where(["
-                            confirmed_location like ? or
-                            christian_name like ? or
-                            godfather like ? or
-                            godmother like ? or
-                            presbyter like ?",
-                                   "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+      @confirmations = if query
+                         string_filed = %w[
+                           confirmed_location christian_name godfather godmother presbyter comment
+                         ]
+
+                         query_string = string_filed.join(" like ? or \n")
+                         query_string += ' like ?'
+
+                         query_array = string_filed.map { |_| "%#{query}%" }.compact
+                         Confirmation.where([query_string, *query_array])
                        else
                          Confirmation.all
                        end
@@ -33,6 +33,7 @@ module Api
                                                godfather_id godmother_id
                                                presbyter presbyter_id
                                                parishioner_id
+                                               comment
                                              ])
 
       render json: @confirmations, include: %i[parishioner], status: :ok
@@ -45,7 +46,6 @@ module Api
     end
 
     # POST /confirmations
-    # TODO upload image
     def create
       authorize! :create, Confirmation
 
@@ -61,8 +61,6 @@ module Api
     # PUT /confirmations/{id}
     def update
       authorize! :update, @confirmation
-
-      # TODO: update associations
 
       return if @confirmation.update(confirmation_params)
 
@@ -92,6 +90,7 @@ module Api
                       godfather_id godmother_id
                       presbyter presbyter_id
                       parishioner_id
+                      comment
                     ])
     end
 

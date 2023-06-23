@@ -12,8 +12,6 @@ module Api
       query = params[:any_field]
 
       if query
-        # TODO: change to full text search
-
         string_filed = %w[
           name home_number gender address
           father mother spouse
@@ -25,10 +23,9 @@ module Api
         query_string = string_filed.join(" like ? or \n")
         query_string += ' like ?'
 
-        query_array = string_filed.map {|_| "%#{query}%" }.compact
+        query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-        @parishioners = Parishioner
-                          .where([query_string, *query_array])
+        @parishioners = Parishioner.where([query_string, *query_array])
       else
         @parishioners = Parishioner.all
       end
@@ -63,7 +60,6 @@ module Api
     end
 
     # POST /parishioners
-    # TODO upload image
     def create
       authorize! :create, Parishioner
 

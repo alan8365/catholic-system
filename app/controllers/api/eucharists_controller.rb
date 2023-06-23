@@ -10,29 +10,31 @@ module Api
     # @return [nil]
     def index
       authorize! :read, Eucharist
-      @query = params[:any_field]
+      query = params[:any_field]
 
-      @eucharists = if @query
-                      # TODO: change to full text search
-                      Eucharist
-                        .where(["
-                            eucharist_location like ? or
-                            christian_name like ? or
-                            godfather like ? or
-                            godmother like ? or
-                            presbyter like ?",
-                                "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+      @eucharists = if query
+                      string_filed = %w[
+                        eucharist_location christian_name godfather godmother presbyter comment
+                      ]
+
+                      query_string = string_filed.join(" like ? or \n")
+                      query_string += ' like ?'
+
+                      query_array = string_filed.map { |_| "%#{query}%" }.compact
+
+                      Eucharist.where([query_string, *query_array])
                     else
                       Eucharist.all
                     end
 
       @eucharists = @eucharists.select(*%w[
-      id
+                                         id
                                          eucharist_at eucharist_location christian_name
                                          godfather godmother
                                          godfather_id godmother_id
                                          presbyter presbyter_id
                                          parishioner_id
+                                         comment
                                        ])
 
       render json: @eucharists, include: %i[parishioner], status: :ok
@@ -45,7 +47,6 @@ module Api
     end
 
     # POST /eucharists
-    # TODO upload image
     def create
       authorize! :create, Eucharist
 
@@ -61,8 +62,6 @@ module Api
     # PUT /eucharists/{id}
     def update
       authorize! :update, @eucharist
-
-      # TODO: update associations
 
       return if @eucharist.update(eucharist_params)
 
@@ -92,6 +91,7 @@ module Api
                       godfather_id godmother_id
                       presbyter presbyter_id
                       parishioner_id
+                      comment
                     ])
     end
 

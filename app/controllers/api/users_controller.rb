@@ -6,7 +6,6 @@ module Api
     before_action :find_user, except: %i[create index]
 
     # GET /users
-    # @todo change the
     def index
       authorize! :read, User
       @query = params[:any_field]
