@@ -16,6 +16,8 @@ class CreateConfirmations < ActiveRecord::Migration[7.0]
 
       t.integer 'parishioner_id', comment: "The parishioner's id"
 
+      t.string 'comment'
+
       t.timestamps
     end
 

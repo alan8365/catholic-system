@@ -50,6 +50,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_16_171003) do
     t.integer "godmother_id"
     t.integer "presbyter_id"
     t.integer "parishioner_id"
+    t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -65,6 +66,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_16_171003) do
     t.integer "godmother_id"
     t.integer "presbyter_id"
     t.integer "parishioner_id"
+    t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -80,6 +82,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_16_171003) do
     t.integer "godmother_id"
     t.integer "presbyter_id"
     t.integer "parishioner_id"
+    t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
