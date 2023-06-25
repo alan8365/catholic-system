@@ -35,9 +35,9 @@ User.create([
                                           move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
                                           original_parish: 'ＯＯ堂區',
 
-                                          move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
-                                          move_out_reason: '搬家',
-                                          destination_parish: 'ＸＸ堂區',
+                                          # move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
+                                          # move_out_reason: '搬家',
+                                          # destination_parish: 'ＸＸ堂區',
 
                                           comment: '測試用教友一號'
                                         })
@@ -67,9 +67,9 @@ User.create([
                                            move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
                                            original_parish: 'ＯＯ堂區',
 
-                                           move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
-                                           move_out_reason: '搬家',
-                                           destination_parish: 'ＸＸ堂區',
+                                           # move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
+                                           # move_out_reason: '搬家',
+                                           # destination_parish: 'ＸＸ堂區',
 
                                            comment: '測試用教友二號'
                                          })
@@ -77,6 +77,21 @@ User.create([
   io: File.open(File.join(Rails.root, 'spec/fixtures/files/profile-pic2.jpeg')),
   filename: 'profile-pic2.jpeg'
 )
+
+@move_out_parishioner = Parishioner.create({
+                                             name: '千某某',
+                                             gender: '女',
+                                             birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
+
+                                             move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
+                                             original_parish: 'ＯＯ堂區',
+
+                                             move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
+                                             move_out_reason: '搬家',
+                                             destination_parish: 'ＸＸ堂區',
+
+                                             comment: '遷出測試用教友'
+                                           })
 
 # Household
 

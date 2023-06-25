@@ -54,8 +54,13 @@ RSpec.describe 'api/parishioners', type: :request do
       security [Bearer: {}]
 
       description = 'Search from the following fields: name home_number gender address father mother spouse nationality
-profession company_name home_phone mobile_phone comment.'
+profession company_name home_phone mobile_phone original_parish destination_parish move_out_reason comment.'
+
       parameter name: :any_field, in: :query, description: description, schema: {
+        type: :string
+      }
+
+      parameter name: :is_archive, in: :query, description: 'Search in archive if the value is "true"', schema: {
         type: :string
       }
 
@@ -66,6 +71,7 @@ profession company_name home_phone mobile_phone comment.'
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
+        let(:is_archive) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -74,13 +80,42 @@ profession company_name home_phone mobile_phone comment.'
             }
           }
         end
-        run_test!
+        run_test! do
+          data = JSON.parse(response.body)
+
+          @parishioner_archive = Parishioner.where('move_out_date is not null')
+
+          expect(data.any? { |hash| hash['id'] == @parishioner_archive[0].id }).to be false
+        end
+      end
+
+      # Search in archive
+      response(200, 'successful') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:any_field) {}
+        let(:is_archive) { 'true' }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test! do
+          data = JSON.parse(response.body)
+
+          @parishioner_archive = Parishioner.where('move_out_date is not null')
+
+          expect(data.any? { |hash| hash['id'] == @parishioner_archive[0].id }).to be true
+        end
       end
 
       # Query search any_field
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { '%E8%B6%99%E7%88%B8%E7%88%B8' }
+        let(:is_archive) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -116,6 +151,7 @@ profession company_name home_phone mobile_phone comment.'
       response(401, 'unauthorized') do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
+        let(:is_archive) {}
 
         after do |example|
           example.metadata[:response][:content] = {

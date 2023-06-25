@@ -10,6 +10,7 @@ module Api
     def index
       authorize! :read, Parishioner
       query = params[:any_field]
+      is_archive = params[:is_archive]
 
       if query
         string_filed = %w[
@@ -17,6 +18,8 @@ module Api
           father mother spouse
           nationality profession company_name
           home_phone mobile_phone
+          original_parish destination_parish
+          move_out_reason
           comment
         ]
 
@@ -29,6 +32,12 @@ module Api
       else
         @parishioners = Parishioner.all
       end
+
+      @parishioners = if is_archive == 'true'
+                        @parishioners.where('move_out_date is not null')
+                      else
+                        @parishioners.where('move_out_date is null')
+                      end
 
       @parishioners = @parishioners.select(*%w[
                                              id
