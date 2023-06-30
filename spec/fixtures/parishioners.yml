@@ -27,9 +27,6 @@ test_m:
   move_in_date: <%= Date.strptime('2013/01/01', '%Y/%m/%d') %>
   original_parish: 'ＯＯ堂區'
 
-  move_out_date: <%= Date.strptime('2093/01/01', '%Y/%m/%d') %>
-  move_out_reason: '搬家'
-  destination_parish: 'XX堂區'
 
   comment: 測試用男性教友一號
 
@@ -60,8 +57,37 @@ test_f:
   move_in_date: <%= Date.strptime('2013/01/01', '%Y/%m/%d') %>
   original_parish: 'ＯＯ堂區'
 
+  comment: 測試用女性教友一號
+
+
+test_o:
+  id: 3
+
+  name: 路人甲
+  gender: 女
+  birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
+
+test_mother:
+  id: 4
+
+  name: 孫媽媽
+  gender: 女
+  birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
+
+test_father:
+  id: 5
+
+  name: 趙爸爸
+  gender: 男
+  birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
+
+test_move_out:
+  id: 6
+
+  name: 千某某
+  gender: 男
+  birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
+
   move_out_date: <%= Date.strptime('2093/01/01', '%Y/%m/%d') %>
   move_out_reason: '搬家'
   destination_parish: 'XX堂區'
-
-  comment: 測試用女性教友一號

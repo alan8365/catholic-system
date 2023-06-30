@@ -8,12 +8,12 @@ RSpec.describe 'api/households', type: :request do
   before(:each) do
     @example_test_household = {
       home_number: 'TT123',
-      head_of_household_id: Parishioner.all[0].id
+      head_of_household_id: Parishioner.all[0].id,
+      special: false,
+      comment: '測試用家號'
     }
-    @household_properties = {
-      home_number: { type: :string },
-      head_of_household: { type: :object }
-    }
+
+    @household = Household.find_by_home_number('TT520')
   end
 
   path '/api/households' do
@@ -60,8 +60,8 @@ RSpec.describe 'api/households', type: :request do
         run_test! do |response|
           data = JSON.parse(response.body)
           expect(data).to eq([{
-                               'head_of_household' => nil, 'home_number' => 'TT520'
-                             }])
+                                'head_of_household' => nil, 'home_number' => 'TT520'
+                              }])
         end
       end
 
@@ -86,13 +86,14 @@ RSpec.describe 'api/households', type: :request do
       consumes 'application/json'
       parameter name: :household, in: :body, schema: {
         type: :object,
-        properties: @household_properties,
         required: %w[home_number]
       }
 
       request_body_example value: {
         home_number: 'TT123',
-        head_of_household_id: '55866'
+        head_of_household_id: '55866',
+        special: false,
+        comment: '測試用家號'
       }, name: 'test_user', summary: 'Test user create'
 
       response(201, 'Created') do
@@ -108,8 +109,14 @@ RSpec.describe 'api/households', type: :request do
         end
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data['home_number']).to eq(@example_test_household[:home_number])
-          expect(data['head_of_household']['id']).to eq(@example_test_household[:head_of_household_id])
+          # puts data['h']
+          @example_test_household.each_key do |key|
+            if key == :head_of_household_id
+              expect(data['head_of_household']['id']).to eq(@example_test_household[key])
+            else
+              expect(data[key.to_s]).to eq(@example_test_household[key])
+            end
+          end
         end
       end
 
@@ -172,13 +179,6 @@ RSpec.describe 'api/households', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_home_number) { 'TT520' }
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
         run_test! do |response|
           data = JSON.parse(response.body)
           expect(data['home_number']).to eq('TT520')
@@ -206,20 +206,33 @@ RSpec.describe 'api/households', type: :request do
       security [Bearer: {}]
       consumes 'application/json'
       parameter name: :household, in: :body, schema: {
-        type: :object,
-        properties: @household_properties
+        type: :object
       }
 
       request_body_example value: {
-        home_number: 'TT521'
+        home_number: 'TT521',
+        head_of_household_id: 2,
       }, name: 'test home number change', summary: 'Test household update'
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_home_number) { 'TT520' }
-        let(:household) { { home_number: 'TT521' } }
+        let(:household) { { home_number: 'TT521', head_of_household_id: 2 } }
 
-        run_test!
+        run_test! do
+          expect(Household.find_by_home_number('TT521').home_number).to eq('TT521')
+          expect(Household.find_by_home_number('TT521').head_of_household.id).to eq(2)
+        end
+      end
+
+      response(204, 'No Content') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_home_number) { 'TT520' }
+        let(:household) { { head_of_household_id: 2 } }
+
+        run_test! do
+          expect(Household.find_by_home_number('TT520').head_of_household.id).to eq(2)
+        end
       end
 
       # Current user have not permission

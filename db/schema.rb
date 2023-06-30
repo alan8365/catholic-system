@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_15_055247) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_16_171003) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
-    t.integer "record_id", null: false
-    t.integer "blob_id", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
@@ -34,7 +34,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_15_055247) do
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
-    t.integer "blob_id", null: false
+    t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
@@ -50,6 +50,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_15_055247) do
     t.integer "godmother_id"
     t.integer "presbyter_id"
     t.integer "parishioner_id"
+    t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -65,12 +66,31 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_15_055247) do
     t.integer "godmother_id"
     t.integer "presbyter_id"
     t.integer "parishioner_id"
+    t.string "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "eucharists", force: :cascade do |t|
+    t.date "eucharist_at"
+    t.string "eucharist_location"
+    t.string "christian_name"
+    t.string "godfather"
+    t.string "godmother"
+    t.string "presbyter"
+    t.integer "godfather_id"
+    t.integer "godmother_id"
+    t.integer "presbyter_id"
+    t.integer "parishioner_id"
+    t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "households", primary_key: "home_number", id: :string, force: :cascade do |t|
     t.integer "head_of_household"
+    t.boolean "special"
+    t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -126,6 +146,10 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_15_055247) do
   add_foreign_key "confirmations", "parishioners", column: "godmother_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "confirmations", "parishioners", column: "presbyter_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "confirmations", "parishioners", on_update: :cascade, on_delete: :cascade
+  add_foreign_key "eucharists", "parishioners", column: "godfather_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "eucharists", "parishioners", column: "godmother_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "eucharists", "parishioners", column: "presbyter_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "eucharists", "parishioners", on_update: :cascade, on_delete: :cascade
   add_foreign_key "households", "parishioners", column: "head_of_household", on_update: :cascade, on_delete: :nullify
   add_foreign_key "parishioners", "households", column: "home_number", primary_key: "home_number", on_update: :cascade, on_delete: :nullify
   add_foreign_key "parishioners", "parishioners", column: "father_id", on_update: :cascade, on_delete: :nullify

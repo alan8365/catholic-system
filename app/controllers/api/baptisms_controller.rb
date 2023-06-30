@@ -7,36 +7,37 @@ module Api
     before_action :find_baptism, except: %i[create index]
 
     # GET /baptisms
-    # @todo change the
     # @return [nil]
     def index
       authorize! :read, Baptism
-      @query = params[:any_field]
+      query = params[:any_field]
 
-      @baptisms = if @query
-                    # TODO: change to full text search
-                    Baptism
-                      .where(["
-                            baptized_location like ?  or
-                            christian_name like ? or
-                            godfather like ? or
-                            godmother like ? or
-                            presbyter like ?",
-                              "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+      @baptisms = if query
+                    string_filed = %w[
+                      baptized_location christian_name godfather godmother presbyter comment
+                    ]
+
+                    query_string = string_filed.join(" like ? or \n")
+                    query_string += ' like ?'
+
+                    query_array = string_filed.map { |_| "%#{query}%" }.compact
+
+                    Baptism.where([query_string, *query_array])
                   else
                     Baptism.all
                   end
 
       @baptisms = @baptisms.select(*%w[
+                                     id
                                      baptized_at baptized_location christian_name
                                      godfather godmother
                                      godfather_id godmother_id
                                      presbyter presbyter_id
                                      parishioner_id
+                                     comment
                                    ])
-                           .as_json(except: :id)
 
-      render json: @baptisms, status: :ok
+      render json: @baptisms, include: %i[parishioner], status: :ok
     end
 
     # GET /baptisms/{id}
@@ -61,6 +62,13 @@ module Api
     # PUT /baptisms/{id}
     def update
       authorize! :update, @baptism
+
+      update_params = baptism_params.to_h
+      if update_params.include?('parishioner_id')
+        @parishioner = Parishioner.find_by_id(update_params['parishioner_id'])
+
+        update_params.delete('parishioner_id')
+      end
 
       return if @baptism.update(baptism_params)
 
@@ -90,6 +98,7 @@ module Api
                       godfather_id godmother_id
                       presbyter presbyter_id
                       parishioner_id
+                      comment
                     ])
     end
 

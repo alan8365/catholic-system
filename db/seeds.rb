@@ -14,43 +14,15 @@ User.create([
             ])
 
 # Parishioner
-first_parishioner = Parishioner.create({
-                                         name: '許某某',
-                                         gender: '男',
-                                         birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
-                                         postal_code: '433',
-                                         address: '台中市北區三民路某段某號',
-                                         spouse: '王某某',
-                                         father: '許某某',
-                                         mother: '張某某',
-                                         home_phone: '047221245',
-                                         mobile_phone: '0987372612',
-                                         nationality: '中華民國',
-                                         profession: '資訊',
-                                         company_name: '科技大學',
-
-                                         sibling_number: 0,
-                                         children_number: 0,
-
-                                         move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
-                                         original_parish: 'ＯＯ堂區',
-
-                                         move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
-                                         move_out_reason: '搬家',
-                                         destination_parish: 'ＸＸ堂區',
-
-                                         comment: '測試用教友一號'
-                                       })
-
-second_parishioner = Parishioner.create({
-                                          name: '王某某',
-                                          gender: '女',
-                                          birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
+@first_parishioner = Parishioner.create({
+                                          name: '許某某',
+                                          gender: '男',
+                                          birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
                                           postal_code: '433',
                                           address: '台中市北區三民路某段某號',
-                                          spouse: '許某某',
-                                          father: '王某某',
-                                          mother: '陳某某',
+                                          spouse: '王某某',
+                                          father: '許某某',
+                                          mother: '張某某',
                                           home_phone: '047221245',
                                           mobile_phone: '0987372612',
                                           nationality: '中華民國',
@@ -63,12 +35,63 @@ second_parishioner = Parishioner.create({
                                           move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
                                           original_parish: 'ＯＯ堂區',
 
-                                          move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
-                                          move_out_reason: '搬家',
-                                          destination_parish: 'ＸＸ堂區',
+                                          # move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
+                                          # move_out_reason: '搬家',
+                                          # destination_parish: 'ＸＸ堂區',
 
-                                          comment: '測試用教友二號'
+                                          comment: '測試用教友一號'
                                         })
+@first_parishioner.picture.attach(
+  io: File.open(File.join(Rails.root, 'spec/fixtures/files/profile-pic.jpeg')),
+  filename: 'profile-pic.jpeg'
+)
+
+@second_parishioner = Parishioner.create({
+                                           name: '王某某',
+                                           gender: '女',
+                                           birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
+                                           postal_code: '433',
+                                           address: '台中市北區三民路某段某號',
+                                           spouse: '許某某',
+                                           father: '王某某',
+                                           mother: '陳某某',
+                                           home_phone: '047221245',
+                                           mobile_phone: '0987372612',
+                                           nationality: '中華民國',
+                                           profession: '資訊',
+                                           company_name: '科技大學',
+
+                                           sibling_number: 0,
+                                           children_number: 0,
+
+                                           move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
+                                           original_parish: 'ＯＯ堂區',
+
+                                           # move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
+                                           # move_out_reason: '搬家',
+                                           # destination_parish: 'ＸＸ堂區',
+
+                                           comment: '測試用教友二號'
+                                         })
+@second_parishioner.picture.attach(
+  io: File.open(File.join(Rails.root, 'spec/fixtures/files/profile-pic2.jpeg')),
+  filename: 'profile-pic2.jpeg'
+)
+
+@move_out_parishioner = Parishioner.create({
+                                             name: '千某某',
+                                             gender: '女',
+                                             birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
+
+                                             move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
+                                             original_parish: 'ＯＯ堂區',
+
+                                             move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
+                                             move_out_reason: '搬家',
+                                             destination_parish: 'ＸＸ堂區',
+
+                                             comment: '遷出測試用教友'
+                                           })
 
 # Household
 
@@ -77,17 +100,17 @@ first_household = Household.create({
                                    })
 
 # Parishioner association
-first_parishioner.household = first_household
-second_parishioner.household = first_household
+@first_parishioner.household = first_household
+@second_parishioner.household = first_household
 
-first_parishioner.spouse_instance = second_parishioner
-second_parishioner.spouse_instance = first_parishioner
+@first_parishioner.spouse_instance = @second_parishioner
+@second_parishioner.spouse_instance = @first_parishioner
 
-first_parishioner.save
-second_parishioner.save
+@first_parishioner.save
+@second_parishioner.save
 
 # Household association
-first_household.head_of_household = first_parishioner
+first_household.head_of_household = @first_parishioner
 first_household.save
 
 # Baptism
@@ -99,7 +122,7 @@ Baptism.create({
                  godfather: '張00',
                  presbyter: '黃世明神父',
 
-                 parishioner_id: first_parishioner.id
+                 parishioner_id: @first_parishioner.id
                })
 
 # Confirmation
@@ -111,5 +134,17 @@ Confirmation.create({
                       godfather: '張00',
                       presbyter: '黃世明神父',
 
-                      parishioner: first_parishioner
+                      parishioner: @first_parishioner
                     })
+
+# Eucharist
+Eucharist.create({
+                   eucharist_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
+                   eucharist_location: '彰化市聖十字架天主堂',
+                   christian_name: '安東尼',
+
+                   godfather: '張00',
+                   presbyter: '黃世明神父',
+
+                   parishioner: @first_parishioner
+                 })

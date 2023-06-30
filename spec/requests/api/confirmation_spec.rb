@@ -63,15 +63,16 @@ RSpec.describe 'api/confirmations', type: :request do
           data = JSON.parse(response.body)
 
           # ApplicationRecord to hash
-          @confirmation_hash = @confirmation.as_json
+          confirmation_hash = @confirmation.as_json
 
           # Delete unused fields
-          @confirmation_hash.except!(*%w[
-                                       id
-                                       created_at updated_at
-                                     ])
+          confirmation_hash.except!(*%w[
+                                      created_at updated_at
+                                    ])
 
-          expect(data).to eq([@confirmation_hash])
+          confirmation_hash['parishioner'] = @confirmation.parishioner.as_json
+
+          expect(data).to eq([confirmation_hash])
         end
       end
 

@@ -9,6 +9,7 @@ RSpec.describe 'api/parishioners', type: :request do
 
   before(:each) do
     @file = fixture_file_upload('profile-pic.jpeg', 'image/jpeg')
+    @file2 = fixture_file_upload('profile-pic2.jpeg', 'image/jpeg')
     @example_test_parishioner = {
       name: '周男人',
       gender: '男',
@@ -42,6 +43,7 @@ RSpec.describe 'api/parishioners', type: :request do
 
       comment: '測試用範例教友'
     }
+
     @parishioner = Parishioner.find_by_id(1)
     @parishioner.picture.attach(@file)
   end
@@ -51,9 +53,14 @@ RSpec.describe 'api/parishioners', type: :request do
       tags 'Parishioner'
       security [Bearer: {}]
 
-      description = 'Search from the following fields: name, comment, father, mother, spouse,
-home_number, nationality, profession, and company_name.'
+      description = 'Search from the following fields: name home_number gender address father mother spouse nationality
+profession company_name home_phone mobile_phone original_parish destination_parish move_out_reason comment.'
+
       parameter name: :any_field, in: :query, description: description, schema: {
+        type: :string
+      }
+
+      parameter name: :is_archive, in: :query, description: 'Search in archive if the value is "true"', schema: {
         type: :string
       }
 
@@ -64,6 +71,7 @@ home_number, nationality, profession, and company_name.'
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
+        let(:is_archive) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -72,14 +80,42 @@ home_number, nationality, profession, and company_name.'
             }
           }
         end
-        run_test!
+        run_test! do
+          data = JSON.parse(response.body)
+
+          @parishioner_archive = Parishioner.where('move_out_date is not null')
+
+          expect(data.any? { |hash| hash['id'] == @parishioner_archive[0].id }).to be false
+        end
+      end
+
+      # Search in archive
+      response(200, 'successful') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:any_field) {}
+        let(:is_archive) { 'true' }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test! do
+          data = JSON.parse(response.body)
+
+          @parishioner_archive = Parishioner.where('move_out_date is not null')
+
+          expect(data.any? { |hash| hash['id'] == @parishioner_archive[0].id }).to be true
+        end
       end
 
       # Query search any_field
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { '%E8%B6%99%E7%88%B8%E7%88%B8' }
-        # let(:any_field) { '%E9%8C%A2%E7%88%B8%E7%88%B8' }
+        let(:is_archive) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -93,23 +129,29 @@ home_number, nationality, profession, and company_name.'
           data = JSON.parse(response.body)
 
           # ApplicationRecord to hash
-          @parishioner_hash = @parishioner.as_json
+          parishioner_hash = @parishioner.as_json
+          parishioner2_hash = Parishioner.find_by_id(5).as_json
 
           # Delete unused fields
-          @parishioner_hash.except!(*%w[
+          parishioner_hash.except!(*%w[
+                                     created_at updated_at
+                                   ])
+          parishioner2_hash.except!(*%w[
                                       created_at updated_at
                                     ])
 
-          @parishioner_hash['baptism'] = @parishioner.baptism.as_json
-          @parishioner_hash['confirmation'] = @parishioner.confirmation.as_json
+          parishioner_hash['baptism'] = @parishioner.baptism.as_json
+          parishioner_hash['confirmation'] = @parishioner.confirmation.as_json
+          parishioner_hash['eucharist'] = @parishioner.eucharist.as_json
 
-          expect(data).to eq([@parishioner_hash])
+          expect(data).to eq([parishioner_hash, parishioner2_hash])
         end
       end
 
       response(401, 'unauthorized') do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
+        let(:is_archive) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -288,7 +330,7 @@ home_number, nationality, profession, and company_name.'
           profession: { type: :string, example: '醫生' },
           company_name: { type: :string, example: '恐龍牙醫診所' },
           comment: { type: :string, example: '測試用範例教友' }
-        },
+        }
       }
 
       request_body_example value: {
@@ -298,9 +340,38 @@ home_number, nationality, profession, and company_name.'
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:"") { { name: '台灣偉人' } }
+        let(:"") { { name: '台灣偉人', spouse_id: 3, mother_id: 4, father_id: 5, picture: @file2 } }
 
-        run_test!
+        run_test! do
+          parishioner = Parishioner.all[0]
+          spouse = Parishioner.find_by_id(3)
+          mother = Parishioner.find_by_id(4)
+          father = Parishioner.find_by_id(5)
+
+          expect(parishioner.name).to eq('台灣偉人')
+
+          expect(parishioner.spouse_instance.id).to eq(spouse.id)
+          expect(parishioner.spouse).to eq(spouse.name)
+
+          expect(parishioner.father_instance.id).to eq(father.id)
+          expect(parishioner.father).to eq(father.name)
+
+          expect(parishioner.mother_instance.id).to eq(mother.id)
+          expect(parishioner.mother).to eq(mother.name)
+        end
+      end
+
+      # Delete association
+      response(204, 'No Content') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { Parishioner.all[0].id }
+        let(:"") { { spouse_id: '', father_id: '', mother_id: '' } }
+
+        run_test! do
+          parishioner = Parishioner.all[0]
+
+          expect(parishioner.spouse_instance).to eq(nil)
+        end
       end
 
       # Current user have not permission

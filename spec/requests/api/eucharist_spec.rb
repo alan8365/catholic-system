@@ -1,14 +1,14 @@
 require 'swagger_helper'
 
-RSpec.describe 'api/baptisms', type: :request do
+RSpec.describe 'api/eucharists', type: :request do
   fixtures :users
   fixtures :parishioners
-  fixtures :baptisms
+  fixtures :eucharist
 
   before(:each) do
     @example_test = {
-      baptized_at: '1981-11-11',
-      baptized_location: '彰化市聖十字架天主堂',
+      eucharist_at: '1981-11-11',
+      eucharist_location: '彰化市聖十字架天主堂',
       christian_name: '聖施達',
 
       godmother: '許00',
@@ -16,12 +16,12 @@ RSpec.describe 'api/baptisms', type: :request do
 
       parishioner_id: 2
     }
-    @baptism = Baptism.all[0]
+    @eucharist = Eucharist.all[0]
   end
 
-  path '/api/baptisms' do
-    get('list baptisms') do
-      tags 'Baptism'
+  path '/api/eucharists' do
+    get('list eucharists') do
+      tags 'Eucharist'
       security [Bearer: {}]
       parameter name: :any_field, in: :query, schema: {
         type: :string,
@@ -30,24 +30,18 @@ RSpec.describe 'api/baptisms', type: :request do
 
       request_body_example value: {
         any_field: '彰化'
-      }, name: 'query test parishioner', summary: 'Finding the specific parishioner'
+      }, name: 'query test eucharist', summary: 'Finding the specific eucharist'
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) {}
 
         after do |example|
-          content = example.metadata[:response][:content] || {}
-          example_spec = {
+          example.metadata[:response][:content] = {
             'application/json' => {
-              examples: {
-                test_example: {
-                  value: JSON.parse(response.body, symbolize_names: true)
-                }
-              }
+              example: JSON.parse(response.body, symbolize_names: true)
             }
           }
-          example.metadata[:response][:content] = content.deep_merge(example_spec)
         end
         run_test!
       end
@@ -65,19 +59,19 @@ RSpec.describe 'api/baptisms', type: :request do
           }
         end
 
-        run_test! do |response|
+        run_test! do
           data = JSON.parse(response.body)
 
           # ApplicationRecord to hash
-          baptism_hash = @baptism.as_json
+          eucharist_hash = @eucharist.as_json
 
           # Delete unused fields
-          baptism_hash.except!(*%w[
-                                 created_at updated_at
-                               ])
-          baptism_hash['parishioner'] = @baptism.parishioner.as_json
+          eucharist_hash.except!(*%w[
+                                    created_at updated_at
+                                  ])
+          eucharist_hash['parishioner'] = @eucharist.parishioner.as_json
 
-          expect(data).to eq([baptism_hash])
+          expect(data).to eq([eucharist_hash])
         end
       end
 
@@ -85,29 +79,23 @@ RSpec.describe 'api/baptisms', type: :request do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
         run_test!
       end
     end
 
-    post('create baptism') do
-      tags 'Baptism'
+    post('create eucharist') do
+      tags 'Eucharist'
       security [Bearer: {}]
+
       consumes 'application/json'
-      parameter name: :baptism, in: :body, schema: {
+      parameter name: :eucharist, in: :body, schema: {
         type: :object,
-        required: %w[baptized_at baptized_location christian_name presbyter parishioner_id]
+        required: %w[eucharist_at eucharist_location christian_name presbyter parishioner_id]
       }
 
       request_body_example value: {
-        baptized_at: '1981-11-11',
-        baptized_location: '彰化市聖十字架天主堂',
+        eucharist_at: '1981-11-11',
+        eucharist_location: '彰化市聖十字架天主堂',
         christian_name: '聖施達',
 
         godfather: '',
@@ -120,11 +108,19 @@ RSpec.describe 'api/baptisms', type: :request do
         presbyter_id: nil,
 
         parishioner_id: 1
-      }, name: 'test_baptism', summary: 'Test baptism create'
+      }, name: 'test_eucharist', summary: 'Test eucharist create'
 
       response(201, 'Created') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:baptism) { @example_test }
+        let(:eucharist) { @example_test }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -138,7 +134,7 @@ RSpec.describe 'api/baptisms', type: :request do
       # Current user dose not have permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:baptism) {}
+        let(:eucharist) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -150,10 +146,10 @@ RSpec.describe 'api/baptisms', type: :request do
         run_test!
       end
 
-      # Baptism info incomplete test
+      # Eucharist info incomplete test
       response(422, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:baptism) { {} }
+        let(:eucharist) { {} }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -187,17 +183,16 @@ RSpec.describe 'api/baptisms', type: :request do
     end
   end
 
-  path '/api/baptisms/{_parishioner_id}' do
-    # You'll want to customize the parameter types...
+  path '/api/eucharists/{_parishioner_id}' do
     parameter name: '_parishioner_id', in: :path, type: :string, description: '_parishioner_id'
 
-    get('show baptism') do
-      tags 'Baptism'
+    get('show eucharist') do
+      tags 'Eucharist'
       security [Bearer: {}]
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -224,40 +219,48 @@ RSpec.describe 'api/baptisms', type: :request do
       end
     end
 
-    patch('update baptism') do
-      tags 'Baptism'
+    patch('update eucharist') do
+      tags 'Eucharist'
       security [Bearer: {}]
-      consumes 'application/json'
 
-      parameter name: :baptism, in: :body, schema: {
+      consumes 'application/json'
+      parameter name: :eucharist, in: :body, schema: {
         type: :object,
+        required: %w[eucharist_at eucharist_location christian_name presbyter parishioner_id]
       }
 
       request_body_example value: {
-        baptized_at: '1981-11-11',
-        baptized_location: '彰化市聖十字架天主堂',
+        eucharist_at: '1981-11-11',
+        eucharist_location: '彰化市聖十字架天主堂',
         christian_name: '聖施達',
 
+        godfather: '',
+        godfather_id: nil,
+
         godmother: '許00',
-        presbyter: '黃世明神父'
-      }, name: 'test_baptism', summary: 'Test baptism update'
+        godmother_id: nil,
+
+        presbyter: '黃世明神父',
+        presbyter_id: nil,
+
+        parishioner_id: 1
+      }, name: 'test_eucharist', summary: 'Test eucharist update'
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
-        let(:baptism) { { baptized_location: '台中市聖十字架天主堂', parishioner_id: 2 } }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
+        let(:eucharist) { { eucharist_location: '台中市聖十字架天主堂' } }
 
         run_test! do
-          expect(Baptism.find_by_id(@baptism.id).baptized_location).to eq('台中市聖十字架天主堂')
-          expect(Baptism.find_by_id(@baptism.id).parishioner_id).to eq(2)
+          expect(Eucharist.all[0].eucharist_location).to eq('台中市聖十字架天主堂')
         end
       end
 
       # Current user have not permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
-        let(:baptism) { { baptized_location: '台中市聖十字架天主堂' } }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
+        let(:eucharist) {}
 
         run_test!
       end
@@ -265,38 +268,35 @@ RSpec.describe 'api/baptisms', type: :request do
       # Field is blank
       response(422, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
-        let(:baptism) { { presbyter: '' } }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
+        let(:eucharist) { { eucharist_location: '' } }
 
         run_test!
       end
     end
 
-    delete('delete baptism') do
-      tags 'Baptism'
+    delete('delete eucharist') do
+      tags 'Eucharist'
       security [Bearer: {}]
 
-      response(204, 'successful') do
+      response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
-
-        run_test! do
-          @temp = Baptism.find_by_parishioner_id(@baptism.parishioner_id)
-          expect(@temp).to eq(nil)
-        end
-      end
-
-      # Current user have not permission
-      response(403, 'Forbidden') do
-        let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
 
         run_test!
       end
 
-      # The baptism does not exist
-      response(404, 'Baptism not found') do
-        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+      # Current user dose not have permission
+      response(403, 'Forbidden') do
+        let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
+        let(:_parishioner_id) { @eucharist.parishioner_id }
+
+        run_test!
+      end
+
+      # The eucharist dose not exist
+      response(404, 'Not Found') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:_parishioner_id) { 'unknown_id' }
 
         run_test!

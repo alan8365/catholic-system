@@ -9,49 +9,55 @@ module Api
     # @todo change the
     def index
       authorize! :read, Parishioner
-      @query = params[:any_field]
+      query = params[:any_field]
+      is_archive = params[:is_archive]
 
-      if @query
-        # TODO: change to full text search
+      if query
+        string_filed = %w[
+          name home_number gender address
+          father mother spouse
+          nationality profession company_name
+          home_phone mobile_phone
+          original_parish destination_parish
+          move_out_reason
+          comment
+        ]
 
-        @parishioners = Parishioner
-                          .where(["
-                            name like ?  or
-                            comment like ? or
-                            father like ? or
-                            mother like ? or
-                            spouse like ? or
-                            home_number like ? or
-                            nationality like ? or
-                            profession like ? or
-                            company_name like ?
-                          ",
-                                  "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%",
-                                  "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%", "%#{@query}%"])
+        query_string = string_filed.join(" like ? or \n")
+        query_string += ' like ?'
+
+        query_array = string_filed.map { |_| "%#{query}%" }.compact
+
+        @parishioners = Parishioner.where([query_string, *query_array])
       else
         @parishioners = Parishioner.all
       end
 
-      @parishioners = @parishioners
-                        .select(*%w[
-                                  id
-                                  name gender birth_at postal_code address home_number
-                                  father mother spouse father_id mother_id spouse_id
-                                  home_phone mobile_phone nationality
-                                  profession company_name comment
-                                  sibling_number children_number
-                                  move_in_date original_parish
-                                  move_out_date move_out_reason destination_parish
-                                ])
+      @parishioners = if is_archive == 'true'
+                        @parishioners.where('move_out_date is not null')
+                      else
+                        @parishioners.where('move_out_date is null')
+                      end
 
-      render json: @parishioners, include: %i[baptism confirmation], status: :ok
+      @parishioners = @parishioners.select(*%w[
+                                             id
+                                             name gender birth_at postal_code address home_number
+                                             father mother spouse father_id mother_id spouse_id
+                                             home_phone mobile_phone nationality
+                                             profession company_name comment
+                                             sibling_number children_number
+                                             move_in_date original_parish
+                                             move_out_date move_out_reason destination_parish
+                                           ])
+
+      render json: @parishioners, include: %i[baptism confirmation eucharist], status: :ok
     end
 
     # GET /parishioners/{id}
     def show
       authorize! :read, @parishioner
 
-      render json: @parishioner, include: %i[baptism confirmation], status: :ok
+      render json: @parishioner, include: %i[spouse_instance mother_instance father_instance baptism confirmation eucharist], status: :ok
     end
 
     def picture
@@ -63,7 +69,6 @@ module Api
     end
 
     # POST /parishioners
-    # TODO upload image
     def create
       authorize! :create, Parishioner
 
@@ -82,7 +87,39 @@ module Api
     # PUT /parishioners/{id}
     def update
       authorize! :update, @parishioner
-      return if @parishioner.update(parishioner_params)
+
+      update_params = parishioner_params.to_h
+      if update_params.include?('spouse_id')
+        spouse = Parishioner.find_by_id(update_params['spouse_id'])
+
+        @parishioner.spouse_instance = spouse
+        @parishioner.spouse = spouse.name if spouse
+
+        update_params.delete('spouse_id')
+        update_params.delete('spouse')
+      end
+
+      if update_params.include?('father_id')
+        father = Parishioner.find_by_id(update_params['father_id'])
+
+        @parishioner.father_instance = father
+        @parishioner.father = father.name if father
+
+        update_params.delete('father_id')
+        update_params.delete('father')
+      end
+
+      if update_params.include?('mother_id')
+        mother = Parishioner.find_by_id(update_params['mother_id'])
+
+        @parishioner.mother_instance = mother
+        @parishioner.mother = mother.name if mother
+
+        update_params.delete('mother_id')
+        update_params.delete('mother')
+      end
+
+      return if @parishioner.update(update_params)
 
       render json: { errors: @parishioner.errors.full_messages },
              status: :unprocessable_entity

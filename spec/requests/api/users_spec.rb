@@ -22,7 +22,6 @@ RSpec.describe 'api/users', type: :request do
     get('list users') do
       tags 'User'
       security [Bearer: {}]
-      # TODO: add other field
       parameter name: :any_field, in: :query, schema: {
         type: :string,
         description: 'aaa',
