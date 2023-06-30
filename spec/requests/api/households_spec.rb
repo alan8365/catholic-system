@@ -8,7 +8,9 @@ RSpec.describe 'api/households', type: :request do
   before(:each) do
     @example_test_household = {
       home_number: 'TT123',
-      head_of_household_id: Parishioner.all[0].id
+      head_of_household_id: Parishioner.all[0].id,
+      special: false,
+      comment: '測試用家號'
     }
 
     @household = Household.find_by_home_number('TT520')
@@ -89,7 +91,9 @@ RSpec.describe 'api/households', type: :request do
 
       request_body_example value: {
         home_number: 'TT123',
-        head_of_household_id: '55866'
+        head_of_household_id: '55866',
+        special: false,
+        comment: '測試用家號'
       }, name: 'test_user', summary: 'Test user create'
 
       response(201, 'Created') do
@@ -105,8 +109,14 @@ RSpec.describe 'api/households', type: :request do
         end
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data['home_number']).to eq(@example_test_household[:home_number])
-          expect(data['head_of_household']['id']).to eq(@example_test_household[:head_of_household_id])
+          # puts data['h']
+          @example_test_household.each_key do |key|
+            if key == :head_of_household_id
+              expect(data['head_of_household']['id']).to eq(@example_test_household[key])
+            else
+              expect(data[key.to_s]).to eq(@example_test_household[key])
+            end
+          end
         end
       end
 

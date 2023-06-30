@@ -89,6 +89,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_16_171003) do
 
   create_table "households", primary_key: "home_number", id: :string, force: :cascade do |t|
     t.integer "head_of_household"
+    t.boolean "special"
+    t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

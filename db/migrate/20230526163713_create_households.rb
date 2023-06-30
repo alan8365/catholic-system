@@ -7,6 +7,10 @@ class CreateHouseholds < ActiveRecord::Migration[7.0]
       t.string 'home_number', primary_key: true
       t.integer 'head_of_household'
 
+      t.boolean 'special'
+
+      t.string 'comment'
+
       t.timestamps
     end
 

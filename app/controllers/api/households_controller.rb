@@ -80,7 +80,7 @@ module Api
 
     def household_params
       params.permit(
-        :home_number, :head_of_household, :head_of_household_id
+        :home_number, :head_of_household, :head_of_household_id, :special, :comment
       )
     end
 
