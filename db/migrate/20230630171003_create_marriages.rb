@@ -1,21 +1,30 @@
 # frozen_string_literal: true
 
-class CreateEucharists < ActiveRecord::Migration[7.0]
+class CreateMarriages < ActiveRecord::Migration[7.0]
   def change
-    create_table :eucharists do |t|
-      t.date 'eucharist_at'
-      t.string 'eucharist_location'
-      t.string 'christian_name', comment: "The parishioner's Christian name"
+    create_table :marriages do |t|
+      t.date 'marriage_at'
+      t.string 'marriage_location'
 
-      t.string 'godfather', comment: "The name of the parishioner's godfather"
-      t.string 'godmother', comment: "The name of the parishioner's godmother"
-      t.string 'presbyter', comment: 'The name of the presbyter who confirmed the parishioner'
+      t.string 'groom'
+      t.string 'bride'
 
-      t.integer 'godfather_id', comment: "The parishioner's godfather's id"
-      t.integer 'godmother_id', comment: "The parishioner's godmother's id"
-      t.integer 'presbyter_id', comment: "The parishioner's presbyter's id"
+      t.integer 'groom_id', comment: "The groom's id"
+      t.integer 'bride_id', comment: "The bride's id"
 
-      t.integer 'parishioner_id', comment: "The parishioner's id"
+      t.string 'groom_birth_at'
+      t.string 'groom_father'
+      t.string 'groom_mother'
+
+      t.string 'bride_birth_at'
+      t.string 'bride_father'
+      t.string 'bride_mother'
+
+      t.string 'presbyter'
+      t.integer 'presbyter_id', comment: "The presbyter's id"
+
+      t.string 'witness1'
+      t.string 'witness2'
 
       t.string 'comment'
 

@@ -456,6 +456,8 @@ paths:
                 value:
                   home_number: TT123
                   head_of_household_id: '55866'
+                  special: false
+                  comment: 測試用家號
   "/api/households/{_home_number}":
     parameters:
     - name: _home_number
@@ -509,6 +511,122 @@ paths:
           description: successful
         '403':
           description: successful
+  "/api/marriages":
+    get:
+      summary: list marriages
+      tags:
+      - Marriage
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: Successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create marriage
+      tags:
+      - Marriage
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - marriage_at
+              - marriage_location
+              - groom
+              - bride
+            examples:
+              test_marriage:
+                summary: Test marriage create
+                value:
+                  marriage_at: '1961-11-11'
+                  marriage_location: 彰化市聖十字架天主堂
+                  groom: 趙爸爸
+                  bride: 孫媽媽
+                  groom_id: 5
+                  bride_id: 4
+                  presbyter: 黃世明神父
+                  witness1: 千里眼
+                  witness2: 順風耳
+                  comment: 結婚測試
+  "/api/marriages/{_id}":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show marriage
+      tags:
+      - Marriage
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: Successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update marriage
+      tags:
+      - Marriage
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              test_marriage:
+                summary: Test marriage update
+                value:
+                  baptized_at: '1981-11-11'
+                  baptized_location: 彰化市聖十字架天主堂
+                  christian_name: 聖施達
+                  godmother: 許00
+                  presbyter: 黃世明神父
+    delete:
+      summary: delete marriage
+      tags:
+      - Marriage
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: Successful
+        '403':
+          description: Forbidden
+        '404':
+          description: Marriage not found
   "/api/parishioners":
     get:
       summary: list parishioners
@@ -520,7 +638,7 @@ paths:
       - name: any_field
         in: query
         description: |-
-          Search from the following fields: name home_number gender address father mother spouse nationality
+          Search from the following fields: name home_number gender address father mother nationality
           profession company_name home_phone mobile_phone original_parish destination_parish move_out_reason comment.
         schema:
           type: string
@@ -576,13 +694,9 @@ paths:
                   type: string
                 mother:
                   type: string
-                spouse:
-                  type: string
                 father_id:
                   type: integer
                 mother_id:
-                  type: integer
-                spouse_id:
                   type: integer
                 home_phone:
                   type: string
@@ -667,13 +781,9 @@ paths:
                   type: string
                 mother:
                   type: string
-                spouse:
-                  type: string
                 father_id:
                   type: integer
                 mother_id:
-                  type: integer
-                spouse_id:
                   type: integer
                 home_phone:
                   type: string

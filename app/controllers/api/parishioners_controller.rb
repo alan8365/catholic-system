@@ -6,7 +6,6 @@ module Api
     before_action :find_parishioner, except: %i[create index]
 
     # GET /parishioners
-    # @todo change the
     def index
       authorize! :read, Parishioner
       query = params[:any_field]
@@ -15,7 +14,7 @@ module Api
       if query
         string_filed = %w[
           name home_number gender address
-          father mother spouse
+          father mother
           nationality profession company_name
           home_phone mobile_phone
           original_parish destination_parish
@@ -42,7 +41,7 @@ module Api
       @parishioners = @parishioners.select(*%w[
                                              id
                                              name gender birth_at postal_code address home_number
-                                             father mother spouse father_id mother_id spouse_id
+                                             father mother father_id mother_id
                                              home_phone mobile_phone nationality
                                              profession company_name comment
                                              sibling_number children_number
@@ -50,14 +49,16 @@ module Api
                                              move_out_date move_out_reason destination_parish
                                            ])
 
-      render json: @parishioners, include: %i[baptism confirmation eucharist], status: :ok
+      render json: @parishioners,
+             include: %i[mother_instance father_instance baptism confirmation eucharist wife husband], status: :ok
     end
 
     # GET /parishioners/{id}
     def show
       authorize! :read, @parishioner
 
-      render json: @parishioner, include: %i[spouse_instance mother_instance father_instance baptism confirmation eucharist], status: :ok
+      render json: @parishioner,
+             include: %i[mother_instance father_instance baptism confirmation eucharist wife husband], status: :ok
     end
 
     def picture
@@ -89,18 +90,11 @@ module Api
       authorize! :update, @parishioner
 
       update_params = parishioner_params.to_h
-      if update_params.include?('spouse_id')
-        spouse = Parishioner.find_by_id(update_params['spouse_id'])
-
-        @parishioner.spouse_instance = spouse
-        @parishioner.spouse = spouse.name if spouse
-
-        update_params.delete('spouse_id')
-        update_params.delete('spouse')
-      end
-
-      if update_params.include?('father_id')
-        father = Parishioner.find_by_id(update_params['father_id'])
+      update_params.delete('picture') if 'picture'.in?(update_params.keys) && (update_params['picture'].is_a? String)
+      puts update_params
+      if update_params.include?('father_id') && !update_params['father_id'].empty?
+        father_id = update_params['father_id']
+        father = Parishioner.find_by_id(father_id)
 
         @parishioner.father_instance = father
         @parishioner.father = father.name if father
@@ -109,7 +103,7 @@ module Api
         update_params.delete('father')
       end
 
-      if update_params.include?('mother_id')
+      if update_params.include?('mother_id') && !update_params['mother_id'].empty?
         mother = Parishioner.find_by_id(update_params['mother_id'])
 
         @parishioner.mother_instance = mother
@@ -143,7 +137,7 @@ module Api
     def parishioner_params
       params.permit(%i[
                       name gender birth_at postal_code address home_number
-                      father mother spouse father_id mother_id spouse_id
+                      father mother father_id mother_id
                       home_phone mobile_phone nationality
                       profession company_name comment
                       sibling_number children_number

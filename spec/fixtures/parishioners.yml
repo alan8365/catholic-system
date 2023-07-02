@@ -9,9 +9,6 @@ test_m:
   postal_code: 433
   address: 台中市北區三民路某段某號
 
-  spouse: 錢女人
-  spouse_id: 2
-
   father: 趙爸爸
   mother: 孫媽媽
   home_phone: "047221245"
@@ -39,8 +36,6 @@ test_f:
   postal_code: 433
   address: 台中市北區三民路某段某號
 
-  spouse: 趙男人
-  spouse_id: 1
   father: 錢爸爸
   mother: 李媽媽
 
@@ -91,3 +86,10 @@ test_move_out:
   move_out_date: <%= Date.strptime('2093/01/01', '%Y/%m/%d') %>
   move_out_reason: '搬家'
   destination_parish: 'XX堂區'
+
+test_father2:
+  id: 7
+
+  name: 錢爸爸
+  gender: 男
+  birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>

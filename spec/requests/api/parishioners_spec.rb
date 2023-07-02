@@ -20,10 +20,8 @@ RSpec.describe 'api/parishioners', type: :request do
 
       father: '',
       mother: '',
-      spouse: '',
       father_id: nil,
       mother_id: nil,
-      spouse_id: nil,
 
       home_phone: '12512515',
       mobile_phone: '09123124512',
@@ -53,7 +51,7 @@ RSpec.describe 'api/parishioners', type: :request do
       tags 'Parishioner'
       security [Bearer: {}]
 
-      description = 'Search from the following fields: name home_number gender address father mother spouse nationality
+      description = 'Search from the following fields: name home_number gender address father mother nationality
 profession company_name home_phone mobile_phone original_parish destination_parish move_out_reason comment.'
 
       parameter name: :any_field, in: :query, description: description, schema: {
@@ -144,6 +142,8 @@ profession company_name home_phone mobile_phone original_parish destination_pari
           parishioner_hash['confirmation'] = @parishioner.confirmation.as_json
           parishioner_hash['eucharist'] = @parishioner.eucharist.as_json
 
+          parishioner_hash['wife'] = @parishioner.wife.as_json
+
           expect(data).to eq([parishioner_hash, parishioner2_hash])
         end
       end
@@ -181,10 +181,8 @@ profession company_name home_phone mobile_phone original_parish destination_pari
 
           father: { type: :string },
           mother: { type: :string },
-          spouse: { type: :string },
           father_id: { type: :integer },
           mother_id: { type: :integer },
-          spouse_id: { type: :integer },
 
           home_phone: { type: :string, example: '12512515' },
           mobile_phone: { type: :string, example: '09123124512' },
@@ -319,10 +317,8 @@ profession company_name home_phone mobile_phone original_parish destination_pari
 
           father: { type: :string },
           mother: { type: :string },
-          spouse: { type: :string },
           father_id: { type: :integer },
           mother_id: { type: :integer },
-          spouse_id: { type: :integer },
 
           home_phone: { type: :string, example: '12512515' },
           mobile_phone: { type: :string, example: '09123124512' },
@@ -340,18 +336,14 @@ profession company_name home_phone mobile_phone original_parish destination_pari
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:"") { { name: '台灣偉人', spouse_id: 3, mother_id: 4, father_id: 5, picture: @file2 } }
+        let(:"") { { name: '台灣偉人', mother_id: 4, father_id: 5, picture: @file2 } }
 
         run_test! do
           parishioner = Parishioner.all[0]
-          spouse = Parishioner.find_by_id(3)
           mother = Parishioner.find_by_id(4)
           father = Parishioner.find_by_id(5)
 
           expect(parishioner.name).to eq('台灣偉人')
-
-          expect(parishioner.spouse_instance.id).to eq(spouse.id)
-          expect(parishioner.spouse).to eq(spouse.name)
 
           expect(parishioner.father_instance.id).to eq(father.id)
           expect(parishioner.father).to eq(father.name)
@@ -365,12 +357,25 @@ profession company_name home_phone mobile_phone original_parish destination_pari
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:"") { { spouse_id: '', father_id: '', mother_id: '' } }
+        let(:"") { { father_id: '', mother_id: '' } }
 
         run_test! do
           parishioner = Parishioner.all[0]
 
-          expect(parishioner.spouse_instance).to eq(nil)
+          expect(parishioner.father_instance).to eq(nil)
+        end
+      end
+
+      # Blank picture value
+      response(204, 'No Content') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { Parishioner.all[0].id }
+        let(:"") { { picture: '' } }
+
+        run_test! do
+          parishioner = Parishioner.all[0]
+
+          expect(parishioner.father_instance).to eq(nil)
         end
       end
 

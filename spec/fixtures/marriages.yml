@@ -1,11 +1,60 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-first_baptism:
-  baptized_at: 1980-10-29
-  baptized_location: 彰化市聖十字架天主堂
-  christian_name: 安東尼
+first_marriage:
+  marriage_at: 1980-10-29
+  marriage_location: 彰化市聖十字架天主堂
 
-  godfather: 張00
+  groom: 趙男人
+  bride: 錢女人
+
+  groom_id: 1
+  bride_id: 2
+
   presbyter: 黃世明神父
 
-  parishioner_id: 1
+  witness1: 千里眼
+  witness2: 順風耳
+
+  comment: 教友結婚範例
+
+second_marriage:
+  marriage_at: 1960-10-29
+  marriage_location: 彰化市聖十字架天主堂
+
+  groom: 錢爸爸
+  bride: 李媽媽
+
+  groom_id: 7
+
+  bride_birthday: 1950-10-29
+  bride_father: 李爸爸
+  bride_mother: 周媽媽
+
+  presbyter: 黃世明神父
+
+  witness1: 千里眼
+  witness2: 順風耳
+
+  comment: 單教友結婚範例
+
+third_marriage:
+  marriage_at: 1960-10-29
+  marriage_location: 彰化市聖十字架天主堂
+
+  groom: 吳男人
+  bride: 鄭女人
+
+  groom_birthday: 1950-10-29
+  groom_father: 吳爸爸
+  groom_mother: 王媽媽
+
+  bride_birthday: 1950-10-29
+  bride_father: 鄭爸爸
+  bride_mother: 馮媽媽
+
+  presbyter: 黃世明神父
+
+  witness1: 千里眼
+  witness2: 順風耳
+
+  comment: 非教友結婚範例

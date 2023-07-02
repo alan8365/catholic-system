@@ -1,27 +1,34 @@
 require 'swagger_helper'
 
-RSpec.describe 'api/baptisms', type: :request do
+RSpec.describe 'api/marriages', type: :request do
   fixtures :users
   fixtures :parishioners
-  fixtures :baptisms
+  fixtures :marriages
 
   before(:each) do
     @example_test = {
-      baptized_at: '1981-11-11',
-      baptized_location: '彰化市聖十字架天主堂',
-      christian_name: '聖施達',
+      marriage_at: '1961-11-11',
+      marriage_location: '彰化市聖十字架天主堂',
 
-      godmother: '許00',
+      groom: '趙爸爸',
+      bride: '孫媽媽',
+
+      groom_id: 5,
+      bride_id: 4,
+
       presbyter: '黃世明神父',
 
-      parishioner_id: 2
+      witness1: '千里眼',
+      witness2: '順風耳',
+
+      comment: '結婚測試'
     }
-    @baptism = Baptism.all[0]
+    @marriage = Marriage.all[0]
   end
 
-  path '/api/baptisms' do
-    get('list baptisms') do
-      tags 'Baptism'
+  path '/api/marriages' do
+    get('list marriages') do
+      tags 'Marriage'
       security [Bearer: {}]
       parameter name: :any_field, in: :query, schema: {
         type: :string,
@@ -29,10 +36,10 @@ RSpec.describe 'api/baptisms', type: :request do
       }
 
       request_body_example value: {
-        any_field: '彰化'
+        any_field: '某某'
       }, name: 'query test parishioner', summary: 'Finding the specific parishioner'
 
-      response(200, 'successful') do
+      response(200, 'Successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) {}
 
@@ -53,9 +60,9 @@ RSpec.describe 'api/baptisms', type: :request do
       end
 
       # Query search any_field
-      response(200, 'successful') do
+      response(200, 'Successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:any_field) { '%E5%BD%B0%E5%8C%96' }
+        let(:any_field) { '%E8%B6%99%E7%94%B7%E4%BA%BA' }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -69,15 +76,16 @@ RSpec.describe 'api/baptisms', type: :request do
           data = JSON.parse(response.body)
 
           # ApplicationRecord to hash
-          baptism_hash = @baptism.as_json
+          marriage_hash = @marriage.as_json
 
           # Delete unused fields
-          baptism_hash.except!(*%w[
-                                 created_at updated_at
-                               ])
-          baptism_hash['parishioner'] = @baptism.parishioner.as_json
+          marriage_hash.except!(*%w[
+                                  created_at updated_at
+                                ])
+          marriage_hash['groom_instance'] = @marriage.groom_instance.as_json
+          marriage_hash['bride_instance'] = @marriage.bride_instance.as_json
 
-          expect(data).to eq([baptism_hash])
+          expect(data).to eq([marriage_hash])
         end
       end
 
@@ -96,35 +104,36 @@ RSpec.describe 'api/baptisms', type: :request do
       end
     end
 
-    post('create baptism') do
-      tags 'Baptism'
+    post('create marriage') do
+      tags 'Marriage'
       security [Bearer: {}]
       consumes 'application/json'
-      parameter name: :baptism, in: :body, schema: {
+      parameter name: :marriage, in: :body, schema: {
         type: :object,
-        required: %w[baptized_at baptized_location christian_name presbyter parishioner_id]
+        required: %w[marriage_at marriage_location groom bride]
       }
 
       request_body_example value: {
-        baptized_at: '1981-11-11',
-        baptized_location: '彰化市聖十字架天主堂',
-        christian_name: '聖施達',
+        marriage_at: '1961-11-11',
+        marriage_location: '彰化市聖十字架天主堂',
 
-        godfather: '',
-        godfather_id: nil,
+        groom: '趙爸爸',
+        bride: '孫媽媽',
 
-        godmother: '許00',
-        godmother_id: nil,
+        groom_id: 5,
+        bride_id: 4,
 
         presbyter: '黃世明神父',
-        presbyter_id: nil,
 
-        parishioner_id: 1
-      }, name: 'test_baptism', summary: 'Test baptism create'
+        witness1: '千里眼',
+        witness2: '順風耳',
+
+        comment: '結婚測試'
+      }, name: 'test_marriage', summary: 'Test marriage create'
 
       response(201, 'Created') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:baptism) { @example_test }
+        let(:marriage) { @example_test }
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -138,7 +147,7 @@ RSpec.describe 'api/baptisms', type: :request do
       # Current user dose not have permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:baptism) {}
+        let(:marriage) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -150,30 +159,10 @@ RSpec.describe 'api/baptisms', type: :request do
         run_test!
       end
 
-      # Baptism info incomplete test
+      # Marriage info incomplete test
       response(422, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:baptism) { {} }
-
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
-        run_test!
-      end
-
-      # Godparent xor test
-      response(422, 'Unprocessable Entity') do
-        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        # let(:baptism) {  @example_test_baptism  }
-        let(:baptism) do
-          @example_test[:godfather] = 'ADD'
-
-          @example_test
-        end
+        let(:marriage) { {} }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -187,17 +176,17 @@ RSpec.describe 'api/baptisms', type: :request do
     end
   end
 
-  path '/api/baptisms/{_parishioner_id}' do
+  path '/api/marriages/{_id}' do
     # You'll want to customize the parameter types...
-    parameter name: '_parishioner_id', in: :path, type: :string, description: '_parishioner_id'
+    parameter name: '_id', in: :path, type: :string, description: '_id'
 
-    get('show baptism') do
-      tags 'Baptism'
+    get('show marriage') do
+      tags 'Marriage'
       security [Bearer: {}]
 
-      response(200, 'successful') do
+      response(200, 'Successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
+        let(:_id) { @marriage.id }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -211,7 +200,7 @@ RSpec.describe 'api/baptisms', type: :request do
 
       response(404, 'Not Found') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { 'unknown_id' }
+        let(:_id) { 'unknown_id' }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -224,40 +213,48 @@ RSpec.describe 'api/baptisms', type: :request do
       end
     end
 
-    patch('update baptism') do
-      tags 'Baptism'
+    patch('update marriage') do
+      tags 'Marriage'
       security [Bearer: {}]
       consumes 'application/json'
 
-      parameter name: :baptism, in: :body, schema: {
-        type: :object,
+      parameter name: :marriage, in: :body, schema: {
+        type: :object
       }
 
       request_body_example value: {
-        baptized_at: '1981-11-11',
-        baptized_location: '彰化市聖十字架天主堂',
-        christian_name: '聖施達',
+        marriage_at: '1961-11-11',
+        marriage_location: '彰化市聖十字架天主堂',
 
-        godmother: '許00',
-        presbyter: '黃世明神父'
-      }, name: 'test_baptism', summary: 'Test baptism update'
+        groom: '趙爸爸',
+        bride: '孫媽媽',
+
+        groom_id: 5,
+        bride_id: 4,
+
+        presbyter: '黃世明神父',
+
+        witness1: '千里眼',
+        witness2: '順風耳',
+
+        comment: '結婚測試'
+      }, name: 'test_marriage', summary: 'Test marriage update'
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
-        let(:baptism) { { baptized_location: '台中市聖十字架天主堂', parishioner_id: 2 } }
+        let(:_id) { @marriage.id }
+        let(:marriage) { { marriage_location: '台中市聖十字架天主堂' } }
 
         run_test! do
-          expect(Baptism.find_by_id(@baptism.id).baptized_location).to eq('台中市聖十字架天主堂')
-          expect(Baptism.find_by_id(@baptism.id).parishioner_id).to eq(2)
+          expect(Marriage.find_by_id(@marriage.id).marriage_location).to eq('台中市聖十字架天主堂')
         end
       end
 
       # Current user have not permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
-        let(:baptism) { { baptized_location: '台中市聖十字架天主堂' } }
+        let(:_id) { @marriage.id }
+        let(:marriage) { { marriage_location: '台中市聖十字架天主堂' } }
 
         run_test!
       end
@@ -265,23 +262,23 @@ RSpec.describe 'api/baptisms', type: :request do
       # Field is blank
       response(422, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
-        let(:baptism) { { presbyter: '' } }
+        let(:_id) { @marriage.id }
+        let(:marriage) { { groom: '' } }
 
         run_test!
       end
     end
 
-    delete('delete baptism') do
-      tags 'Baptism'
+    delete('delete marriage') do
+      tags 'Marriage'
       security [Bearer: {}]
 
-      response(204, 'successful') do
+      response(204, 'Successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
+        let(:_id) { @marriage.id }
 
         run_test! do
-          @temp = Baptism.find_by_parishioner_id(@baptism.parishioner_id)
+          @temp = Marriage.find_by_id(@marriage.id)
           expect(@temp).to eq(nil)
         end
       end
@@ -289,15 +286,15 @@ RSpec.describe 'api/baptisms', type: :request do
       # Current user have not permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:_parishioner_id) { @baptism.parishioner_id }
+        let(:_id) { @marriage.id }
 
         run_test!
       end
 
-      # The baptism does not exist
-      response(404, 'Baptism not found') do
+      # The marriage does not exist
+      response(404, 'Marriage not found') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:_parishioner_id) { 'unknown_id' }
+        let(:_id) { 'unknown_id' }
 
         run_test!
       end

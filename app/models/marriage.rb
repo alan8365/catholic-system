@@ -1,27 +1,15 @@
 # frozen_string_literal: true
 
 # Baptism model
-class Baptism < ApplicationRecord
-  belongs_to :parishioner, class_name: 'Parishioner', foreign_key: 'parishioner_id'
+class Marriage < ApplicationRecord
+  belongs_to :groom_instance, class_name: 'Parishioner', foreign_key: 'groom_id', optional: true
+  belongs_to :bride_instance, class_name: 'Parishioner', foreign_key: 'bride_id', optional: true
 
-  belongs_to :godfather_instance, class_name: 'Parishioner', foreign_key: 'godfather_id', optional: true
-  belongs_to :godmother_instance, class_name: 'Parishioner', foreign_key: 'godmother_id', optional: true
   belongs_to :presbyter_instance, class_name: 'Parishioner', foreign_key: 'presbyter_id', optional: true
 
-  validates :baptized_at, presence: true
-  validates :baptized_location, presence: true
-  validates :christian_name, presence: true
+  validates :groom, presence: true
+  validates :bride, presence: true
 
-  validates :presbyter, presence: true
-  validates :parishioner_id, presence: true, uniqueness: true
-
-  validate :godfather_xor_godmother
-
-  private
-
-  def godfather_xor_godmother
-    return if godfather.blank? ^ godmother.blank?
-
-    errors.add(:base, 'Specify a godfather or a godmother, not both')
-  end
+  validates :marriage_at, presence: true
+  validates :marriage_location, presence: true
 end

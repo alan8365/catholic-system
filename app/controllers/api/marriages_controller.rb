@@ -1,103 +1,97 @@
 # frozen_string_literal: true
 
 module Api
-  # CRUD for baptism
-  class BaptismsController < ApplicationController
+  # CRUD for Marriages
+  class MarriagesController < ApplicationController
     before_action :authorize_request
-    before_action :find_baptism, except: %i[create index]
+    before_action :find_marriage, except: %i[create index]
 
-    # GET /baptisms
+    # GET /marriages
     # @return [nil]
     def index
-      authorize! :read, Baptism
+      authorize! :read, Marriage
       query = params[:any_field]
 
-      @baptisms = if query
-                    string_filed = %w[
-                      baptized_location christian_name godfather godmother presbyter comment
-                    ]
+      @marriages = if query
+                     string_filed = %w[
+                       marriage_location groom bride presbyter comment
+                     ]
 
-                    query_string = string_filed.join(" like ? or \n")
-                    query_string += ' like ?'
+                     query_string = string_filed.join(" like ? or \n")
+                     query_string += ' like ?'
 
-                    query_array = string_filed.map { |_| "%#{query}%" }.compact
+                     query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-                    Baptism.where([query_string, *query_array])
-                  else
-                    Baptism.all
-                  end
+                     Marriage.where([query_string, *query_array])
+                   else
+                     Marriage.all
+                   end
 
-      @baptisms = @baptisms.select(*%w[
-                                     id
-                                     baptized_at baptized_location christian_name
-                                     godfather godmother
-                                     godfather_id godmother_id
-                                     presbyter presbyter_id
-                                     parishioner_id
-                                     comment
-                                   ])
+      @marriages = @marriages.select(*%w[
+                                       id
+                                       marriage_at marriage_location
+                                       groom groom_id groom_birthday groom_father groom_mother
+                                       bride bride_id bride_birthday bride_father bride_mother
+                                       witness1 witness2
+                                       presbyter presbyter_id
+                                       comment
+                                     ])
 
-      render json: @baptisms, include: %i[parishioner], status: :ok
+      render json: @marriages, include: %i[groom_instance bride_instance], status: :ok
     end
 
-    # GET /baptisms/{id}
+    # GET /marriages/{id}
     def show
-      authorize! :read, @baptism
-      render json: @baptism, include: %i[parishioner], status: :ok
+      authorize! :read, @marriage
+      render json: @marriage, include: %i[groom_instance bride_instance], status: :ok
     end
 
-    # POST /baptisms
+    # POST /marriages
     def create
-      authorize! :create, Baptism
+      authorize! :create, Marriage
 
-      @baptism = Baptism.new(baptism_params)
-      if @baptism.save
-        render json: @baptism, status: :created
+      create_params = marriage_params.to_h
+      @marriage = Marriage.new(create_params)
+      if @marriage.save
+        render json: @marriage, status: :created
       else
-        render json: { errors: @baptism.errors.full_messages },
+        render json: { errors: @marriage.errors.full_messages },
                status: :unprocessable_entity
       end
     end
 
-    # PUT /baptisms/{id}
+    # PUT /marriages/{id}
     def update
-      authorize! :update, @baptism
+      authorize! :update, @marriage
 
-      update_params = baptism_params.to_h
-      if update_params.include?('parishioner_id')
-        @parishioner = Parishioner.find_by_id(update_params['parishioner_id'])
+      return if @marriage.update(marriage_params)
 
-        update_params.delete('parishioner_id')
-      end
-
-      return if @baptism.update(baptism_params)
-
-      render json: { errors: @baptism.errors.full_messages },
+      render json: { errors: @marriage.errors.full_messages },
              status: :unprocessable_entity
     end
 
-    # DELETE /baptisms/{id}
+    # DELETE /marriages/{id}
     def destroy
-      authorize! :destroy, @baptism
+      authorize! :destroy, @marriage
 
-      @baptism.destroy
+      @marriage.destroy
     end
 
     private
 
-    def find_baptism
-      @baptism = Baptism.find_by_parishioner_id!(params[:_parishioner_id])
+    def find_marriage
+      @marriage = Marriage.find_by_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Baptism not found' }, status: :not_found
+      render json: { errors: 'Marriage not found' }, status: :not_found
     end
 
-    def baptism_params
+    def marriage_params
       params.permit(%i[
-                      baptized_at baptized_location christian_name
-                      godfather godmother
-                      godfather_id godmother_id
+                      marriage_at marriage_location
+                      groom groom_id groom_birthday groom_father groom_mother
+                      bride bride_id bride_birthday bride_father bride_mother
+                      witness1 witness2
                       presbyter presbyter_id
-                      parishioner_id
                       comment
                     ])
     end

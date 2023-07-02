@@ -20,7 +20,6 @@ User.create([
                                           birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
                                           postal_code: '433',
                                           address: '台中市北區三民路某段某號',
-                                          spouse: '王某某',
                                           father: '許某某',
                                           mother: '張某某',
                                           home_phone: '047221245',
@@ -52,7 +51,6 @@ User.create([
                                            birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
                                            postal_code: '433',
                                            address: '台中市北區三民路某段某號',
-                                           spouse: '許某某',
                                            father: '王某某',
                                            mother: '陳某某',
                                            home_phone: '047221245',
@@ -103,9 +101,6 @@ first_household = Household.create({
 @first_parishioner.household = first_household
 @second_parishioner.household = first_household
 
-@first_parishioner.spouse_instance = @second_parishioner
-@second_parishioner.spouse_instance = @first_parishioner
-
 @first_parishioner.save
 @second_parishioner.save
 
@@ -148,3 +143,20 @@ Eucharist.create({
 
                    parishioner: @first_parishioner
                  })
+
+# Marriage
+Marriage.create({
+                  marriage_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
+                  marriage_location: '彰化市聖十字架天主堂',
+
+                  groom: '許某某',
+                  bride: '王某某',
+
+                  groom_id: @first_parishioner.id,
+                  bride_id: @second_parishioner.id,
+
+                  witness1: '王哥哥',
+                  witness2: '陳女士',
+
+                  presbyter: '黃世明神父'
+                })

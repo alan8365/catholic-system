@@ -16,7 +16,6 @@ class CreateParishioners < ActiveRecord::Migration[7.0]
       # Household related fields
       t.string 'father'
       t.string 'mother'
-      t.string 'spouse'
       t.string 'home_phone'
       t.string 'mobile_phone'
       t.string 'nationality'
@@ -28,12 +27,10 @@ class CreateParishioners < ActiveRecord::Migration[7.0]
       t.timestamps
 
       # Foreign key fields
-      t.integer 'spouse_id'
       t.integer 'mother_id'
       t.integer 'father_id'
     end
 
-    add_foreign_key :parishioners, :parishioners, column: 'spouse_id', on_delete: :nullify, on_update: :cascade
     add_foreign_key :parishioners, :parishioners, column: 'mother_id', on_delete: :nullify, on_update: :cascade
     add_foreign_key :parishioners, :parishioners, column: 'father_id', on_delete: :nullify, on_update: :cascade
   end

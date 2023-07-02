@@ -8,7 +8,6 @@ class Parishioner < ApplicationRecord
   has_one :head_home_number, class_name: 'Household', foreign_key: 'head_of_household'
 
   # Self join association
-  has_one :spouse_instance, class_name: 'Parishioner', foreign_key: 'spouse_id'
   has_one :mother_instance, class_name: 'Parishioner', foreign_key: 'mother_id'
   has_one :father_instance, class_name: 'Parishioner', foreign_key: 'father_id'
 
@@ -16,6 +15,9 @@ class Parishioner < ApplicationRecord
   has_one :baptism, class_name: 'Baptism', foreign_key: 'parishioner_id'
   has_one :confirmation, class_name: 'Confirmation', foreign_key: 'parishioner_id'
   has_one :eucharist, class_name: 'Eucharist', foreign_key: 'parishioner_id'
+
+  has_one :wife, class_name: 'Marriage', foreign_key: 'groom_id'
+  has_one :husband, class_name: 'Marriage', foreign_key: 'bride_id'
 
   # Image
   has_one_attached :picture
