@@ -94,8 +94,12 @@ User.create([
 # Household
 
 first_household = Household.create({
-                                     home_number: 'CK123'
+                                     home_number: 'CK123',
                                    })
+Household.create({
+                   home_number: 'G',
+                   special: true
+                 })
 
 # Parishioner association
 @first_parishioner.household = first_household

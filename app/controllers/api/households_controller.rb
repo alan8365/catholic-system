@@ -18,7 +18,7 @@ module Api
                     end
 
       @households = @households
-                      .select(*%w[home_number head_of_household])
+                      .select(*%w[home_number head_of_household special comment])
 
       render json: @households, status: :ok
     end
@@ -80,7 +80,7 @@ module Api
 
     def household_params
       params.permit(
-        :home_number, :head_of_household, :head_of_household_id, :special, :comment
+        *%i[home_number head_of_household head_of_household_id special comment]
       )
     end
 

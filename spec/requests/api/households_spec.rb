@@ -59,9 +59,13 @@ RSpec.describe 'api/households', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          expect(data).to eq([{
-                                'head_of_household' => nil, 'home_number' => 'TT520'
-                              }])
+
+          household_hash = @household.as_json
+          household_hash.except!(*%w[
+                                   created_at updated_at
+                                 ])
+
+          expect(data).to eq([household_hash])
         end
       end
 
