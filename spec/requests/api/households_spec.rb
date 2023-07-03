@@ -109,7 +109,6 @@ RSpec.describe 'api/households', type: :request do
         end
         run_test! do |response|
           data = JSON.parse(response.body)
-          # puts data['h']
           @example_test_household.each_key do |key|
             if key == :head_of_household_id
               expect(data['head_of_household']['id']).to eq(@example_test_household[key])

@@ -30,8 +30,8 @@ module Api
       @marriages = @marriages.select(*%w[
                                        id
                                        marriage_at marriage_location
-                                       groom groom_id groom_birthday groom_father groom_mother
-                                       bride bride_id bride_birthday bride_father bride_mother
+                                       groom groom_id groom_birth_at groom_father groom_mother
+                                       bride bride_id bride_birth_at bride_father bride_mother
                                        witness1 witness2
                                        presbyter presbyter_id
                                        comment
@@ -88,8 +88,8 @@ module Api
     def marriage_params
       params.permit(%i[
                       marriage_at marriage_location
-                      groom groom_id groom_birthday groom_father groom_mother
-                      bride bride_id bride_birthday bride_father bride_mother
+                      groom groom_id groom_birth_at groom_father groom_mother
+                      bride bride_id bride_birth_at bride_father bride_mother
                       witness1 witness2
                       presbyter presbyter_id
                       comment

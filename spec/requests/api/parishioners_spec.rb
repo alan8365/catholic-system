@@ -6,6 +6,7 @@ RSpec.describe 'api/parishioners', type: :request do
   fixtures :users
   fixtures :parishioners
   fixtures :household
+  fixtures :marriages
 
   before(:each) do
     @file = fixture_file_upload('profile-pic.jpeg', 'image/jpeg')

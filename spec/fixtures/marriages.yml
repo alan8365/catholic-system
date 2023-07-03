@@ -26,7 +26,7 @@ second_marriage:
 
   groom_id: 7
 
-  bride_birthday: 1950-10-29
+  bride_birth_at: 1950-10-29
   bride_father: 李爸爸
   bride_mother: 周媽媽
 
@@ -44,11 +44,11 @@ third_marriage:
   groom: 吳男人
   bride: 鄭女人
 
-  groom_birthday: 1950-10-29
+  groom_birth_at: 1950-10-29
   groom_father: 吳爸爸
   groom_mother: 王媽媽
 
-  bride_birthday: 1950-10-29
+  bride_birth_at: 1950-10-29
   bride_father: 鄭爸爸
   bride_mother: 馮媽媽
 

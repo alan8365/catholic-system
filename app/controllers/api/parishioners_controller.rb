@@ -91,7 +91,6 @@ module Api
 
       update_params = parishioner_params.to_h
       update_params.delete('picture') if 'picture'.in?(update_params.keys) && (update_params['picture'].is_a? String)
-      puts update_params
       if update_params.include?('father_id') && !update_params['father_id'].empty?
         father_id = update_params['father_id']
         father = Parishioner.find_by_id(father_id)
