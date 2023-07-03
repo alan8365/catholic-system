@@ -10,7 +10,6 @@ class Eucharist < ApplicationRecord
 
   validates :eucharist_at, presence: true
   validates :eucharist_location, presence: true
-  validates :christian_name, presence: true
 
   validates :presbyter, presence: true
   validates :parishioner_id, presence: true, uniqueness: true

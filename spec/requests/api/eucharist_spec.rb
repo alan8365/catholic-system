@@ -9,7 +9,6 @@ RSpec.describe 'api/eucharists', type: :request do
     @example_test = {
       eucharist_at: '1981-11-11',
       eucharist_location: '彰化市聖十字架天主堂',
-      christian_name: '聖施達',
 
       godmother: '許00',
       presbyter: '黃世明神父',
@@ -90,13 +89,12 @@ RSpec.describe 'api/eucharists', type: :request do
       consumes 'application/json'
       parameter name: :eucharist, in: :body, schema: {
         type: :object,
-        required: %w[eucharist_at eucharist_location christian_name presbyter parishioner_id]
+        required: %w[eucharist_at eucharist_location presbyter parishioner_id]
       }
 
       request_body_example value: {
         eucharist_at: '1981-11-11',
         eucharist_location: '彰化市聖十字架天主堂',
-        christian_name: '聖施達',
 
         godfather: '',
         godfather_id: nil,
@@ -226,13 +224,12 @@ RSpec.describe 'api/eucharists', type: :request do
       consumes 'application/json'
       parameter name: :eucharist, in: :body, schema: {
         type: :object,
-        required: %w[eucharist_at eucharist_location christian_name presbyter parishioner_id]
+        required: %w[eucharist_at eucharist_location presbyter parishioner_id]
       }
 
       request_body_example value: {
         eucharist_at: '1981-11-11',
         eucharist_location: '彰化市聖十字架天主堂',
-        christian_name: '聖施達',
 
         godfather: '',
         godfather_id: nil,

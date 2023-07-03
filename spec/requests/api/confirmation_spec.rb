@@ -9,7 +9,6 @@ RSpec.describe 'api/confirmations', type: :request do
     @example_test = {
       confirmed_at: '1981-11-11',
       confirmed_location: '彰化市聖十字架天主堂',
-      christian_name: '聖施達',
 
       godmother: '許00',
       presbyter: '黃世明神父',
@@ -91,13 +90,12 @@ RSpec.describe 'api/confirmations', type: :request do
       consumes 'application/json'
       parameter name: :confirmation, in: :body, schema: {
         type: :object,
-        required: %w[confirmed_at confirmed_location christian_name presbyter parishioner_id]
+        required: %w[confirmed_at confirmed_location presbyter parishioner_id]
       }
 
       request_body_example value: {
         confirmed_at: '1981-11-11',
         confirmed_location: '彰化市聖十字架天主堂',
-        christian_name: '聖施達',
 
         godfather: '',
         godfather_id: nil,
@@ -227,13 +225,12 @@ RSpec.describe 'api/confirmations', type: :request do
       consumes 'application/json'
       parameter name: :confirmation, in: :body, schema: {
         type: :object,
-        required: %w[confirmed_at confirmed_location christian_name presbyter parishioner_id]
+        required: %w[confirmed_at confirmed_location presbyter parishioner_id]
       }
 
       request_body_example value: {
         confirmed_at: '1981-11-11',
         confirmed_location: '彰化市聖十字架天主堂',
-        christian_name: '聖施達',
 
         godfather: '',
         godfather_id: nil,

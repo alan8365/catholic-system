@@ -4,7 +4,6 @@ class CreateConfirmations < ActiveRecord::Migration[7.0]
     create_table :confirmations do |t|
       t.date 'confirmed_at', comment: 'The date the parishioner was confirmed'
       t.string 'confirmed_location', comment: 'The location where the parishioner was confirmed'
-      t.string 'christian_name', comment: "The parishioner's Christian name"
 
       t.string 'godfather', comment: "The name of the parishioner's godfather"
       t.string 'godmother', comment: "The name of the parishioner's godmother"

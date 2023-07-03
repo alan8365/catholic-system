@@ -5,7 +5,6 @@ class CreateEucharists < ActiveRecord::Migration[7.0]
     create_table :eucharists do |t|
       t.date 'eucharist_at'
       t.string 'eucharist_location'
-      t.string 'christian_name', comment: "The parishioner's Christian name"
 
       t.string 'godfather', comment: "The name of the parishioner's godfather"
       t.string 'godmother', comment: "The name of the parishioner's godmother"

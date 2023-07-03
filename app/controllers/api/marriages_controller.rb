@@ -37,13 +37,16 @@ module Api
                                        comment
                                      ])
 
-      render json: @marriages, include: %i[groom_instance bride_instance], status: :ok
+      # render json: @marriages, include: %i[groom_instance bride_instance], status: :ok
+      render json: @marriages,
+             include: { groom_instance: { include: :baptism }, bride_instance: { include: :baptism } }, status: :ok
     end
 
     # GET /marriages/{id}
     def show
       authorize! :read, @marriage
-      render json: @marriage, include: %i[groom_instance bride_instance], status: :ok
+      render json: @marriage,
+             include: { groom_instance: { include: :baptism }, bride_instance: { include: :baptism } }, status: :ok
     end
 
     # POST /marriages

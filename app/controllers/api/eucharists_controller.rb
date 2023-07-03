@@ -14,7 +14,7 @@ module Api
 
       @eucharists = if query
                       string_filed = %w[
-                        eucharist_location christian_name godfather godmother presbyter comment
+                        eucharist_location godfather godmother presbyter comment
                       ]
 
                       query_string = string_filed.join(" like ? or \n")
@@ -29,7 +29,7 @@ module Api
 
       @eucharists = @eucharists.select(*%w[
                                          id
-                                         eucharist_at eucharist_location christian_name
+                                         eucharist_at eucharist_location
                                          godfather godmother
                                          godfather_id godmother_id
                                          presbyter presbyter_id
@@ -37,13 +37,13 @@ module Api
                                          comment
                                        ])
 
-      render json: @eucharists, include: %i[parishioner], status: :ok
+      render json: @eucharists, include: { parishioner: { include: :baptism } }, status: :ok
     end
 
     # GET /eucharists/{id}
     def show
       authorize! :read, @eucharist
-      render json: @eucharist, include: %i[parishioner], status: :ok
+      render json: @eucharist, include:{ parishioner: { include: :baptism } }, status: :ok
     end
 
     # POST /eucharists
@@ -86,7 +86,7 @@ module Api
 
     def eucharist_params
       params.permit(%i[
-                      eucharist_at eucharist_location christian_name
+                      eucharist_at eucharist_location
                       godfather godmother
                       godfather_id godmother_id
                       presbyter presbyter_id

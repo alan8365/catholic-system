@@ -14,7 +14,7 @@ module Api
 
       @confirmations = if query
                          string_filed = %w[
-                           confirmed_location christian_name godfather godmother presbyter comment
+                           confirmed_location godfather godmother presbyter comment
                          ]
 
                          query_string = string_filed.join(" like ? or \n")
@@ -28,7 +28,7 @@ module Api
 
       @confirmations = @confirmations.select(*%w[
                                                id
-                                               confirmed_at confirmed_location christian_name
+                                               confirmed_at confirmed_location
                                                godfather godmother
                                                godfather_id godmother_id
                                                presbyter presbyter_id
@@ -36,13 +36,13 @@ module Api
                                                comment
                                              ])
 
-      render json: @confirmations, include: %i[parishioner], status: :ok
+      render json: @confirmations, include: { parishioner: { include: :baptism } }, status: :ok
     end
 
     # GET /confirmations/{id}
     def show
       authorize! :read, @confirmation
-      render json: @confirmation, include: %i[parishioner], status: :ok
+      render json: @confirmation, include: { parishioner: { include: :baptism } }, status: :ok
     end
 
     # POST /confirmations
@@ -85,7 +85,7 @@ module Api
 
     def confirmation_params
       params.permit(%i[
-                      confirmed_at confirmed_location christian_name
+                      confirmed_at confirmed_location
                       godfather godmother
                       godfather_id godmother_id
                       presbyter presbyter_id

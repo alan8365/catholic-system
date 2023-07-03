@@ -128,7 +128,6 @@ Baptism.create({
 Confirmation.create({
                       confirmed_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
                       confirmed_location: '彰化市聖十字架天主堂',
-                      christian_name: '安東尼',
 
                       godfather: '張00',
                       presbyter: '黃世明神父',
@@ -140,7 +139,6 @@ Confirmation.create({
 Eucharist.create({
                    eucharist_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
                    eucharist_location: '彰化市聖十字架天主堂',
-                   christian_name: '安東尼',
 
                    godfather: '張00',
                    presbyter: '黃世明神父',

@@ -10,7 +10,6 @@ class Confirmation < ApplicationRecord
 
   validates :confirmed_at, presence: true
   validates :confirmed_location, presence: true
-  validates :christian_name, presence: true
 
   validates :presbyter, presence: true
   validates :parishioner_id, presence: true, uniqueness: true

@@ -58,7 +58,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_30_171003) do
   create_table "confirmations", force: :cascade do |t|
     t.date "confirmed_at"
     t.string "confirmed_location"
-    t.string "christian_name"
     t.string "godfather"
     t.string "godmother"
     t.string "presbyter"
@@ -74,7 +73,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_30_171003) do
   create_table "eucharists", force: :cascade do |t|
     t.date "eucharist_at"
     t.string "eucharist_location"
-    t.string "christian_name"
     t.string "godfather"
     t.string "godmother"
     t.string "presbyter"
