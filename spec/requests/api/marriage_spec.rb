@@ -83,7 +83,10 @@ RSpec.describe 'api/marriages', type: :request do
                                   created_at updated_at
                                 ])
           marriage_hash['groom_instance'] = @marriage.groom_instance.as_json
+          marriage_hash['groom_instance']['baptism'] = @marriage.groom_instance.baptism.as_json
+
           marriage_hash['bride_instance'] = @marriage.bride_instance.as_json
+          # marriage_hash['bride_instance']['baptism'] = @marriage.bride_instance.baptism.as_json
 
           expect(data).to eq([marriage_hash])
         end

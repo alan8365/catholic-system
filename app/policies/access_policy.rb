@@ -18,7 +18,7 @@ class AccessPolicy
       # User feature
       can %i[read create update], User
 
-      can [:destroy], User do |target_user, _user|
+      can %i[destroy], User do |target_user, _user|
         !target_user.is_admin
       end
 

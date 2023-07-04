@@ -15,20 +15,20 @@ User.create([
 
 # Parishioner
 @first_parishioner = Parishioner.create({
-                                          name: '許某某',
+                                          name: '許大哥',
                                           gender: '男',
                                           birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
                                           postal_code: '433',
                                           address: '台中市北區三民路某段某號',
-                                          father: '許某某',
-                                          mother: '張某某',
+                                          father: '許爸爸',
+                                          mother: '張媽媽',
                                           home_phone: '047221245',
                                           mobile_phone: '0987372612',
                                           nationality: '中華民國',
                                           profession: '資訊',
                                           company_name: '科技大學',
 
-                                          sibling_number: 0,
+                                          sibling_number: 1,
                                           children_number: 0,
 
                                           move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
@@ -76,6 +76,23 @@ User.create([
   filename: 'profile-pic2.jpeg'
 )
 
+@father_parishioner = Parishioner.create({
+                                           name: '許爸爸',
+                                           gender: '男',
+                                           birth_at: Date.strptime('1950/02/02', '%Y/%m/%d')
+                                         })
+@mother_parishioner = Parishioner.create({
+                                           name: '張媽媽',
+                                           gender: '女',
+                                           birth_at: Date.strptime('1950/02/02', '%Y/%m/%d')
+                                         })
+
+@brother_parishioner = Parishioner.create({
+                                            name: '許小弟',
+                                            gender: '男',
+                                            birth_at: Date.strptime('1991/02/02', '%Y/%m/%d')
+                                          })
+
 @move_out_parishioner = Parishioner.create({
                                              name: '千某某',
                                              gender: '女',
@@ -91,10 +108,19 @@ User.create([
                                              comment: '遷出測試用教友'
                                            })
 
+@first_parishioner.father_instance = @father_parishioner
+@brother_parishioner.father_instance = @father_parishioner
+
+@first_parishioner.mother_instance = @mother_parishioner
+@brother_parishioner.mother_instance = @mother_parishioner
+
+@first_parishioner.save
+@brother_parishioner.save
+
 # Household
 
 first_household = Household.create({
-                                     home_number: 'CK123',
+                                     home_number: 'CK123'
                                    })
 Household.create({
                    home_number: 'G',

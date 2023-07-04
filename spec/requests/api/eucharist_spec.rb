@@ -69,6 +69,7 @@ RSpec.describe 'api/eucharists', type: :request do
                                     created_at updated_at
                                   ])
           eucharist_hash['parishioner'] = @eucharist.parishioner.as_json
+          eucharist_hash['parishioner']['baptism'] = @eucharist.parishioner.baptism.as_json
 
           expect(data).to eq([eucharist_hash])
         end

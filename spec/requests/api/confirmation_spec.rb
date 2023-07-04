@@ -70,6 +70,7 @@ RSpec.describe 'api/confirmations', type: :request do
                                     ])
 
           confirmation_hash['parishioner'] = @confirmation.parishioner.as_json
+          confirmation_hash['parishioner']['baptism'] = @confirmation.parishioner.baptism.as_json
 
           expect(data).to eq([confirmation_hash])
         end

@@ -50,7 +50,12 @@ module Api
                                            ])
 
       render json: @parishioners,
-             include: %i[mother_instance father_instance baptism confirmation eucharist wife husband], status: :ok
+             include: %i[
+               mother_instance father_instance
+               child_for_mother child_for_father
+               baptism confirmation eucharist
+               wife husband
+             ], status: :ok
     end
 
     # GET /parishioners/{id}
@@ -58,7 +63,12 @@ module Api
       authorize! :read, @parishioner
 
       render json: @parishioner,
-             include: %i[mother_instance father_instance baptism confirmation eucharist wife husband], status: :ok
+             include: %i[
+               mother_instance father_instance
+               child_for_mother child_for_father
+               baptism confirmation eucharist
+               wife husband
+             ], status: :ok
     end
 
     def picture

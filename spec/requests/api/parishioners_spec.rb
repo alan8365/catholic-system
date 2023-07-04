@@ -143,6 +143,12 @@ profession company_name home_phone mobile_phone original_parish destination_pari
           parishioner_hash['confirmation'] = @parishioner.confirmation.as_json
           parishioner_hash['eucharist'] = @parishioner.eucharist.as_json
 
+          parishioner_hash['child_for_father'] = @parishioner.child_for_father.as_json
+          parishioner_hash['child_for_mother'] = @parishioner.child_for_mother.as_json
+
+          parishioner2_hash['child_for_father'] = Parishioner.find_by_id(5).child_for_father.as_json
+          parishioner2_hash['child_for_mother'] = Parishioner.find_by_id(5).child_for_mother.as_json
+
           parishioner_hash['wife'] = @parishioner.wife.as_json
 
           expect(data).to eq([parishioner_hash, parishioner2_hash])
