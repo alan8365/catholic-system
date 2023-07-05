@@ -194,7 +194,6 @@ paths:
               required:
               - confirmed_at
               - confirmed_location
-              - christian_name
               - presbyter
               - parishioner_id
             examples:
@@ -203,7 +202,6 @@ paths:
                 value:
                   confirmed_at: '1981-11-11'
                   confirmed_location: 彰化市聖十字架天主堂
-                  christian_name: 聖施達
                   godfather: ''
                   godfather_id:
                   godmother: 許00
@@ -252,7 +250,6 @@ paths:
               required:
               - confirmed_at
               - confirmed_location
-              - christian_name
               - presbyter
               - parishioner_id
             examples:
@@ -261,7 +258,6 @@ paths:
                 value:
                   confirmed_at: '1981-11-11'
                   confirmed_location: 彰化市聖十字架天主堂
-                  christian_name: 聖施達
                   godfather: ''
                   godfather_id:
                   godmother: 許00
@@ -322,7 +318,6 @@ paths:
               required:
               - eucharist_at
               - eucharist_location
-              - christian_name
               - presbyter
               - parishioner_id
             examples:
@@ -331,7 +326,6 @@ paths:
                 value:
                   eucharist_at: '1981-11-11'
                   eucharist_location: 彰化市聖十字架天主堂
-                  christian_name: 聖施達
                   godfather: ''
                   godfather_id:
                   godmother: 許00
@@ -380,7 +374,6 @@ paths:
               required:
               - eucharist_at
               - eucharist_location
-              - christian_name
               - presbyter
               - parishioner_id
             examples:
@@ -389,7 +382,6 @@ paths:
                 value:
                   eucharist_at: '1981-11-11'
                   eucharist_location: 彰化市聖十字架天主堂
-                  christian_name: 聖施達
                   godfather: ''
                   godfather_id:
                   godmother: 許00
@@ -609,11 +601,16 @@ paths:
               test_marriage:
                 summary: Test marriage update
                 value:
-                  baptized_at: '1981-11-11'
-                  baptized_location: 彰化市聖十字架天主堂
-                  christian_name: 聖施達
-                  godmother: 許00
+                  marriage_at: '1961-11-11'
+                  marriage_location: 彰化市聖十字架天主堂
+                  groom: 趙爸爸
+                  bride: 孫媽媽
+                  groom_id: 5
+                  bride_id: 4
                   presbyter: 黃世明神父
+                  witness1: 千里眼
+                  witness2: 順風耳
+                  comment: 結婚測試
     delete:
       summary: delete marriage
       tags:
@@ -840,6 +837,114 @@ paths:
           description: Not Found
         '404':
           description: Not Found
+  "/api/regular_donations":
+    get:
+      summary: list regular_donations
+      tags:
+      - Regular Donations
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy/m format string for donation searches.
+          For example, "2023/7" would search for donations made in July 2023.
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create regular_donation
+      tags:
+      - Regular Donations
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - home_number
+            examples:
+              test_donation:
+                summary: Test donation create
+                value:
+                  home_number: TT520
+                  donation_at: '2023-07-02'
+                  donation_amount: 1000
+                  comment: 測試用奉獻
+  "/api/regular_donations/{_id}":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show regular_donation
+      tags:
+      - Regular Donations
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update regular_donation
+      tags:
+      - Regular Donations
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              test home number change:
+                summary: Test regular_donation update
+                value:
+                  home_number: TT521
+                  head_of_regular_donation_id: 2
+    delete:
+      summary: delete regular_donation
+      tags:
+      - Regular Donations
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: successful
+        '403':
+          description: successful
   "/api/users":
     get:
       summary: list users

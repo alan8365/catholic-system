@@ -11,7 +11,8 @@ class AccessPolicy
       Baptism,
       Confirmation,
       Eucharist,
-      Marriage
+      Marriage,
+      RegularDonation
     ]
 
     role :admin, proc { |user| user.is_admin? } do

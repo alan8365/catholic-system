@@ -61,6 +61,9 @@ RSpec.describe 'api/households', type: :request do
           data = JSON.parse(response.body)
 
           household_hash = @household.as_json
+          household_hash['head_of_household'] = @household.head_of_household.as_json
+          household_hash['parishioners'] = @household.parishioners.as_json
+
           household_hash.except!(*%w[
                                    created_at updated_at
                                  ])

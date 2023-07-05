@@ -1,87 +1,104 @@
 # frozen_string_literal: true
 
 module Api
-  class HouseholdsController < ApplicationController
+  class RegularDonationsController < ApplicationController
     before_action :authorize_request
-    before_action :find_household, except: %i[create index]
+    before_action :find_regular_donation, except: %i[create index]
 
-    # GET /households
+    # GET /regular_donations
     def index
-      authorize! :read, Household
-      @query = params[:any_field]
+      authorize! :read, RegularDonation
+      query = params[:any_field]
+      date = params[:date]
 
-      @households = if @query
-                      Household
-                        .where(['home_number like ?', "%#{@query}%"])
-                    else
-                      Household.all
-                    end
+      if query
+        string_filed = %w[
+          home_number
+          comment
+        ]
 
-      @households = @households
-                      .select(*%w[home_number head_of_household special comment])
+        query_string = string_filed.join(" like ? or \n")
+        query_string += ' like ?'
 
-      render json: @households, status: :ok
-    end
+        query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-    # GET /households/{home_number}
-    def show
-      authorize! :read, @household
-      render json: @household, status: :ok
-    end
+        @regular_donations = RegularDonation.where([query_string, *query_array])
+      elsif date&.match?(%r{\d{4}/\d{1,2}})
+        year, month = date.split('/').map(&:to_i)
 
-    # POST /households
-    def create
-      authorize! :create, Household
+        begin_date = Date.civil(year, month, 1)
+        end_date = Date.civil(year, month, -1)
 
-      create_params = household_params.to_h
-      if 'head_of_household_id'.in? household_params.keys
-        create_params['head_of_household'] = Parishioner.find_by_id(household_params['head_of_household_id'])
-        create_params.delete('head_of_household_id')
+        @regular_donations = RegularDonation.where(donation_at: begin_date..end_date)
+      else
+        @regular_donations = RegularDonation.all
       end
 
-      @household = Household.new(create_params)
-      if @household.save
-        render json: @household, status: :created
+      @regular_donations = @regular_donations
+                             .select(*%w[
+                                     id
+                                     home_number
+                                     donation_at donation_amount
+                                     comment
+                                   ])
+
+      render json: @regular_donations, status: :ok
+    end
+
+    # GET /regular_donations/{id}
+    def show
+      authorize! :read, @regular_donation
+      render json: @regular_donation, status: :ok
+    end
+
+    # POST /regular_donations
+    def create
+      authorize! :create, RegularDonation
+
+      create_params = regular_donation_params.to_h
+
+      @regular_donation = RegularDonation.new(create_params)
+      if @regular_donation.save
+        render json: @regular_donation, status: :created
       else
-        render json: { errors: @household.errors.full_messages },
+        render json: { errors: @regular_donation.errors.full_messages },
                status: :unprocessable_entity
       end
     end
 
-    # PUT /households/{home_number}
+    # PUT /regular_donations/{id}
     def update
-      authorize! :update, @household
+      authorize! :update, @regular_donation
 
-      update_params = household_params.to_h
-      if 'head_of_household_id'.in?(update_params.keys)
-        @household.head_of_household = Parishioner.find_by_id(update_params['head_of_household_id'])
-        update_params.delete('head_of_household_id')
-      end
+      update_params = regular_donation_params.to_h
 
-      return if @household.update(update_params)
+      return if @regular_donation.update(update_params)
 
-      render json: { errors: @household.errors.full_messages },
+      render json: { errors: @regular_donation.errors.full_messages },
              status: :unprocessable_entity
     end
 
-    # DELETE /households/{home_number}
+    # DELETE /regular_donations/{id}
     def destroy
-      authorize! :destroy, @household
-      @household.destroy
+      authorize! :destroy, @regular_donation
+      @regular_donation.destroy
     end
 
     private
 
-    def find_household
-      @household = Household.find_by_home_number!(params[:_home_number])
+    def find_regular_donation
+      @regular_donation = RegularDonation.find_by_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Household not found' }, status: :not_found
+      render json: { errors: 'Regular Donation not found' }, status: :not_found
     end
 
-    def household_params
+    def regular_donation_params
       params.permit(
-        *%i[home_number head_of_household head_of_household_id special comment]
-      )
+        *%i[
+          home_number
+          donation_at donation_amount
+          comment
+        ])
     end
 
     def current_policy

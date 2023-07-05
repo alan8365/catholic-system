@@ -19,6 +19,6 @@ class CreateHouseholds < ActiveRecord::Migration[7.0]
     # Add home number in parishioners
     add_column :parishioners, 'home_number', :string
     add_foreign_key :parishioners, :households, column: 'home_number', primary_key: 'home_number', on_delete: :nullify,
-                    on_update: :cascade
+                                                on_update: :cascade
   end
 end

@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
-class Household < ApplicationRecord
-  validates :home_number, presence: true, uniqueness: true
+class RegularDonation < ApplicationRecord
+  validates :home_number, presence: true
+  validates :donation_at, presence: true
+  validates :donation_amount, presence: true
 
-  # Home number association
-  has_many :parishioners, class_name: 'Parishioner', foreign_key: 'home_number', dependent: :nullify
-
-  # Head of household association
-  belongs_to :head_of_household, class_name: 'Parishioner', foreign_key: 'head_of_household', optional: true
+  belongs_to :household, class_name: 'Household', foreign_key: 'home_number'
 end

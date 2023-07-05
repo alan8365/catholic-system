@@ -8,25 +8,38 @@ module Api
     # GET /households
     def index
       authorize! :read, Household
-      @query = params[:any_field]
+      query = params[:any_field]
 
-      @households = if @query
-                      Household
-                        .where(['home_number like ?', "%#{@query}%"])
-                    else
-                      Household.all
-                    end
+      if query
+        string_filed = %w[
+          home_number
+          comment
+        ]
+
+        query_string = string_filed.join(" like ? or \n")
+        query_string += ' like ?'
+
+        query_array = string_filed.map { |_| "%#{query}%" }.compact
+
+        @households = Household.where([query_string, *query_array])
+      else
+        @households = Household.all
+      end
 
       @households = @households
-                      .select(*%w[home_number head_of_household special comment])
+                    .select(*%w[
+                              home_number head_of_household
+                              special
+                              comment
+                            ])
 
-      render json: @households, status: :ok
+      render json: @households, include: %i[head_of_household parishioners], status: :ok
     end
 
     # GET /households/{home_number}
     def show
       authorize! :read, @household
-      render json: @household, status: :ok
+      render json: @household, include: %i[head_of_household parishioners], status: :ok
     end
 
     # POST /households

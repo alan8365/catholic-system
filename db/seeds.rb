@@ -90,7 +90,9 @@ User.create([
 @brother_parishioner = Parishioner.create({
                                             name: '許小弟',
                                             gender: '男',
-                                            birth_at: Date.strptime('1991/02/02', '%Y/%m/%d')
+                                            birth_at: Date.strptime('1991/02/02', '%Y/%m/%d'),
+
+                                            sibling_number: 0
                                           })
 
 @move_out_parishioner = Parishioner.create({
@@ -188,3 +190,11 @@ Marriage.create({
 
                   presbyter: '黃世明神父'
                 })
+
+# Regular donation
+RegularDonation.create({
+                         home_number: first_household.home_number,
+
+                         donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
+                         donation_amount: 1000
+                       })
