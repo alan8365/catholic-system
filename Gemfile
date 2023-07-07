@@ -21,6 +21,9 @@ gem 'jwt'
 gem 'rswag-api'
 gem 'rswag-ui'
 
+# xlsx file processing [https://github.com/randym/axlsx]
+gem 'axlsx'
+
 group :development, :test do
   gem 'rspec-rails'
   gem 'rswag-specs'

@@ -124,6 +124,9 @@ User.create([
 first_household = Household.create({
                                      home_number: 'CK123'
                                    })
+second_household = Household.create({
+                                      home_number: 'CK101'
+                                    })
 Household.create({
                    home_number: 'G',
                    special: true
@@ -133,12 +136,23 @@ Household.create({
 @first_parishioner.household = first_household
 @second_parishioner.household = first_household
 
+@father_parishioner.household = second_household
+@mother_parishioner.household = second_household
+@brother_parishioner.household = second_household
+
 @first_parishioner.save
 @second_parishioner.save
+
+@father_parishioner.save
+@mother_parishioner.save
+@brother_parishioner.save
 
 # Household association
 first_household.head_of_household = @first_parishioner
 first_household.save
+
+second_household.head_of_household = @father_parishioner
+second_household.save
 
 # Baptism
 Baptism.create({
@@ -192,9 +206,26 @@ Marriage.create({
                 })
 
 # Regular donation
-RegularDonation.create({
-                         home_number: first_household.home_number,
+RegularDonation.create([
+                         {
+                           home_number: first_household.home_number,
 
-                         donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
-                         donation_amount: 1000
-                       })
+                           donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
+                           donation_amount: 1000
+                         }, {
+                           home_number: first_household.home_number,
+
+                           donation_at: Date.strptime('2023/7/9', '%Y/%m/%d'),
+                           donation_amount: 2000
+                         }, {
+                           home_number: second_household.home_number,
+
+                           donation_at: Date.strptime('2023/7/9', '%Y/%m/%d'),
+                           donation_amount: 3000
+                         }, {
+                           home_number: second_household.home_number,
+
+                           donation_at: Date.strptime('2023/7/23', '%Y/%m/%d'),
+                           donation_amount: 6000
+                         }
+                       ])
