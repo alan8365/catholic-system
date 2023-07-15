@@ -2,11 +2,12 @@
 
 require 'swagger_helper'
 
-RSpec.describe 'api/regular_donations', type: :request do
-  fixtures :users, :parishioners, :household, :regular_donation
+RSpec.describe 'api/special_donations', type: :request do
+  fixtures :users, :parishioners, :household, :event, :special_donation
 
   before(:each) do
     @example_test = {
+      event_id: 1,
       home_number: 'TT520',
 
       donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
@@ -15,11 +16,11 @@ RSpec.describe 'api/regular_donations', type: :request do
       comment: '測試用奉獻'
     }
 
-    @regular_donation = RegularDonation.all[0]
+    @special_donation = SpecialDonation.all[0]
   end
 
-  path '/api/regular_donations' do
-    get('list regular_donations') do
+  path '/api/special_donations' do
+    get('list special_donations') do
       tags 'Regular Donations'
       security [Bearer: {}]
       parameter name: :any_field, in: :query, schema: {
@@ -37,7 +38,7 @@ For example, "2023/7" would search for donations made in July 2023.'
       request_body_example value: {
         any_field: 'TT',
         date: '2023/6'
-      }, name: 'query test regular_donation', summary: 'Finding all test regular_donation'
+      }, name: 'query test special_donation', summary: 'Finding all test special_donation'
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
@@ -71,12 +72,12 @@ For example, "2023/7" would search for donations made in July 2023.'
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          regular_donation_hash = @regular_donation.as_json
-          regular_donation_hash.except!(*%w[
+          special_donation_hash = @special_donation.as_json
+          special_donation_hash.except!(*%w[
                                           created_at updated_at
                                         ])
 
-          expect(data).to eq([regular_donation_hash])
+          expect(data).to eq([special_donation_hash])
         end
       end
 
@@ -97,12 +98,12 @@ For example, "2023/7" would search for donations made in July 2023.'
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          regular_donation_hash = @regular_donation.as_json
-          regular_donation_hash.except!(*%w[
+          special_donation_hash = @special_donation.as_json
+          special_donation_hash.except!(*%w[
                                           created_at updated_at
                                         ])
 
-          expect(data).to eq([regular_donation_hash])
+          expect(data).to eq([special_donation_hash])
         end
       end
 
@@ -122,16 +123,17 @@ For example, "2023/7" would search for donations made in July 2023.'
       end
     end
 
-    post('create regular_donation') do
+    post('create special_donation') do
       tags 'Regular Donations'
       security [Bearer: {}]
       consumes 'application/json'
-      parameter name: :regular_donation, in: :body, schema: {
+      parameter name: :special_donation, in: :body, schema: {
         type: :object,
         required: %w[home_number]
       }
 
       request_body_example value: {
+        event_id: 1,
         home_number: 'TT520',
 
         donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
@@ -142,7 +144,7 @@ For example, "2023/7" would search for donations made in July 2023.'
 
       response(201, 'Created') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:regular_donation) { @example_test }
+        let(:special_donation) { @example_test }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -181,7 +183,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         run_test!
       end
 
-      # RegularDonation already exist test
+      # SpecialDonation already exist test
       response(422, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:user) { { name: 'TT520' } }
@@ -213,24 +215,24 @@ For example, "2023/7" would search for donations made in July 2023.'
     end
   end
 
-  path '/api/regular_donations/{_id}' do
+  path '/api/special_donations/{_id}' do
     # You'll want to customize the parameter types...
     parameter name: '_id', in: :path, type: :string, description: '_id'
 
-    get('show regular_donation') do
+    get('show special_donation') do
       tags 'Regular Donations'
       security [Bearer: {}]
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:_id) { @regular_donation.id }
+        let(:_id) { @special_donation.id }
 
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          regular_donation_hash = @regular_donation.as_json
+          special_donation_hash = @special_donation.as_json
 
-          expect(data).to eq(regular_donation_hash)
+          expect(data).to eq(special_donation_hash)
         end
       end
 
@@ -250,55 +252,55 @@ For example, "2023/7" would search for donations made in July 2023.'
       end
     end
 
-    patch('update regular_donation') do
+    patch('update special_donation') do
       tags 'Regular Donations'
       security [Bearer: {}]
       consumes 'application/json'
-      parameter name: :regular_donation, in: :body, schema: {
+      parameter name: :special_donation, in: :body, schema: {
         type: :object
       }
 
       request_body_example value: {
         home_number: 'TT521',
-        head_of_regular_donation_id: 2,
-      }, name: 'test home number change', summary: 'Test regular_donation update'
+        head_of_special_donation_id: 2
+      }, name: 'test home number change', summary: 'Test special_donation update'
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:_id) { @regular_donation.id }
-        let(:regular_donation) { { donation_at: Date.strptime('2023/7/9', '%Y/%m/%d'), donation_amount: 1000 } }
+        let(:_id) { @special_donation.id }
+        let(:special_donation) { { donation_at: Date.strptime('2023/7/9', '%Y/%m/%d'), donation_amount: 1000 } }
 
         run_test! do
-          @regular_donation_updated = RegularDonation.find_by_id(@regular_donation.id)
-          expect(@regular_donation_updated.donation_at).to eq(Date.strptime('2023/7/9', '%Y/%m/%d'))
-          expect(@regular_donation_updated.donation_amount).to eq(1000)
+          @special_donation_updated = SpecialDonation.find_by_id(@special_donation.id)
+          expect(@special_donation_updated.donation_at).to eq(Date.strptime('2023/7/9', '%Y/%m/%d'))
+          expect(@special_donation_updated.donation_amount).to eq(1000)
         end
       end
 
       # Current user have not permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:_id) { @regular_donation.id }
-        let(:regular_donation) { {} }
+        let(:_id) { @special_donation.id }
+        let(:special_donation) { {} }
 
         run_test!
       end
     end
 
-    delete('delete regular_donation') do
+    delete('delete special_donation') do
       tags 'Regular Donations'
       security [Bearer: {}]
 
       response(204, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:_id) { @regular_donation.id }
+        let(:_id) { @special_donation.id }
 
         run_test!
       end
 
       response(403, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:_id) { @regular_donation.id }
+        let(:_id) { @special_donation.id }
 
         run_test!
       end

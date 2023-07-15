@@ -1,5 +1,6 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 christmas:
+  id: 1
   name: 聖誕
   start_at:  <%= Date.strptime("2023/12/25", "%Y/%m/%d") %>
