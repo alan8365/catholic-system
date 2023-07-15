@@ -30,6 +30,7 @@ module Api
                     .select(*%w[
                               home_number head_of_household
                               special
+                              guest
                               comment
                             ])
 

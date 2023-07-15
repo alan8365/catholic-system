@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_07_04_171003) do
+ActiveRecord::Schema[7.0].define(version: 2023_07_12_171003) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -85,6 +85,14 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_04_171003) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "events", force: :cascade do |t|
+    t.string "name"
+    t.date "start_at"
+    t.string "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "households", primary_key: "home_number", id: :string, force: :cascade do |t|
     t.integer "head_of_household"
     t.boolean "special", default: false
@@ -149,6 +157,18 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_04_171003) do
     t.date "donation_at"
     t.integer "donation_amount"
     t.string "comment"
+    t.boolean "receipt", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "special_donations", force: :cascade do |t|
+    t.integer "event_id"
+    t.string "home_number"
+    t.date "donation_at"
+    t.integer "donation_amount"
+    t.string "comment"
+    t.boolean "receipt", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -186,4 +206,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_04_171003) do
   add_foreign_key "parishioners", "parishioners", column: "father_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "parishioners", "parishioners", column: "mother_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "regular_donations", "households", column: "home_number", primary_key: "home_number", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "special_donations", "events", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "special_donations", "households", column: "home_number", primary_key: "home_number", on_update: :cascade, on_delete: :nullify
 end

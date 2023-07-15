@@ -246,6 +246,7 @@ RegularDonation.create([
                          }
                        ])
 
+# Regular donation random seeds
 begin_date = Date.civil(2022, 1, 1)
 end_date = Date.civil(2022, 12, -1)
 
@@ -270,3 +271,12 @@ random_regular_donation = []
 end
 
 RegularDonation.create(random_regular_donation)
+
+# Event
+Event.create([{
+               name: '聖誕',
+               start_at: Date.strptime('2023/12/25', '%Y/%m/%d')
+             }, {
+               name: '復活節',
+               start_at: Date.strptime('2023/04/09', '%Y/%m/%d')
+             }])
