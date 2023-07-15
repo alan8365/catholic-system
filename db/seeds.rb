@@ -127,10 +127,16 @@ first_household = Household.create({
 second_household = Household.create({
                                       home_number: 'CK101'
                                     })
-Household.create({
-                   home_number: 'G',
-                   special: true
-                 })
+special_household = Household.create({
+                                       home_number: 'V',
+                                       special: true,
+                                       comment: '越南教友'
+                                     })
+guest_household = Household.create({
+                                     home_number: 'G',
+                                     guest: true,
+                                     comment: '善心人士'
+                                   })
 
 # Parishioner association
 @first_parishioner.household = first_household
@@ -227,5 +233,40 @@ RegularDonation.create([
 
                            donation_at: Date.strptime('2023/7/23', '%Y/%m/%d'),
                            donation_amount: 6000
+                         }, {
+                           home_number: guest_household.home_number,
+
+                           donation_at: Date.strptime('2023/7/23', '%Y/%m/%d'),
+                           donation_amount: 3422
+                         }, {
+                           home_number: special_household.home_number,
+
+                           donation_at: Date.strptime('2023/7/23', '%Y/%m/%d'),
+                           donation_amount: 7990
                          }
                        ])
+
+begin_date = Date.civil(2022, 1, 1)
+end_date = Date.civil(2022, 12, -1)
+
+date_range = begin_date..end_date
+all_sunday = date_range.to_a.select { |k| k.wday.zero? }
+
+all_household = Household.all
+
+random_regular_donation = []
+50.times do |_|
+  home_number = all_household.sample.home_number
+
+  donation_at = all_sunday.sample
+
+  donation_amount = rand(1000..10_000)
+
+  random_regular_donation << {
+    home_number:,
+    donation_at:,
+    donation_amount:
+  }
+end
+
+RegularDonation.create(random_regular_donation)

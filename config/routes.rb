@@ -22,6 +22,7 @@ Rails.application.routes.draw do
     get 'parishioners/:_id/picture', to: 'parishioners#picture', param: :_id
 
     get 'report/regular_donations/month', to: 'regular_donations#monthly_report'
+    get 'report/regular_donations/year', to: 'regular_donations#yearly_report'
   end
 
   get '/*a', to: 'application#not_found'
