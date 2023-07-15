@@ -10,7 +10,7 @@ module Api
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
 
-      render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(%r{\d{4}/\d{1,2}})
+      return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(%r{^\d{4}/\d{1,2}$})
 
       require 'axlsx'
       # Date process
@@ -45,8 +45,9 @@ module Api
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
 
+      return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/^\d{4}$/)
+
       require 'axlsx'
-      render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/\d{4}/)
 
       year = date.to_i
       all_month = (1..12).to_a
