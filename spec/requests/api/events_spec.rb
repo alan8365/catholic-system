@@ -19,7 +19,7 @@ RSpec.describe 'api/events', type: :request do
 
   path '/api/events' do
     get('list events') do
-      tags 'Regular Donations'
+      tags 'Event'
       security [Bearer: {}]
       parameter name: :any_field, in: :query, schema: {
         type: :string,
@@ -86,7 +86,7 @@ RSpec.describe 'api/events', type: :request do
     end
 
     post('create event') do
-      tags 'Regular Donations'
+      tags 'Event'
       security [Bearer: {}]
       consumes 'application/json'
       parameter name: :event, in: :body, schema: {
@@ -179,7 +179,7 @@ RSpec.describe 'api/events', type: :request do
     parameter name: '_id', in: :path, type: :string, description: '_id'
 
     get('show event') do
-      tags 'Regular Donations'
+      tags 'Event'
       security [Bearer: {}]
 
       response(200, 'successful') do
@@ -212,7 +212,7 @@ RSpec.describe 'api/events', type: :request do
     end
 
     patch('update event') do
-      tags 'Regular Donations'
+      tags 'Event'
       security [Bearer: {}]
       consumes 'application/json'
       parameter name: :event, in: :body, schema: {
@@ -247,7 +247,7 @@ RSpec.describe 'api/events', type: :request do
     end
 
     delete('delete event') do
-      tags 'Regular Donations'
+      tags 'Event'
       security [Bearer: {}]
 
       response(204, 'successful') do

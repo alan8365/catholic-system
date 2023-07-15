@@ -21,7 +21,7 @@ RSpec.describe 'api/special_donations', type: :request do
 
   path '/api/special_donations' do
     get('list special_donations') do
-      tags 'Regular Donations'
+      tags 'Special Donations'
       security [Bearer: {}]
       parameter name: :any_field, in: :query, schema: {
         type: :string,
@@ -124,7 +124,7 @@ For example, "2023/7" would search for donations made in July 2023.'
     end
 
     post('create special_donation') do
-      tags 'Regular Donations'
+      tags 'Special Donations'
       security [Bearer: {}]
       consumes 'application/json'
       parameter name: :special_donation, in: :body, schema: {
@@ -220,7 +220,7 @@ For example, "2023/7" would search for donations made in July 2023.'
     parameter name: '_id', in: :path, type: :string, description: '_id'
 
     get('show special_donation') do
-      tags 'Regular Donations'
+      tags 'Special Donations'
       security [Bearer: {}]
 
       response(200, 'successful') do
@@ -253,7 +253,7 @@ For example, "2023/7" would search for donations made in July 2023.'
     end
 
     patch('update special_donation') do
-      tags 'Regular Donations'
+      tags 'Special Donations'
       security [Bearer: {}]
       consumes 'application/json'
       parameter name: :special_donation, in: :body, schema: {
@@ -288,7 +288,7 @@ For example, "2023/7" would search for donations made in July 2023.'
     end
 
     delete('delete special_donation') do
-      tags 'Regular Donations'
+      tags 'Special Donations'
       security [Bearer: {}]
 
       response(204, 'successful') do

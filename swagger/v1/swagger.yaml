@@ -402,6 +402,105 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+  "/api/events":
+    get:
+      summary: list events
+      tags:
+      - Event
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create event
+      tags:
+      - Event
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - home_number
+            examples:
+              test event:
+                summary: Test event create
+                value:
+                  name: 聖誕
+                  start_at: '2023-12-25'
+                  comment: 測試用活動
+  "/api/events/{_id}":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show event
+      tags:
+      - Event
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update event
+      tags:
+      - Event
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              test home number change:
+                summary: Test event update
+                value:
+                  home_number: TT521
+                  head_of_event_id: 2
+    delete:
+      summary: delete event
+      tags:
+      - Event
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: successful
+        '403':
+          description: successful
   "/api/households":
     get:
       summary: list households
@@ -938,6 +1037,167 @@ paths:
       summary: delete regular_donation
       tags:
       - Regular Donations
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: successful
+        '403':
+          description: successful
+  "/api/report/regular_donations/month":
+    get:
+      summary: regular_donation_monthly_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy/mm format string for donation searches.
+          For example, "2023/7" would generate report for donations made in July 2023.
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '400':
+          description: successful
+  "/api/report/regular_donations/year":
+    get:
+      summary: regular_donation_yearly_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for donation searches.
+          For example, "2023" would generate report for donations made in 2023.
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '400':
+          description: successful
+  "/api/special_donations":
+    get:
+      summary: list special_donations
+      tags:
+      - Special Donations
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy/m format string for donation searches.
+          For example, "2023/7" would search for donations made in July 2023.
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create special_donation
+      tags:
+      - Special Donations
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Forbidden
+        '422':
+          description: Unprocessable Entity
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - home_number
+            examples:
+              test_donation:
+                summary: Test donation create
+                value:
+                  event_id: 1
+                  home_number: TT520
+                  donation_at: '2023-07-02'
+                  donation_amount: 1000
+                  comment: 測試用奉獻
+  "/api/special_donations/{_id}":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show special_donation
+      tags:
+      - Special Donations
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update special_donation
+      tags:
+      - Special Donations
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              test home number change:
+                summary: Test special_donation update
+                value:
+                  home_number: TT521
+                  head_of_special_donation_id: 2
+    delete:
+      summary: delete special_donation
+      tags:
+      - Special Donations
       security:
       - Bearer: {}
       responses:
