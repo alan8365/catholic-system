@@ -13,6 +13,7 @@ class AccessPolicy
       Eucharist,
       Marriage,
       RegularDonation,
+      SpecialDonation,
       Event
     ]
 

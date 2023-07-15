@@ -7,7 +7,7 @@ module Api
 
     # GET /regular_donations
     def index
-      authorize! :read, RegularDonation
+      authorize! :read, SpecialDonation
       query = params[:any_field]
       date = params[:date]
 
@@ -22,23 +22,24 @@ module Api
 
         query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-        @regular_donations = RegularDonation.where([query_string, *query_array])
+        @regular_donations = SpecialDonation.where([query_string, *query_array])
       elsif date&.match?(%r{\d{4}/\d{1,2}})
         year, month = date.split('/').map(&:to_i)
 
         begin_date = Date.civil(year, month, 1)
         end_date = Date.civil(year, month, -1)
 
-        @regular_donations = RegularDonation.where(donation_at: begin_date..end_date)
+        @regular_donations = SpecialDonation.where(donation_at: begin_date..end_date)
       else
-        @regular_donations = RegularDonation.all
+        @regular_donations = SpecialDonation.all
       end
 
       @regular_donations = @regular_donations
                            .select(*%w[
                                      id
-                                     home_number
+                                     home_number event_id
                                      donation_at donation_amount
+                                     receipt
                                      comment
                                    ])
 
@@ -53,11 +54,11 @@ module Api
 
     # POST /regular_donations
     def create
-      authorize! :create, RegularDonation
+      authorize! :create, SpecialDonation
 
       create_params = regular_donation_params.to_h
 
-      @regular_donation = RegularDonation.new(create_params)
+      @regular_donation = SpecialDonation.new(create_params)
       if @regular_donation.save
         render json: @regular_donation, status: :created
       else
@@ -87,7 +88,7 @@ module Api
     private
 
     def find_regular_donation
-      @regular_donation = RegularDonation.find_by_id!(params[:_id])
+      @regular_donation = SpecialDonation.find_by_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
       render json: { errors: 'Regular Donation not found' }, status: :not_found
     end
@@ -95,6 +96,7 @@ module Api
     def regular_donation_params
       params.permit(
         *%i[
+          event_id
           home_number
           donation_at donation_amount
           comment
