@@ -2,10 +2,10 @@
 
 module Api
   class ReportsController < ApplicationController
-    before_action :authorize_request, except: %i[monthly_report yearly_report]
+    before_action :authorize_request, except: %i[]
 
     def regular_donation_monthly_report
-      # authorize! :read, RegularDonation
+      authorize! :read, RegularDonation
 
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
@@ -40,7 +40,7 @@ module Api
     end
 
     def regular_donation_yearly_report
-      # authorize! :read, RegularDonation
+      authorize! :read, RegularDonation
 
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
@@ -96,13 +96,80 @@ module Api
       end
     end
 
+    def special_donation_event_report
+      authorize! :read, SpecialDonation
+
+      event_id = params[:event_id]
+      is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+
+      @event = Event.find_by_id!(event_id)
+
+      event_donation = SpecialDonation
+                       .left_joins(:event, household: :head_of_household)
+                       .where('event.id' => event_id)
+                       .order(:donation_at)
+                       .pluck('special_donations.home_number, donation_at, parishioners.name, donation_amount, special_donations.comment')
+
+      all_home_number = event_donation.map { |e| e[0] }
+      all_home_number_index = all_home_number.each_index.map { |e| e + 1 }
+
+      all_col_name = %w[家號 日期 姓名 金額 備註]
+      col_name_index = all_col_name.each_index.to_a
+
+      row_hash = Hash[all_home_number.zip(all_home_number_index)]
+      col_hash = Hash[all_col_name.zip(col_name_index)]
+
+      results = Array.new(row_hash.size + 3) { Array.new(col_hash.size) }
+      results[0] = all_col_name
+
+      event_donation.each do |e|
+        home_number = e[0]
+        row_index = row_hash[home_number]
+
+        e[1] = e[1].strftime('%m/%d')
+
+        e[2] = '善心人士' if e[2].nil?
+
+        5.times { |i| results[row_index][i] = e[i] }
+      end
+
+      results[-1][0] = '合計'
+      results[-1][3] = event_donation.sum { |e| e[3] }
+
+      axlsx_package = Axlsx::Package.new
+      wb = axlsx_package.workbook
+
+      wb.add_worksheet(name: 'Worksheet 1') do |sheet|
+        results.each do |result|
+          sheet.add_row result
+        end
+
+        # Merge cell of summation
+        sheet.merge_cells sheet.rows[-2].cells[(0..4)]
+        sheet.merge_cells sheet.rows[-1].cells[(0..2)]
+        sheet.merge_cells sheet.rows[-1].cells[(3..4)]
+      end
+
+      if is_test
+        render json: results, status: :ok
+      else
+        date_str = @event.start_at.strftime('%Y年%m月')
+        send_data(axlsx_package.to_stream.read, filename: "#{date_str}#{@event.name}奉獻.xlsx",
+                                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      end
+    rescue ActiveRecord::RecordNotFound
+      render json: { errors: 'Event not found' }, status: :not_found
+    end
+
     private
 
     # @param [Integer] year
     # @return [Array]
     def get_yearly_report_array(year)
       all_month_str = (1..12).to_a.map { |e| "#{e}月" }
-      row_hash, col_hash, yearly_report_data = report_data_init(all_month_str, '戶年度奉獻總計')
+
+      all_col_name = ['家號', '姓名', *all_month_str, '戶年度奉獻總計']
+      row_hash, col_hash, yearly_report_data = report_data_init(all_col_name)
 
       begin_date = Date.civil(year, 1, 1)
       end_date = Date.civil(year, -1, -1)
@@ -189,7 +256,8 @@ module Api
 
       # Results array process
       summation_str = "#{month}月份總計"
-      row_hash, col_hash, results = report_data_init(all_sunday_str, summation_str)
+      all_col_name = ['家號', '姓名', *all_sunday_str, summation_str]
+      row_hash, col_hash, results = report_data_init(all_col_name)
 
       # Donation amount
       @regular_donations = RegularDonation
@@ -260,12 +328,11 @@ module Api
       results
     end
 
-    def report_data_init(filling_str, summation_str)
+    def report_data_init(all_col_name)
       all_household = Household.where('guest != true').order('home_number')
       all_home_number = all_household.map { |e| e['home_number'] }
       home_number_index = all_home_number.each_index.to_a.map { |i| i + 1 }
 
-      all_col_name = ['家號', '姓名', *filling_str, summation_str]
       col_name_index = all_col_name.each_index.to_a
 
       row_hash = Hash[all_home_number.zip(home_number_index)]
