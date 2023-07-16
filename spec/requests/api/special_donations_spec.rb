@@ -76,6 +76,7 @@ For example, "2023/7" would search for donations made in July 2023.'
           special_donation_hash.except!(*%w[
                                           created_at updated_at
                                         ])
+          special_donation_hash['household'] = @special_donation.household.as_json
 
           expect(data).to eq([special_donation_hash])
         end
@@ -102,6 +103,8 @@ For example, "2023/7" would search for donations made in July 2023.'
           special_donation_hash.except!(*%w[
                                           created_at updated_at
                                         ])
+
+          special_donation_hash['household'] = @special_donation.household.as_json
 
           expect(data).to eq([special_donation_hash])
         end

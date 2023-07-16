@@ -75,6 +75,7 @@ For example, "2023/7" would search for donations made in July 2023.'
           regular_donation_hash.except!(*%w[
                                           created_at updated_at
                                         ])
+          regular_donation_hash['household'] = @regular_donation.household.as_json
 
           expect(data).to eq([regular_donation_hash])
         end
@@ -101,6 +102,10 @@ For example, "2023/7" would search for donations made in July 2023.'
           regular_donation_hash.except!(*%w[
                                           created_at updated_at
                                         ])
+
+          regular_donation_hash['household'] = @regular_donation.household.as_json
+          # regular_donation_hash['household']['head_of_household'] =
+          #   @regular_donation.household.head_of_household.as_json
 
           expect(data).to eq([regular_donation_hash])
         end
@@ -260,7 +265,7 @@ For example, "2023/7" would search for donations made in July 2023.'
 
       request_body_example value: {
         home_number: 'TT521',
-        head_of_regular_donation_id: 2,
+        head_of_regular_donation_id: 2
       }, name: 'test home number change', summary: 'Test regular_donation update'
 
       response(204, 'No Content') do

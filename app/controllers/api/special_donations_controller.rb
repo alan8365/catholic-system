@@ -43,7 +43,7 @@ module Api
                                      comment
                                    ])
 
-      render json: @regular_donations, status: :ok
+      render json: @regular_donations, include: { household: { include: :head_of_household } }, status: :ok
     end
 
     # GET /regular_donations/{id}

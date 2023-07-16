@@ -273,10 +273,40 @@ end
 RegularDonation.create(random_regular_donation)
 
 # Event
-Event.create([{
-               name: '聖誕',
-               start_at: Date.strptime('2023/12/25', '%Y/%m/%d')
-             }, {
-               name: '復活節',
-               start_at: Date.strptime('2023/04/09', '%Y/%m/%d')
-             }])
+
+first_event = Event.create({
+                             name: '聖誕',
+                             start_at: Date.strptime('2023/12/25', '%Y/%m/%d')
+                           })
+
+second_event = Event.create({
+                              name: '復活節',
+                              start_at: Date.strptime('2023/04/09', '%Y/%m/%d')
+                            })
+
+# Special donation
+SpecialDonation.create([{
+                         home_number: first_household.home_number,
+                         donation_at: Date.strptime('2023/12/20', '%Y/%m/%d'),
+                         donation_amount: 5200,
+
+                         event: first_event
+                       }, {
+                         home_number: second_household.home_number,
+                         donation_at: Date.strptime('2023/12/21', '%Y/%m/%d'),
+                         donation_amount: 6200,
+
+                         event: first_event
+                       }, {
+                         home_number: guest_household.home_number,
+                         donation_at: Date.strptime('2023/12/24', '%Y/%m/%d'),
+                         donation_amount: 15_000,
+
+                         event: first_event
+                       }, {
+                         home_number: second_household.home_number,
+                         donation_at: Date.strptime('2023/04/01', '%Y/%m/%d'),
+                         donation_amount: 9200,
+
+                         event: second_event
+                       }])
