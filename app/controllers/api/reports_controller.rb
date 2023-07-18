@@ -40,7 +40,7 @@ module Api
     end
 
     def regular_donation_yearly_report
-      authorize! :read, RegularDonation
+      # authorize! :read, RegularDonation
 
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
@@ -89,7 +89,7 @@ module Api
       end
 
       if is_test
-        render json: every_monthly_report, status: :ok
+        render json: [every_monthly_report, yearly_report_data], status: :ok
       else
         send_data(p.to_stream.read, filename: "每月_#{year}教友奉獻明細表.xlsx",
                                     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
