@@ -4,7 +4,7 @@ module Api
   class ReportsController < ApplicationController
     before_action :authorize_request, except: %i[]
 
-    def regular_donation_monthly_report
+    def rd_monthly_report
       authorize! :read, RegularDonation
 
       date = params[:date]
@@ -39,8 +39,8 @@ module Api
       end
     end
 
-    def regular_donation_yearly_report
-      # authorize! :read, RegularDonation
+    def rd_yearly_report
+      authorize! :read, RegularDonation
 
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
@@ -80,7 +80,7 @@ module Api
       end
 
       # Results array process
-      yearly_report_data = get_yearly_report_array(year)
+      yearly_report_data = get_yearly_rdr_array(year)
 
       wb.add_worksheet(name: '年度奉獻明細') do |sheet|
         yearly_report_data.each do |row|
@@ -96,7 +96,7 @@ module Api
       end
     end
 
-    def special_donation_event_report
+    def sd_event_report
       authorize! :read, SpecialDonation
 
       event_id = params[:event_id]
@@ -104,6 +104,36 @@ module Api
 
       @event = Event.find_by_id!(event_id)
 
+      results = get_sdr_array(event_id)
+
+      axlsx_package = Axlsx::Package.new
+      wb = axlsx_package.workbook
+
+      wb.add_worksheet(name: 'Worksheet 1') do |sheet|
+        results.each do |result|
+          sheet.add_row result
+        end
+
+        # Merge cell of summation
+        sheet.merge_cells sheet.rows[-2].cells[(0..4)]
+        sheet.merge_cells sheet.rows[-1].cells[(0..2)]
+        sheet.merge_cells sheet.rows[-1].cells[(3..4)]
+      end
+
+      if is_test
+        render json: results, status: :ok
+      else
+        date_str = @event.start_at.strftime('%Y年%m月')
+        send_data(axlsx_package.to_stream.read, filename: "#{date_str}#{@event.name}奉獻.xlsx",
+                                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      end
+    rescue ActiveRecord::RecordNotFound
+      render json: { errors: 'Event not found' }, status: :not_found
+    end
+
+    private
+
+    def get_sdr_array(event_id)
       event_donation = SpecialDonation
                        .left_joins(:event, household: :head_of_household)
                        .where('event.id' => event_id)
@@ -135,37 +165,12 @@ module Api
 
       results[-1][0] = '合計'
       results[-1][3] = event_donation.sum { |e| e[3] }
-
-      axlsx_package = Axlsx::Package.new
-      wb = axlsx_package.workbook
-
-      wb.add_worksheet(name: 'Worksheet 1') do |sheet|
-        results.each do |result|
-          sheet.add_row result
-        end
-
-        # Merge cell of summation
-        sheet.merge_cells sheet.rows[-2].cells[(0..4)]
-        sheet.merge_cells sheet.rows[-1].cells[(0..2)]
-        sheet.merge_cells sheet.rows[-1].cells[(3..4)]
-      end
-
-      if is_test
-        render json: results, status: :ok
-      else
-        date_str = @event.start_at.strftime('%Y年%m月')
-        send_data(axlsx_package.to_stream.read, filename: "#{date_str}#{@event.name}奉獻.xlsx",
-                                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-      end
-    rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Event not found' }, status: :not_found
+      results
     end
-
-    private
 
     # @param [Integer] year
     # @return [Array]
-    def get_yearly_report_array(year)
+    def get_yearly_rdr_array(year)
       all_month_str = (1..12).to_a.map { |e| "#{e}月" }
 
       all_col_name = ['家號', '姓名', *all_month_str, '戶年度奉獻總計']
