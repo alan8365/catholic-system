@@ -10,6 +10,7 @@ module Api
       authorize! :read, SpecialDonation
       query = params[:any_field]
       date = params[:date]
+      event_id = params[:event_id]
 
       if query
         string_filed = %w[
@@ -30,6 +31,12 @@ module Api
         end_date = Date.civil(year, month, -1)
 
         @special_donations = SpecialDonation.where(donation_at: begin_date..end_date)
+      elsif event_id
+        event_id = event_id.to_i
+
+        @event = Event.find_by_id(event_id)
+
+        @special_donations = @event.special_donations
       else
         @special_donations = SpecialDonation.all
       end

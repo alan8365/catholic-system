@@ -37,8 +37,12 @@ For example, "2023/7" would search for donations made in July 2023.'
         require: false
       }
 
+      parameter name: :event_id, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
-        any_field: 'TT',
         date: '2023/6'
       }, name: 'query test special_donation', summary: 'Finding all test special_donation'
 
@@ -46,6 +50,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:date) {}
+        let(:event_id) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -62,6 +67,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { 'TT' }
         let(:date) {}
+        let(:event_id) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -89,6 +95,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:date) { '2023/6' }
+        let(:event_id) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -112,10 +119,47 @@ For example, "2023/7" would search for donations made in July 2023.'
         end
       end
 
+      # event_id query
+      response(200, 'successful') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:any_field) {}
+        let(:date) {}
+        let(:event_id) { 1 }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+
+          @special_donations = Event.find_by_id(1).special_donations
+          special_donation_hash = @special_donations.as_json
+
+          special_donation_hash = special_donation_hash.map do |e|
+            e = e.except!(*%w[
+                            created_at updated_at
+                          ])
+            e['household'] = SpecialDonation.find_by_id(e['id']).household.as_json
+
+            e
+          end
+
+          puts special_donation_hash
+
+          expect(data).to eq(special_donation_hash)
+        end
+      end
+
       response(401, 'unauthorized') do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
         let(:date) {}
+        let(:event_id) {}
 
         after do |example|
           example.metadata[:response][:content] = {
