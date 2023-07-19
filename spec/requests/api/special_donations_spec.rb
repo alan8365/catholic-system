@@ -13,6 +13,8 @@ RSpec.describe 'api/special_donations', type: :request do
       donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
       donation_amount: 1000,
 
+      receipt: true,
+
       comment: '測試用奉獻'
     }
 
@@ -141,6 +143,8 @@ For example, "2023/7" would search for donations made in July 2023.'
 
         donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
         donation_amount: 1000,
+
+        receipt: true,
 
         comment: '測試用奉獻'
       }, name: 'test_donation', summary: 'Test donation create'

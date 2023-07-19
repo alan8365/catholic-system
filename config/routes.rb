@@ -17,7 +17,7 @@ Rails.application.routes.draw do
     resources :confirmations, param: :_parishioner_id
     resources :eucharists, param: :_parishioner_id
     resources :marriages, param: :_id
-    resources :regular_donations, param: :_id
+    resources :special_donations, param: :_id
     resources :events, param: :_id
     resources :special_donations, param: :_id
 

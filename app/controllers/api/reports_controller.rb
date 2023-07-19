@@ -2,7 +2,7 @@
 
 module Api
   class ReportsController < ApplicationController
-    before_action :authorize_request, except: %i[]
+    before_action :authorize_request, except: %i[sd_yearly_report]
 
     def rd_monthly_report
       authorize! :read, RegularDonation
@@ -15,7 +15,7 @@ module Api
       require 'axlsx'
       # Date process
       year, month = date.split('/').map(&:to_i)
-      monthly_report_data = get_monthly_report_array(year, month)
+      monthly_report_data = get_monthly_rdr_array(year, month)
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
@@ -61,7 +61,7 @@ module Api
         month_string = month.to_s.rjust(2, '0')
         date_string = "#{year}/#{month_string}"
 
-        monthly_report_data = get_monthly_report_array(year, month)
+        monthly_report_data = get_monthly_rdr_array(year, month)
         every_monthly_report[date_string] = monthly_report_data
 
         wb.add_worksheet(name: "#{month}月") do |sheet|
@@ -119,6 +119,63 @@ module Api
         sheet.merge_cells sheet.rows[-1].cells[(0..2)]
         sheet.merge_cells sheet.rows[-1].cells[(3..4)]
       end
+
+      if is_test
+        render json: results, status: :ok
+      else
+        date_str = @event.start_at.strftime('%Y年%m月')
+        send_data(axlsx_package.to_stream.read, filename: "#{date_str}#{@event.name}奉獻.xlsx",
+                                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      end
+    rescue ActiveRecord::RecordNotFound
+      render json: { errors: 'Event not found' }, status: :not_found
+    end
+
+    def sd_yearly_report
+      # authorize! :read, SpecialDonation
+
+      date = params[:date]
+      is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+
+      return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/^\d{4}$/)
+
+      require 'axlsx'
+
+      year = date.to_i
+
+      begin_date = Date.civil(year, 1, 1)
+      end_date = Date.civil(year, 12, -1)
+
+      date_range = begin_date..end_date
+
+      # results = SpecialDonation
+      #           .joins(:event)
+      #           .where('event.start_at' => date_range)
+      #           .order('event.start_at')
+
+      @events = Event
+                .where('start_at' => date_range)
+
+      @events.each do |event|
+        event_id = event.id
+
+        results = get_sdr_array(event_id)
+      end
+
+      #
+      # axlsx_package = Axlsx::Package.new
+      # wb = axlsx_package.workbook
+      #
+      # wb.add_worksheet(name: 'Worksheet 1') do |sheet|
+      #   results.each do |result|
+      #     sheet.add_row result
+      #   end
+      #
+      #   # Merge cell of summation
+      #   sheet.merge_cells sheet.rows[-2].cells[(0..4)]
+      #   sheet.merge_cells sheet.rows[-1].cells[(0..2)]
+      #   sheet.merge_cells sheet.rows[-1].cells[(3..4)]
+      # end
 
       if is_test
         render json: results, status: :ok
@@ -256,7 +313,7 @@ module Api
     # @param [Integer] year
     # @param [Integer] month
     # @return [Array]
-    def get_monthly_report_array(year, month)
+    def get_monthly_rdr_array(year, month)
       all_sunday, all_sunday_str = get_all_sunday_in_month(month, year)
 
       # Results array process
@@ -265,12 +322,12 @@ module Api
       row_hash, col_hash, results = report_data_init(all_col_name)
 
       # Donation amount
-      @regular_donations = RegularDonation
+      @special_donations = RegularDonation
                            .joins(:household)
                            .where('household.guest' => false)
                            .where('regular_donations.donation_at' => all_sunday)
 
-      @regular_donations.each do |regular_donation|
+      @special_donations.each do |regular_donation|
         home_number = regular_donation['home_number']
 
         donation_at = regular_donation['donation_at'].strftime('%m/%d')

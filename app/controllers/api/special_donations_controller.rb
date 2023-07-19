@@ -22,19 +22,19 @@ module Api
 
         query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-        @regular_donations = SpecialDonation.where([query_string, *query_array])
+        @special_donations = SpecialDonation.where([query_string, *query_array])
       elsif date&.match?(%r{\d{4}/\d{1,2}})
         year, month = date.split('/').map(&:to_i)
 
         begin_date = Date.civil(year, month, 1)
         end_date = Date.civil(year, month, -1)
 
-        @regular_donations = SpecialDonation.where(donation_at: begin_date..end_date)
+        @special_donations = SpecialDonation.where(donation_at: begin_date..end_date)
       else
-        @regular_donations = SpecialDonation.all
+        @special_donations = SpecialDonation.all
       end
 
-      @regular_donations = @regular_donations
+      @special_donations = @special_donations
                            .select(*%w[
                                      id
                                      home_number event_id
@@ -43,7 +43,7 @@ module Api
                                      comment
                                    ])
 
-      render json: @regular_donations, include: { household: { include: :head_of_household } }, status: :ok
+      render json: @special_donations, include: { household: { include: :head_of_household } }, status: :ok
     end
 
     # GET /regular_donations/{id}
