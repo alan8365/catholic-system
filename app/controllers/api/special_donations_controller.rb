@@ -98,6 +98,7 @@ module Api
         *%i[
           event_id
           home_number
+          receipt
           donation_at donation_amount
           comment
         ]

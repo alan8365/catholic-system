@@ -2,8 +2,8 @@
 
 module Api
   class RegularDonationsController < ApplicationController
-    before_action :authorize_request, except: %i[monthly_report yearly_report]
-    before_action :find_regular_donation, except: %i[create index monthly_report yearly_report]
+    before_action :authorize_request, except: %i[]
+    before_action :find_regular_donation, except: %i[create index]
 
     # GET /regular_donations
     def index
@@ -98,6 +98,7 @@ module Api
         *%i[
           home_number
           donation_at donation_amount
+          receipt
           comment
         ]
       )
