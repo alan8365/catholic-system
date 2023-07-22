@@ -26,12 +26,16 @@ Make swagger json file before spec file change
 rake rswag:specs:swaggerize
 ```
 
-
 Make swagger json file before spec file change with auto generate example
 ```shell
 SWAGGER_DRY_RUN=0 rake rswag:specs:swaggerize
 ```
 
+## Docker
+
+```shell
+docker build --platform linux/amd64 -t alan8365/catholic:latest .  
+```
 
 
 ## TODO

@@ -990,6 +990,7 @@ paths:
                   home_number: TT520
                   donation_at: '2023-07-02'
                   donation_amount: 1000
+                  receipt: true
                   comment: 測試用奉獻
   "/api/regular_donations/{_id}":
     parameters:
@@ -1070,6 +1071,8 @@ paths:
           description: successful
         '400':
           description: successful
+        '401':
+          description: unauthorized
   "/api/report/regular_donations/year":
     get:
       summary: regular_donation_yearly_report report
@@ -1095,7 +1098,34 @@ paths:
         '200':
           description: successful
         '400':
+          description: Unprocessable Entity
+        '401':
+          description: Unauthorized
+  "/api/report/special_donations/event":
+    get:
+      summary: regular_donation_yearly_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: event_id
+        in: query
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
           description: successful
+        '404':
+          description: Not found
+        '401':
+          description: Unauthorized
   "/api/special_donations":
     get:
       summary: list special_donations
@@ -1114,6 +1144,11 @@ paths:
         description: |-
           The date field accepts the yyyy/m format string for donation searches.
           For example, "2023/7" would search for donations made in July 2023.
+        schema:
+          type: string
+          require: false
+      - name: event_id
+        in: query
         schema:
           type: string
           require: false
@@ -1151,6 +1186,7 @@ paths:
                   home_number: TT520
                   donation_at: '2023-07-02'
                   donation_amount: 1000
+                  receipt: true
                   comment: 測試用奉獻
   "/api/special_donations/{_id}":
     parameters:
