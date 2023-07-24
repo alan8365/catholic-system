@@ -415,9 +415,14 @@ paths:
         schema:
           type: string
           require: false
+      - name: date
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: date & any_field mix test
         '401':
           description: unauthorized
     post:
@@ -1154,7 +1159,7 @@ paths:
           require: false
       responses:
         '200':
-          description: successful
+          description: event_id and any_field query
         '401':
           description: unauthorized
     post:
