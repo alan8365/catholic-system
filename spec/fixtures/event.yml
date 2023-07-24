@@ -1,6 +1,11 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-christmas:
+event-1:
   id: 1
   name: 聖誕
   start_at:  <%= Date.strptime("2023/12/25", "%Y/%m/%d") %>
+
+event-2:
+  id: 2
+  name: 五月
+  start_at:  <%= Date.strptime("2023/05/25", "%Y/%m/%d") %>

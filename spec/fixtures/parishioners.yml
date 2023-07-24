@@ -58,6 +58,8 @@ test_f:
 test_o:
   id: 3
 
+  home_number: KK520
+
   name: 路人甲
   gender: 女
   birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>

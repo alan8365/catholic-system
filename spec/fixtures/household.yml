@@ -3,3 +3,7 @@
 tt520:
   home_number: TT520
   head_of_household: 1
+
+kk520:
+  home_number: KK520
+  head_of_household: 3

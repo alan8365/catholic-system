@@ -9,9 +9,10 @@ module Api
     # GET /special_donations
     def index
       authorize! :read, SpecialDonation
-      query = params[:any_field].nil? || ''
-      date = params[:date].nil? || ''
-      event_id = params[:event_id].nil? || ''
+
+      query = params[:any_field] || ''
+      date = params[:date] || ''
+      event_id = params[:event_id] || ''
 
       @special_donations = SpecialDonation
                            .joins(household: :head_of_household)
@@ -32,7 +33,7 @@ module Api
         @special_donations = @special_donations.where(donation_at: begin_date..end_date)
       end
 
-      if query
+      unless query.empty?
         string_filed = %w[
           special_donations.home_number
           parishioners.name
@@ -56,7 +57,7 @@ module Api
                                      comment
                                    ])
 
-      render json: @special_donations, include: { household: { include: :head_of_household } }, status: :ok
+      render json: @special_donations, status: :ok
     end
 
     # GET /special_donations/{id}

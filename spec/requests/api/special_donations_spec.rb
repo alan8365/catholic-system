@@ -62,28 +62,61 @@ For example, "2023/7" would search for donations made in July 2023.'
         run_test!
       end
 
-      # any_field query
-      response(200, 'successful') do
+      response(200, 'any_field query test') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:any_field) {}
+        let(:any_field) { 'TT520' }
         let(:date) {}
         let(:event_id) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          special_donation_hash = @special_donation.as_json
-          special_donation_hash.except!(*%w[
-                                          created_at updated_at
-                                        ])
-          special_donation_hash['household'] = @special_donation.household.as_json
+          @special_donations = SpecialDonation.where(home_number: 'TT520')
+          special_donation_hash = @special_donations.as_json
 
-          expect(data).to eq([special_donation_hash])
+          special_donation_hash = special_donation_hash.map do |e|
+            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household.name
+
+            e
+          end
+
+          # special_donation_hash.except!(*%w[
+          #                                 created_at updated_at
+          #                               ])
+          # special_donation_hash['household'] = @special_donation.household.as_json
+
+          expect(data).to eq(special_donation_hash)
         end
       end
 
-      # date query
-      response(200, 'successful') do
+      response(200, 'any_field name test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:any_field) { '%E7%94%B7%E4%BA%BA' }
+        let(:date) {}
+        let(:event_id) {}
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+
+          @special_donations = SpecialDonation.where(home_number: 'TT520')
+          special_donation_hash = @special_donations.as_json
+
+          special_donation_hash = special_donation_hash.map do |e|
+            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household.name
+
+            e
+          end
+
+          # special_donation_hash.except!(*%w[
+          #                                 created_at updated_at
+          #                               ])
+          # special_donation_hash['household'] = @special_donation.household.as_json
+
+          expect(data).to eq(special_donation_hash)
+        end
+      end
+
+      response(200, 'date query test') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:date) { '2023/6' }
@@ -100,14 +133,18 @@ For example, "2023/7" would search for donations made in July 2023.'
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          special_donation_hash = @special_donation.as_json
-          special_donation_hash.except!(*%w[
-                                          created_at updated_at
-                                        ])
+          date_range = Date.civil(2023, 6, 1)..Date.civil(2023, 6, -1)
+          @special_donations = SpecialDonation.where(donation_at: date_range)
 
-          special_donation_hash['household'] = @special_donation.household.as_json
+          special_donation_hash = @special_donations.as_json
 
-          expect(data).to eq([special_donation_hash])
+          special_donation_hash = special_donation_hash.map do |e|
+            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household.name
+
+            e
+          end
+
+          expect(data).to eq(special_donation_hash)
         end
       end
 
@@ -132,10 +169,7 @@ For example, "2023/7" would search for donations made in July 2023.'
           special_donation_hash = @special_donations.as_json
 
           special_donation_hash = special_donation_hash.map do |e|
-            e = e.except!(*%w[
-                            created_at updated_at
-                          ])
-            e['household'] = SpecialDonation.find_by_id(e['id']).household.as_json
+            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household.name
 
             e
           end
@@ -146,7 +180,7 @@ For example, "2023/7" would search for donations made in July 2023.'
 
       response(200, 'event_id and any_field query') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:any_field) { '許' }
+        let(:any_field) { 'TT' }
         let(:date) {}
         let(:event_id) { 1 }
 
@@ -161,14 +195,11 @@ For example, "2023/7" would search for donations made in July 2023.'
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          @special_donations = Event.find_by_id(1).special_donations
+          @special_donations = Event.find_by_id(1).special_donations.where(home_number: 'TT520')
           special_donation_hash = @special_donations.as_json
 
           special_donation_hash = special_donation_hash.map do |e|
-            e = e.except!(*%w[
-                            created_at updated_at
-                          ])
-            e['household'] = SpecialDonation.find_by_id(e['id']).household.as_json
+            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household.name
 
             e
           end
