@@ -9,9 +9,22 @@ module Api
     # GET /events
     def index
       authorize! :read, Event
-      query = params[:any_field]
 
-      if query
+      query = params[:any_field] || ''
+      date = params[:date] || ''
+
+      @events = Event.all
+
+      if date&.match?(/\d{4}/)
+        year = date.to_i
+
+        begin_date = Date.civil(year, 1, 1)
+        end_date = Date.civil(year, 12, -1)
+
+        @events = @events.where(start_at: begin_date..end_date)
+      end
+
+      unless query.empty?
         string_filed = %w[
           name
           comment
@@ -22,9 +35,7 @@ module Api
 
         query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-        @events = Event.where([query_string, *query_array])
-      else
-        @events = Event.all
+        @events = @events.where([query_string, *query_array])
       end
 
       @events = @events

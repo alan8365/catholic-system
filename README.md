@@ -37,6 +37,10 @@ SWAGGER_DRY_RUN=0 rake rswag:specs:swaggerize
 docker build --platform linux/amd64 -t alan8365/catholic:latest .  
 ```
 
+```shell
+docker push alan8365/catholic:latest
+```
+
 
 ## TODO
 

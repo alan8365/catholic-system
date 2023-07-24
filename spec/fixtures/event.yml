@@ -9,3 +9,8 @@ event-2:
   id: 2
   name: 五月
   start_at:  <%= Date.strptime("2023/05/25", "%Y/%m/%d") %>
+
+event-3:
+  id: 3
+  name: 五月
+  start_at:  <%= Date.strptime("2024/05/25", "%Y/%m/%d") %>

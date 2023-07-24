@@ -26,13 +26,20 @@ RSpec.describe 'api/events', type: :request do
         require: false
       }
 
+      parameter name: :date, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
-        any_field: '聖誕'
+        any_field: '聖誕',
+        date: '2023'
       }, name: 'query test event', summary: 'Finding all test event'
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
+        let(:date) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -44,18 +51,10 @@ RSpec.describe 'api/events', type: :request do
         run_test!
       end
 
-      # any_field query
-      response(200, 'successful') do
+      response(200, 'any_field query test') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { '%E8%81%96%E8%AA%95' }
-
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
+        let(:date) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -66,6 +65,50 @@ RSpec.describe 'api/events', type: :request do
                              ])
 
           expect(data).to eq([event_hash])
+        end
+      end
+
+      response(200, 'date query test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:any_field) {}
+        let(:date) { 2023 }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+
+          date_range = Date.civil(2023, 1, 1)..Date.civil(2023, 12, 31)
+          event_hash = Event.where(start_at: date_range).as_json
+
+          event_hash = event_hash.map do |e|
+            e.except!(*%w[
+                        created_at updated_at
+                      ])
+            e
+          end
+
+          expect(data).to eq(event_hash)
+        end
+      end
+
+      response(200, 'date & any_field mix test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:any_field) { '%E8%81%96%E8%AA%95' }
+        let(:date) { 2023 }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+
+          date_range = Date.civil(2023, 1, 1)..Date.civil(2023, 12, 31)
+          event_hash = Event.where(start_at: date_range).where(name: '聖誕').as_json
+
+          event_hash = event_hash.map do |e|
+            e.except!(*%w[
+                        created_at updated_at
+                      ])
+            e
+          end
+
+          expect(data).to eq(event_hash)
         end
       end
 
