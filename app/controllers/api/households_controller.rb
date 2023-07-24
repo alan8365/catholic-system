@@ -2,6 +2,7 @@
 
 module Api
   class HouseholdsController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request
     before_action :find_household, except: %i[create index]
 

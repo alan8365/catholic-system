@@ -3,6 +3,7 @@
 module Api
   # CRUD for Marriages
   class MarriagesController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request
     before_action :find_marriage, except: %i[create index]
 

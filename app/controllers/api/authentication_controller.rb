@@ -3,6 +3,7 @@
 module Api
   # Controller for JWT auth
   class AuthenticationController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request, except: :login
 
     # POST /auth/login
@@ -14,7 +15,7 @@ module Api
           user_id: @user.id,
           username: @user.username,
           is_admin: @user.is_admin,
-          is_modulator: @user.is_modulator,
+          is_modulator: @user.is_modulator
         )
         render json: { token:,
                        # exp: time.strftime('%m-%d-%Y %H:%M'),

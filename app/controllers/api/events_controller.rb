@@ -2,6 +2,7 @@
 
 module Api
   class EventsController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request, except: %i[]
     before_action :find_event, except: %i[create index]
 

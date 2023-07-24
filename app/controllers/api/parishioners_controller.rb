@@ -2,12 +2,13 @@
 
 module Api
   class ParishionersController < ApplicationController
-    before_action :authorize_request, except: :picture
+    before_action :cors_setting
+    before_action :authorize_request, except: %i[picture index]
     before_action :find_parishioner, except: %i[create index]
 
     # GET /parishioners
     def index
-      authorize! :read, Parishioner
+      # authorize! :read, Parishioner
       query = params[:any_field]
       is_archive = params[:is_archive]
 

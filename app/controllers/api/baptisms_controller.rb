@@ -3,6 +3,7 @@
 module Api
   # CRUD for baptism
   class BaptismsController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request
     before_action :find_baptism, except: %i[create index]
 

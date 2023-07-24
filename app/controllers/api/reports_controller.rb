@@ -2,6 +2,7 @@
 
 module Api
   class ReportsController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request, except: %i[sd_yearly_report]
 
     def rd_monthly_report

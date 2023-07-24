@@ -2,6 +2,7 @@
 
 module Api
   class UsersController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request # , except: :index
     before_action :find_user, except: %i[create index]
 

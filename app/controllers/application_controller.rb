@@ -2,6 +2,13 @@
 
 # Root controller
 class ApplicationController < ActionController::API
+  def cors_setting
+    headers['Access-Control-Allow-Origin'] = '*'
+    headers['Access-Control-Allow-Methods'] = 'POST, PUT, DELETE, GET, OPTIONS'
+    headers['Access-Control-Request-Method'] = '*'
+    headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  end
+
   rescue_from 'AccessGranted::AccessDenied' do |_exception|
     render json: { errors: 'Access denied' },
            status: :forbidden

@@ -3,6 +3,7 @@
 module Api
   # Eucharists controller
   class EucharistsController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request
     before_action :find_eucharist, except: %i[create index]
 
@@ -43,7 +44,7 @@ module Api
     # GET /eucharists/{id}
     def show
       authorize! :read, @eucharist
-      render json: @eucharist, include:{ parishioner: { include: :baptism } }, status: :ok
+      render json: @eucharist, include: { parishioner: { include: :baptism } }, status: :ok
     end
 
     # POST /eucharists
