@@ -15,7 +15,7 @@ module Api
       event_id = params[:event_id] || ''
 
       @special_donations = SpecialDonation
-                           .joins(household: :head_of_household)
+                           .left_outer_joins(household: :head_of_household)
                            .select(%w[special_donations.* parishioners.name])
 
       unless event_id.empty?

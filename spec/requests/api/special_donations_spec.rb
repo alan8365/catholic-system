@@ -18,6 +18,18 @@ RSpec.describe 'api/special_donations', type: :request do
       comment: '測試用奉獻'
     }
 
+    @special_home_number_hash = {
+      event_id: 1,
+      home_number: 'V',
+
+      donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
+      donation_amount: 3000,
+
+      receipt: false,
+
+      comment: '測試用奉獻'
+    }
+
     @special_donation = SpecialDonation.all[0]
   end
 
@@ -59,7 +71,17 @@ For example, "2023/7" would search for donations made in July 2023.'
             }
           }
         end
-        run_test!
+        run_test! do
+          data = JSON.parse(response.body)
+          data = data.map { |e| e.slice('id') }
+
+          all_id = SpecialDonation
+                   .all
+                   .select('id')
+                   .as_json
+
+          expect(data).to eq(all_id)
+        end
       end
 
       response(200, 'any_field query test') do
@@ -139,7 +161,7 @@ For example, "2023/7" would search for donations made in July 2023.'
           special_donation_hash = @special_donations.as_json
 
           special_donation_hash = special_donation_hash.map do |e|
-            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household.name
+            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household&.name
 
             e
           end
@@ -169,7 +191,7 @@ For example, "2023/7" would search for donations made in July 2023.'
           special_donation_hash = @special_donations.as_json
 
           special_donation_hash = special_donation_hash.map do |e|
-            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household.name
+            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household&.name
 
             e
           end
@@ -272,8 +294,30 @@ For example, "2023/7" would search for donations made in July 2023.'
         end
       end
 
-      # Current user dose not have permission
-      response(403, 'Forbidden') do
+      response(201, 'Special home number added') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:special_donation) { @special_home_number_hash }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          @created_special_donation = SpecialDonation.find_by_id(data['id'])
+
+          @special_home_number_hash.each_key do |key|
+            if key == :donation_at
+              date_data = data[key.to_s]
+              date_data = date_data.nil? ? nil : Date.strptime(data[key.to_s])
+
+              expect(date_data).to eq(@special_home_number_hash[key])
+              expect(date_data).to eq(@created_special_donation[key])
+            else
+              expect(data[key.to_s]).to eq(@special_home_number_hash[key])
+              expect(data[key.to_s]).to eq(@created_special_donation[key])
+            end
+          end
+        end
+      end
+
+      response(403, 'Current user dose not have permission') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
         let(:user) { @example_test }
 
@@ -287,8 +331,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         run_test!
       end
 
-      # SpecialDonation already exist test
-      response(422, 'Unprocessable Entity') do
+      response(422, 'SpecialDonation already exist test') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:user) { { name: 'TT520' } }
 
@@ -302,8 +345,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         run_test!
       end
 
-      # Home number is blank
-      response(422, 'Unprocessable Entity') do
+      response(422, 'Home number is blank') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:user) {}
 

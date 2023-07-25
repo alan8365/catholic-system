@@ -20,6 +20,15 @@ number1-2:
 
   comment: '測試用奉獻資料'
 
+number1-3:
+  event_id: 1
+
+  home_number: V
+
+  donation_at:  <%= Date.strptime("2023/06/29", "%Y/%m/%d") %>
+  donation_amount: 3000
+
+  comment: '測試用奉獻資料'
 
 number2-1:
   event_id: 2
@@ -30,3 +39,4 @@ number2-1:
   donation_amount: 3000
 
   comment: '測試用奉獻資料'
+

@@ -7,8 +7,8 @@ class CreateHouseholds < ActiveRecord::Migration[7.0]
       t.string 'home_number', primary_key: true
       t.integer 'head_of_household'
 
-      t.boolean 'special', default: false
-      t.boolean 'guest', default: false
+      t.boolean 'special', default: false, comment: 'For special group usage, like Vietnam group'
+      t.boolean 'guest', default: false, comment: 'For anonymous donation usage'
 
       t.string 'comment'
 
