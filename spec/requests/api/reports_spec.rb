@@ -151,4 +151,77 @@ For example, "2023" would generate report for donations made in 2023.'
       end
     end
   end
+
+  path '/api/report/parishioner' do
+    post('parishioner report') do
+      tags 'Reports'
+      security [Bearer: {}]
+      consumes 'application/json'
+
+      parameter name: :ids, in: :body, schema: {
+        type: :object
+      }
+
+      parameter name: :test, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      request_body_example value: {
+        pid: [1, 2, 3]
+      }, name: 'report test', summary: 'Get 3 parishioners report by id'
+
+      response(200, 'empty id test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) {}
+        let(:test) { 'true' }
+
+        run_test! do
+          data = JSON.parse(response.body)
+          data = data.transpose[0]
+          data.delete_at(0)
+
+          all_id = Parishioner
+                   .all
+                   .select('id')
+                   .as_json
+          all_id = all_id.map { |e| e['id'] }
+
+          expect(data).to eq(all_id)
+        end
+      end
+
+      response(200, 'multi id test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) do
+          {
+            pid: [1, 2, 3]
+          }
+        end
+        let(:test) { 'true' }
+
+        run_test! do
+          data = JSON.parse(response.body)
+          data = data.transpose[0]
+          data.delete_at(0)
+
+          all_id = Parishioner
+                   .where(id: [1, 2, 3])
+                   .select('id')
+                   .as_json
+          all_id = all_id.map { |e| e['id'] }
+
+          expect(data).to eq(all_id)
+        end
+      end
+
+      response(401, 'Unauthorized') do
+        let(:authorization) { '' }
+        let(:ids) {}
+        let(:test) { 'true' }
+
+        run_test!
+      end
+    end
+  end
 end

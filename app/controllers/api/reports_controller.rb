@@ -3,7 +3,7 @@
 module Api
   class ReportsController < ApplicationController
     before_action :cors_setting
-    before_action :authorize_request, except: %i[sd_yearly_report]
+    before_action :authorize_request, except: %i[]
 
     def rd_monthly_report
       authorize! :read, RegularDonation
@@ -187,6 +187,70 @@ module Api
       end
     rescue ActiveRecord::RecordNotFound
       render json: { errors: 'Event not found' }, status: :not_found
+    end
+
+    def parishioner_report
+      authorize! :read, Parishioner
+
+      is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+      finding_params = params['pid'] || []
+
+      @parishioners = if finding_params.empty?
+                        Parishioner.all
+                      else
+                        Parishioner.where(id: finding_params)
+                      end
+
+      all_parishioner_id = @parishioners.map(&:id)
+      all_parishioner_id_index = all_parishioner_id.each_index.map { |e| e + 1 }
+
+      all_col_name = %w[教友編號 名稱 性別 生日
+                        家號 郵遞區號 地址
+                        父親 母親 家機 手機
+                        國籍 職業 公司名稱
+                        遷入時間 原始堂區
+                        遷出時間 遷出原因 遷出堂區
+                        備註]
+      all_col_name_org = %w[id name gender birth_at
+                            home_number postal_code address
+                            father mother home_phone mobile_phone
+                            nationality profession company_name
+                            move_in_date original_parish
+                            move_out_date move_out_reason destination_parish
+                            comment]
+      col_name_index = all_col_name_org.each_index.to_a
+
+      row_hash = Hash[all_parishioner_id.zip(all_parishioner_id_index)]
+      col_hash = Hash[all_col_name_org.zip(col_name_index)]
+
+      results = Array.new(row_hash.size + 1) { Array.new(col_hash.size) }
+      results[0] = all_col_name
+
+      @parishioners.each do |e|
+        row_index = row_hash[e.id]
+
+        all_col_name_org.each do |col_name|
+          col_index = col_hash[col_name]
+
+          results[row_index][col_index] = e[col_name]
+        end
+      end
+
+      axlsx_package = Axlsx::Package.new
+      wb = axlsx_package.workbook
+
+      wb.add_worksheet(name: 'Worksheet 1') do |sheet|
+        results.each do |result|
+          sheet.add_row result
+        end
+      end
+
+      if is_test
+        render json: results, status: :ok
+      else
+        send_data(axlsx_package.to_stream.read, filename: '教友資料.xlsx',
+                                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      end
     end
 
     private

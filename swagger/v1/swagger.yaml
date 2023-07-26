@@ -1131,6 +1131,39 @@ paths:
           description: Not found
         '401':
           description: Unauthorized
+  "/api/report/parishioner":
+    post:
+      summary: parishioner report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: multi id test
+        '404':
+          description: Not found
+        '401':
+          description: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              report test:
+                summary: Get 3 parishioners report by id
+                value:
+                  pid:
+                  - 1
+                  - 2
+                  - 3
   "/api/special_donations":
     get:
       summary: list special_donations
@@ -1171,11 +1204,11 @@ paths:
       parameters: []
       responses:
         '201':
-          description: Created
+          description: Special home number added
         '403':
-          description: Forbidden
+          description: Current user dose not have permission
         '422':
-          description: Unprocessable Entity
+          description: Home number is blank
       requestBody:
         content:
           application/json:
