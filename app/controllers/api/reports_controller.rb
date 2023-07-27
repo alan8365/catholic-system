@@ -5,6 +5,59 @@ module Api
     before_action :cors_setting
     before_action :authorize_request, except: %i[]
 
+    def ad_yearly_report
+      authorize! :read, RegularDonation
+      authorize! :read, SpecialDonation
+
+      date = params[:date]
+      is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+
+      return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/^\d{4}$/)
+
+      require 'axlsx'
+
+      year = date.to_i
+      all_month = (1..12).to_a
+
+      every_monthly_report = {}
+
+      p = Axlsx::Package.new
+      wb = p.workbook
+
+      all_month.each do |month|
+        month_string = month.to_s.rjust(2, '0')
+        date_string = "#{year}/#{month_string}"
+
+        monthly_report_data = get_monthly_rdr_array(year, month)
+        every_monthly_report[date_string] = monthly_report_data
+
+        wb.add_worksheet(name: "#{month}月") do |sheet|
+          monthly_report_data.each do |row|
+            # Parishioner summation added
+            row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
+
+            sheet.add_row row
+          end
+        end
+      end
+
+      # Results array process
+      yearly_report_data = get_yearly_adr_array(year)
+
+      wb.add_worksheet(name: '年度總帳') do |sheet|
+        yearly_report_data.each do |row|
+          sheet.add_row row
+        end
+      end
+
+      if is_test
+        render json: [every_monthly_report, yearly_report_data], status: :ok
+      else
+        send_data(p.to_stream.read, filename: "#{year}-年度總帳.xlsx",
+                                    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      end
+    end
+
     def rd_monthly_report
       authorize! :read, RegularDonation
 
@@ -132,6 +185,7 @@ module Api
       render json: { errors: 'Event not found' }, status: :not_found
     end
 
+    # TODO: the example xlsx file have undefined part
     def sd_yearly_report
       # authorize! :read, SpecialDonation
 
@@ -370,6 +424,114 @@ module Api
       # Parishioner summation added
       yearly_report_data.each do |row|
         row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
+      end
+
+      yearly_report_data
+    end
+
+    # Get all donation report
+    # TODO refactor with get_yearly_rdr_array
+    def get_yearly_adr_array(year)
+      all_month_str = (1..12).to_a.map { |e| "#{e}月" }
+
+      all_col_name = ['家號', '姓名', *all_month_str, '年度主日奉獻總額', '個人其他奉獻總額', '年度總計']
+      row_hash, col_hash, yearly_report_data = report_data_init(all_col_name)
+
+      begin_date = Date.civil(year, 1, 1)
+      end_date = Date.civil(year, -1, -1)
+
+      date_range = begin_date..end_date
+
+      monthly_donation_summations = RegularDonation
+                                    .joins(:household)
+                                    .where(donation_at: date_range)
+                                    .where('household.guest' => false)
+                                    .group('strftime("%m", donation_at), household.home_number')
+                                    .order('donation_at')
+                                    .pluck('donation_at, household.home_number, sum(donation_amount)')
+
+      monthly_donation_summations.each do |e|
+        month = "#{e[0].month}月"
+        home_number = e[1]
+        amount = e[2]
+
+        row_index = row_hash[home_number]
+        col_index = col_hash[month]
+
+        yearly_report_data[row_index][col_index] = amount
+      end
+
+      donation_summations = RegularDonation
+                            .joins(:household)
+                            .where(donation_at: date_range)
+                            .where('household.guest' => false)
+                            .group('strftime("%m", donation_at)')
+                            .order('donation_at')
+                            .pluck('donation_at, sum(donation_amount)')
+
+      guest_donation_summations = RegularDonation
+                                  .joins(:household)
+                                  .where(donation_at: date_range)
+                                  .where('household.guest' => true)
+                                  .group('strftime("%m", donation_at)')
+                                  .order('donation_at')
+                                  .pluck('donation_at, sum(donation_amount)')
+
+      special_donation_summations = SpecialDonation
+                                    .joins(:household)
+                                    .where(donation_at: date_range)
+                                    .where('household.guest' => false)
+                                    .group('strftime("%y", donation_at), household.home_number')
+                                    .order('donation_at')
+                                    .pluck('household.home_number, sum(donation_amount)')
+
+      yearly_report_data[-3][0] = '單月份記名總額'
+      yearly_report_data[-2][0] = '單月善心總額'
+      yearly_report_data[-1][0] = '單月份奉獻總額'
+
+      # Every month regular donation summation
+      donation_summations.map do |e|
+        month = "#{e[0].month}月"
+        amount = e[1]
+
+        col_index = col_hash[month]
+
+        yearly_report_data[-3][col_index] = amount
+      end
+
+      # Every month guest regular donation summation
+      guest_donation_summations.map do |e|
+        month = "#{e[0].month}月"
+        amount = e[1]
+
+        col_index = col_hash[month]
+
+        yearly_report_data[-2][col_index] = amount
+      end
+
+      # Guest and name donation sum
+      col_hash.map do |k, col_index|
+        guest_donation = yearly_report_data[-2][col_index].to_i
+        name_donation = yearly_report_data[-3][col_index].to_i
+
+        yearly_report_data[-1][col_index] = guest_donation + name_donation if k.match?(/\d{1,2}月/)
+      end
+
+      # Parishioner special donation summation
+      special_donation_summations.each do |e|
+        home_number = e[0]
+        amount = e[1]
+
+        row_index = row_hash[home_number]
+        col_index = -2
+
+        yearly_report_data[row_index][col_index] = amount
+      end
+
+      # Parishioner donation summation
+      yearly_report_data.each do |row|
+        row[-3] = row[2..].sum(&:to_i) if row[-3].nil?
+        row[-1] = row[-3..-2].sum(&:to_i) if row[-1].nil?
       end
 
       yearly_report_data

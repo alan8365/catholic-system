@@ -1147,8 +1147,6 @@ paths:
       responses:
         '200':
           description: multi id test
-        '404':
-          description: Not found
         '401':
           description: Unauthorized
       requestBody:

@@ -284,6 +284,11 @@ second_event = Event.create({
                               start_at: Date.strptime('2023/04/09', '%Y/%m/%d')
                             })
 
+third_event = Event.create({
+                             name: '聖誕',
+                             start_at: Date.strptime('2022/12/25', '%Y/%m/%d')
+                           })
+
 # Special donation
 SpecialDonation.create([{
                          home_number: first_household.home_number,
@@ -310,3 +315,18 @@ SpecialDonation.create([{
 
                          event: second_event
                        }])
+4.times do |i|
+  home_number = all_household[i].home_number
+
+  date_range_array = (Date.civil(2022, 12, 1)..Date.civil(2022, 12, -1)).to_a
+  donation_at = date_range_array.sample
+  donation_amount = rand(1000..10_000)
+
+  SpecialDonation.create({
+                           home_number:,
+                           donation_at:,
+                           donation_amount:,
+
+                           event: third_event
+                         })
+end
