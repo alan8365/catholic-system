@@ -1050,6 +1050,34 @@ paths:
           description: successful
         '403':
           description: successful
+  "/api/report/all_donations/year":
+    get:
+      summary: all_donation_yearly_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for donation searches.
+          For example, "2023" would generate report for donations made in 2023.
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '400':
+          description: Unprocessable Entity
+        '401':
+          description: Unauthorized
   "/api/report/regular_donations/month":
     get:
       summary: regular_donation_monthly_report report
@@ -1081,6 +1109,34 @@ paths:
   "/api/report/regular_donations/year":
     get:
       summary: regular_donation_yearly_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for donation searches.
+          For example, "2023" would generate report for donations made in 2023.
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '400':
+          description: Unprocessable Entity
+        '401':
+          description: Unauthorized
+  "/api/report/regular_donations/receipt":
+    get:
+      summary: regular_donation_yearly_receipt report
       tags:
       - Reports
       security:

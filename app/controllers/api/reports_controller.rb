@@ -214,7 +214,7 @@ module Api
       @events.each do |event|
         event_id = event.id
 
-        results = get_sdr_array(event_id)
+        get_sdr_array(event_id)
       end
 
       #
@@ -241,6 +241,84 @@ module Api
       end
     rescue ActiveRecord::RecordNotFound
       render json: { errors: 'Event not found' }, status: :not_found
+    end
+
+    def rd_receipt_register
+      authorize! :read, RegularDonation
+
+      date = params[:date]
+      is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+
+      return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/^\d{4}$/)
+
+      year = date.to_i
+
+      begin_date = Date.civil(year, 1, 1)
+      end_date = Date.civil(year, 12, -1)
+
+      date_range = begin_date..end_date
+
+      col_str = %w[編號 收據開立姓名或公司行號 金額 身分證字號或統一編號]
+      col_str_index = col_str.each_index.map { |e| e }
+
+      all_home_number = Household
+                        .where('guest' => false)
+                        .where('special' => false)
+                        .ids
+      all_home_number_index = all_home_number.each_index.map { |e| e + 3 }
+
+      row_hash = Hash[all_home_number.zip(all_home_number_index)]
+      col_hash = Hash[col_str.zip(col_str_index)]
+
+      results = Array.new(row_hash.size + 7) { Array.new(col_hash.size) }
+
+      results[0][0] = "附表一          #{year - 1911}年捐款收據名冊                堂區:彰化天主堂"
+      results[1][0] = '捐款意向:'
+      results[2] = col_str
+
+      results[-4][0] = '合計金額'
+      results[-3][0] = '* 身分證字號是為將捐款資料上傳國稅局時使用，方便個人網路申報所得，'
+      results[-2][0] = '若無需代為上傳國稅局，可以不提供身分證字號。'
+      results[-1][0] = '主任司鐸:                  會計:                  製表人:'
+
+      parishioner_donations = RegularDonation
+                              .joins(household: :head_of_household)
+                              .where(donation_at: date_range)
+                              .where('household.guest' => false)
+                              .where('household.special' => false)
+                              .group('strftime("%y", donation_at), household.home_number')
+                              .order('household.home_number')
+                              .pluck('household.home_number, parishioners.name, sum(donation_amount)')
+
+      parishioner_donations.each do |e|
+        row_index = row_hash[e[0]]
+
+        3.times do |i|
+          results[row_index][i] = e[i]
+        end
+      end
+
+      axlsx_package = Axlsx::Package.new
+      wb = axlsx_package.workbook
+
+      wb.add_worksheet(name: 'Worksheet 1') do |sheet|
+        results.each do |result|
+          sheet.add_row result
+        end
+
+        sheet.merge_cells sheet.rows[0].cells[(0..3)]
+        sheet.merge_cells sheet.rows[1].cells[(0..3)]
+        sheet.merge_cells sheet.rows[-1].cells[(0..3)]
+        sheet.merge_cells sheet.rows[-2].cells[(0..3)]
+        sheet.merge_cells sheet.rows[-3].cells[(0..3)]
+      end
+
+      if is_test
+        render json: results, status: :ok
+      else
+        send_data(axlsx_package.to_stream.read, filename: "#{year}-捐款名冊.xlsx",
+                                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      end
     end
 
     def parishioner_report

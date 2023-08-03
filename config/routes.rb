@@ -26,6 +26,7 @@ Rails.application.routes.draw do
     get 'report/all_donations/year', to: 'reports#ad_yearly_report'
     get 'report/regular_donations/month', to: 'reports#rd_monthly_report'
     get 'report/regular_donations/year', to: 'reports#rd_yearly_report'
+    get 'report/regular_donations/receipt', to: 'reports#rd_receipt_register'
     get 'report/special_donations/event', to: 'reports#sd_event_report'
     post 'report/parishioner', to: 'reports#parishioner_report'
   end
