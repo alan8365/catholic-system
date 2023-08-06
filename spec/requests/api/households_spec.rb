@@ -243,7 +243,10 @@ RSpec.describe 'api/households', type: :request do
 
       request_body_example value: {
         home_number: 'TT521',
-        head_of_household_id: 2
+        head_of_household_id: 2,
+        special: false,
+        guest: false,
+        is_archive: false
       }, name: 'test home number change', summary: 'Test household update'
 
       response(204, 'Change home_number and head_of_household') do
