@@ -520,9 +520,14 @@ paths:
           type: string
           description: aaa
           require: false
+      - name: is_archive
+        in: query
+        description: Search in archive if the value is "true"
+        schema:
+          type: string
       responses:
         '200':
-          description: successful
+          description: Find TT in text field
         '401':
           description: unauthorized
     post:
@@ -582,7 +587,7 @@ paths:
       parameters: []
       responses:
         '204':
-          description: No Content
+          description: Archive household
         '403':
           description: Forbidden
       requestBody:
