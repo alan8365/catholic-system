@@ -9,6 +9,7 @@ class CreateHouseholds < ActiveRecord::Migration[7.0]
 
       t.boolean 'special', default: false, comment: 'For special group usage, like Vietnam group'
       t.boolean 'guest', default: false, comment: 'For anonymous donation usage'
+      t.boolean 'is_archive', default: false
 
       t.string 'comment'
 

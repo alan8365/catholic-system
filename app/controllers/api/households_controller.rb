@@ -10,6 +10,7 @@ module Api
     def index
       authorize! :read, Household
       query = params[:any_field]
+      is_archive = params[:is_archive]
 
       if query
         string_filed = %w[
@@ -27,11 +28,16 @@ module Api
         @households = Household.all
       end
 
+      @households = if is_archive == 'true'
+                      @households.where('is_archive' => true)
+                    else
+                      @households.where('is_archive' => false)
+                    end
+
       @households = @households
                     .select(*%w[
                               home_number head_of_household
-                              special
-                              guest
+                              special guest is_archive
                               comment
                             ])
 
@@ -95,7 +101,12 @@ module Api
 
     def household_params
       params.permit(
-        *%i[home_number head_of_household head_of_household_id special comment]
+        *%i[
+          home_number
+          head_of_household head_of_household_id
+          special guest is_archive
+          comment
+        ]
       )
     end
 

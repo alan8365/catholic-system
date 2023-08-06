@@ -97,6 +97,7 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_171003) do
     t.integer "head_of_household"
     t.boolean "special", default: false
     t.boolean "guest", default: false
+    t.boolean "is_archive", default: false
     t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

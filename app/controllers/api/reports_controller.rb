@@ -263,7 +263,6 @@ module Api
 
       all_home_number = Household
                         .where('guest' => false)
-                        .where('special' => false)
                         .ids
       all_home_number_index = all_home_number.each_index.map { |e| e + 3 }
 
@@ -285,7 +284,6 @@ module Api
                               .joins(household: :head_of_household)
                               .where(donation_at: date_range)
                               .where('household.guest' => false)
-                              .where('household.special' => false)
                               .group('strftime("%y", donation_at), household.home_number')
                               .order('household.home_number')
                               .pluck('household.home_number, parishioners.name, sum(donation_amount)')
