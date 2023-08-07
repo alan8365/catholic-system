@@ -601,6 +601,9 @@ paths:
                 value:
                   home_number: TT521
                   head_of_household_id: 2
+                  special: false
+                  guest: false
+                  is_archive: false
     delete:
       summary: delete household
       tags:
@@ -1190,6 +1193,32 @@ paths:
           description: successful
         '404':
           description: Not found
+        '401':
+          description: Unauthorized
+  "/api/report/special_donations/year":
+    get:
+      summary: regular_donation_yearly_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for donation searches.
+          For example, "2023" would generate report for donations made in 2023.
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
         '401':
           description: Unauthorized
   "/api/report/parishioner":

@@ -187,7 +187,7 @@ module Api
 
     # TODO: the example xlsx file have undefined part
     def sd_yearly_report
-      # authorize! :read, SpecialDonation
+      authorize! :read, SpecialDonation
 
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
@@ -203,44 +203,47 @@ module Api
 
       date_range = begin_date..end_date
 
-      # results = SpecialDonation
-      #           .joins(:event)
-      #           .where('event.start_at' => date_range)
-      #           .order('event.start_at')
-
       @events = Event
                 .where('start_at' => date_range)
+                .order('start_at')
+
+      yearly_report_data = get_yearly_sdr_array(@events)
+
+      axlsx_package = Axlsx::Package.new
+      wb = axlsx_package.workbook
 
       @events.each do |event|
         event_id = event.id
 
-        get_sdr_array(event_id)
+        event_report_data = get_sdr_array(event_id)
+
+        wb.add_worksheet(name: event.name) do |sheet|
+          event_report_data.each do |result|
+            sheet.add_row result
+          end
+
+          # Merge cell of summation
+          sheet.merge_cells sheet.rows[-2].cells[(0..4)]
+          sheet.merge_cells sheet.rows[-1].cells[(0..2)]
+          sheet.merge_cells sheet.rows[-1].cells[(3..4)]
+        end
       end
 
-      #
-      # axlsx_package = Axlsx::Package.new
-      # wb = axlsx_package.workbook
-      #
-      # wb.add_worksheet(name: 'Worksheet 1') do |sheet|
-      #   results.each do |result|
-      #     sheet.add_row result
-      #   end
-      #
-      #   # Merge cell of summation
-      #   sheet.merge_cells sheet.rows[-2].cells[(0..4)]
-      #   sheet.merge_cells sheet.rows[-1].cells[(0..2)]
-      #   sheet.merge_cells sheet.rows[-1].cells[(3..4)]
-      # end
+      wb.add_worksheet(name: 'Worksheet 1') do |sheet|
+        yearly_report_data.each do |result|
+          sheet.add_row result
+        end
+
+        # Merge cell of summation
+        sheet.merge_cells sheet.rows[-1].cells[(0..1)]
+      end
 
       if is_test
-        render json: results, status: :ok
+        render json: yearly_report_data, status: :ok
       else
-        date_str = @event.start_at.strftime('%Y年%m月')
-        send_data(axlsx_package.to_stream.read, filename: "#{date_str}#{@event.name}奉獻.xlsx",
+        send_data(axlsx_package.to_stream.read, filename: "#{date}-其他奉獻.xlsx",
                                                 type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
       end
-    rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Event not found' }, status: :not_found
     end
 
     def rd_receipt_register
@@ -384,6 +387,93 @@ module Api
     end
 
     private
+
+    def get_yearly_sdr_array(events)
+      all_event_name = events.map(&:name)
+      col_str = ['家號', '姓名', *all_event_name, '其他奉獻']
+      col_str_index = col_str.each_index.map { |e| e }
+
+      # Yearly report size setting
+      all_household = Household
+                      .left_outer_joins(:head_of_household)
+                      .where('guest' => false)
+                      .order('households.home_number')
+                      .pluck('households.home_number, parishioners.name')
+      all_household_index = all_household.each_index.map { |e| e + 1 }
+
+      row_hash = Hash[all_household.map { |e| e[0] }.zip(all_household_index)]
+      col_hash = Hash[col_str.zip(col_str_index)]
+
+      yearly_report_data = Array.new(row_hash.size + 4) { Array.new(col_hash.size) }
+
+      # Yearly report data fixed field filling
+      sum_formula = []
+      named_sum_formula = []
+
+      (3..col_hash.size).each do |e|
+        c_name = get_excel_column_name(e)
+        r_number = yearly_report_data.size - 1
+
+        sum_formula << "=SUM(#{c_name}#{r_number - 1}:#{c_name}#{r_number})"
+        named_sum_formula << "=SUM(#{c_name}2:#{c_name}#{row_hash.size + 1})"
+      end
+
+      named_sum_str = ['', '記名總額', *named_sum_formula]
+
+      yearly_report_data[0] = col_str
+      yearly_report_data[-3] = named_sum_str
+      yearly_report_data[-2][1] = '善心總額'
+      yearly_report_data[-1] = ['奉獻總額', nil, *sum_formula]
+
+      row_hash.each do |home_number, row_index|
+        yearly_report_data[row_index][0] = home_number
+        yearly_report_data[row_index][1] = all_household[row_index - 1][1]
+      end
+
+      # Yearly report data IO getting
+      all_sd = SpecialDonation
+               .joins(:event, :household)
+               .where('event.id' => events.ids)
+               .where('household.guest' => false)
+               .group('event.id, special_donations.home_number')
+               .order('event.start_at')
+               .pluck('event.name, special_donations.home_number, sum(special_donations.donation_amount)')
+
+      all_gsd = SpecialDonation
+                .joins(:event, :household)
+                .where('event.id' => events.ids)
+                .where('household.guest' => true)
+                .group('event.id')
+                .order('event.start_at')
+                .pluck('event.name, sum(special_donations.donation_amount)')
+
+      # Yearly report data donation filling
+      all_sd.each do |sd|
+        event_name = sd[0]
+        home_number = sd[1]
+        amount = sd[2]
+
+        row_index = row_hash[home_number]
+        col_index = col_hash[event_name]
+
+        yearly_report_data[row_index][col_index] = amount
+      end
+
+      all_gsd.each do |gsd|
+        event_name = gsd[0]
+        amount = gsd[1]
+
+        col_index = col_hash[event_name]
+        yearly_report_data[-2][col_index] = amount
+      end
+
+      # Yearly report data summing
+      yearly_report_data.each do |row|
+        row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
+      end
+
+      yearly_report_data
+    end
 
     def get_sdr_array(event_id)
       event_donation = SpecialDonation
@@ -727,6 +817,16 @@ module Api
       all_sunday_str = all_sunday.map { |k| k.strftime('%m/%d') }
 
       [all_sunday, all_sunday_str]
+    end
+
+    def get_excel_column_name(column_number)
+      column_name = ''
+      while column_number.positive?
+        modulo = (column_number - 1) % 26
+        column_name = ('A'.ord + modulo).chr + column_name
+        column_number = (column_number - modulo) / 26
+      end
+      column_name
     end
 
     def current_policy
