@@ -6,6 +6,10 @@ RUN apt-get update \
 	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /usr/src/app
+
+# TODO change to docker compose
+#VOLUME ["/db"]
+
 COPY Gemfile* ./
 RUN bundle install
 COPY . .

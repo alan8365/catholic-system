@@ -33,7 +33,4 @@ Rails.application.routes.draw do
   end
 
   get '/*a', to: 'application#not_found'
-
-  # Defines the root path route ("/")
-  # root "articles#index"
 end
