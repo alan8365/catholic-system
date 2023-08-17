@@ -46,15 +46,14 @@ module Api
                           comment
                         ])
 
-      # @events = @events.to_json(methods: :donation_count)
-
       render json: @events, methods: :donation_count, status: :ok
     end
 
     # GET /events/{id}
     def show
       authorize! :read, @event
-      render json: @event, status: :ok
+
+      render json: @events, methods: :donation_count, status: :ok
     end
 
     # POST /events
