@@ -53,7 +53,7 @@ module Api
     def show
       authorize! :read, @event
 
-      render json: @events, methods: :donation_count, status: :ok
+      render json: @event, methods: :donation_count, status: :ok
     end
 
     # POST /events

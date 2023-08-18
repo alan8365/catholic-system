@@ -59,7 +59,7 @@ RSpec.describe 'api/events', type: :request do
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          event_hash = @event.as_json
+          event_hash = @event.as_json(methods: :donation_count)
           event_hash.except!(*%w[
                                created_at updated_at
                              ])
@@ -77,7 +77,7 @@ RSpec.describe 'api/events', type: :request do
           data = JSON.parse(response.body)
 
           date_range = Date.civil(2023, 1, 1)..Date.civil(2023, 12, 31)
-          event_hash = Event.where(start_at: date_range).as_json
+          event_hash = Event.where(start_at: date_range).as_json(methods: :donation_count)
 
           event_hash = event_hash.map do |e|
             e.except!(*%w[
@@ -99,7 +99,7 @@ RSpec.describe 'api/events', type: :request do
           data = JSON.parse(response.body)
 
           date_range = Date.civil(2023, 1, 1)..Date.civil(2023, 12, 31)
-          event_hash = Event.where(start_at: date_range).where(name: '聖誕').as_json
+          event_hash = Event.where(start_at: date_range).where(name: '聖誕').as_json(methods: :donation_count)
 
           event_hash = event_hash.map do |e|
             e.except!(*%w[
@@ -232,7 +232,7 @@ RSpec.describe 'api/events', type: :request do
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          event_hash = @event.as_json
+          event_hash = @event.as_json(methods: :donation_count)
 
           expect(data).to eq(event_hash)
         end
