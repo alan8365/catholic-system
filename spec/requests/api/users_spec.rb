@@ -62,8 +62,8 @@ RSpec.describe 'api/users', type: :request do
         run_test! do |response|
           data = JSON.parse(response.body)
           expect(data).to eq([{
-                                'comment' => 'The CRUD test user', 'is_admin' => false, 'is_modulator' => false, 'name' => '測試', 'username' => 'test1'
-                              }])
+                               'comment' => 'The CRUD test user', 'is_admin' => false, 'is_modulator' => false, 'name' => '測試', 'username' => 'test1'
+                             }])
         end
       end
 
@@ -217,26 +217,43 @@ RSpec.describe 'api/users', type: :request do
         name: 'new1', is_admin: true, is_modulator: false
       }, name: 'test name change', summary: 'Test user update'
 
-      # Change name
-      response(204, 'No Content') do
+      response(204, 'Change name') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: 'new1' } }
 
-        run_test!
+        run_test! do |_response|
+          user = User.find_by_username('test1')
+
+          expect(user.name).to eq('new1')
+        end
       end
 
-      # Change to admin
-      response(204, 'No Content') do
+      response(204, 'Change to admin') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_username) { 'test1' }
         let(:user) { { is_admin: true, is_modulator: false } }
 
-        run_test!
+        run_test! do
+          user = User.find_by_username('test1')
+
+          expect(user.is_admin).to eq(true)
+        end
       end
 
-      # Current user have not permission
-      response(403, 'Forbidden') do
+      response(204, 'Change password') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_username) { 'test1' }
+        let(:user) { { password: 'test456' } }
+
+        run_test! do
+          user = User.find_by_username('test1')
+
+          expect(user.authenticate('test456')).to_not eq(false)
+        end
+      end
+
+      response(403, 'Current user have not permission') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:_username) { 'test1' }
         let(:user) { { name: 'new1' } }

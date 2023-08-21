@@ -31,7 +31,7 @@ paths:
                 summary: Admin login
                 value:
                   username: admin
-                  password: "!123abc"
+                  password: 123abc
               basic:
                 summary: Basic login
                 value:

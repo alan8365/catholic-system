@@ -279,7 +279,6 @@ For example, "2023" would generate report for donations made in 2023.'
         end
         run_test! do
           data = JSON.parse(response.body)
-          puts data
         end
       end
 

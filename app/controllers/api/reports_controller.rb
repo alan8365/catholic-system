@@ -23,6 +23,7 @@ module Api
 
       p = Axlsx::Package.new
       wb = p.workbook
+      currency_style = wb.styles.add_style({ num_fmt: 3 })
 
       all_month.each do |month|
         month_string = month.to_s.rjust(2, '0')
@@ -36,7 +37,10 @@ module Api
             # Parishioner summation added
             row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
 
-            sheet.add_row row
+            currency_count = row.size - 2
+            style = [nil, nil, *([currency_style] * currency_count)]
+
+            sheet.add_row row, style:
           end
         end
       end
@@ -831,6 +835,10 @@ module Api
 
     def current_policy
       @current_policy ||= ::AccessPolicy.new(@current_user)
+    end
+
+    def helpers
+      ActionController::Base.helpers
     end
   end
 end
