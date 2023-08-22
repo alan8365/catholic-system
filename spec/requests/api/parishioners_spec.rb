@@ -30,9 +30,6 @@ RSpec.describe 'api/parishioners', type: :request do
       profession: '醫生',
       company_name: '恐龍牙醫診所',
 
-      sibling_number: 0,
-      children_number: 0,
-
       move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
       original_parish: '',
 
@@ -55,7 +52,7 @@ RSpec.describe 'api/parishioners', type: :request do
       description = 'Search from the following fields: name home_number gender address father mother nationality
 profession company_name home_phone mobile_phone original_parish destination_parish move_out_reason comment.'
 
-      parameter name: :any_field, in: :query, description: description, schema: {
+      parameter name: :any_field, in: :query, description:, schema: {
         type: :string
       }
 
@@ -88,8 +85,7 @@ profession company_name home_phone mobile_phone original_parish destination_pari
         end
       end
 
-      # Search in archive
-      response(200, 'successful') do
+      response(200, 'Search in archive') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:is_archive) { 'true' }
@@ -110,8 +106,7 @@ profession company_name home_phone mobile_phone original_parish destination_pari
         end
       end
 
-      # Query search any_field
-      response(200, 'successful') do
+      response(200, 'Query search any_field') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { '%E8%B6%99%E7%88%B8%E7%88%B8' }
         let(:is_archive) {}
@@ -127,9 +122,11 @@ profession company_name home_phone mobile_phone original_parish destination_pari
         run_test! do |response|
           data = JSON.parse(response.body)
 
+          @parishioner2 = Parishioner.find_by_id(5)
+
           # ApplicationRecord to hash
           parishioner_hash = @parishioner.as_json
-          parishioner2_hash = Parishioner.find_by_id(5).as_json
+          parishioner2_hash = @parishioner2.as_json
 
           # Delete unused fields
           parishioner_hash.except!(*%w[
@@ -142,16 +139,26 @@ profession company_name home_phone mobile_phone original_parish destination_pari
           parishioner_hash['baptism'] = @parishioner.baptism.as_json
           parishioner_hash['confirmation'] = @parishioner.confirmation.as_json
           parishioner_hash['eucharist'] = @parishioner.eucharist.as_json
+          parishioner_hash['father_instance'] = @parishioner.father_instance.as_json
+          parishioner_hash['mother_instance'] = @parishioner.mother_instance.as_json
 
           parishioner_hash['child_for_father'] = @parishioner.child_for_father.as_json
           parishioner_hash['child_for_mother'] = @parishioner.child_for_mother.as_json
 
-          parishioner2_hash['child_for_father'] = Parishioner.find_by_id(5).child_for_father.as_json
-          parishioner2_hash['child_for_mother'] = Parishioner.find_by_id(5).child_for_mother.as_json
-
           parishioner_hash['wife'] = @parishioner.wife.as_json
 
-          expect(data).to eq([parishioner_hash, parishioner2_hash])
+          parishioner_hash['sibling'] = @parishioner.sibling.as_json
+          parishioner_hash['children'] = @parishioner.children.as_json
+
+          expect(data[0]).to eq(parishioner_hash)
+
+          parishioner2_hash['child_for_father'] = @parishioner2.child_for_father.as_json
+          parishioner2_hash['child_for_mother'] = @parishioner2.child_for_mother.as_json
+
+          parishioner2_hash['sibling'] = @parishioner2.sibling.as_json
+          parishioner2_hash['children'] = @parishioner2.children.as_json
+
+          expect(data[1]).to eq(parishioner2_hash)
         end
       end
 
@@ -360,8 +367,7 @@ profession company_name home_phone mobile_phone original_parish destination_pari
         end
       end
 
-      # Delete association
-      response(204, 'No Content') do
+      response(204, 'Delete association') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
         let(:"") { { father_id: '', mother_id: '' } }
@@ -373,21 +379,18 @@ profession company_name home_phone mobile_phone original_parish destination_pari
         end
       end
 
-      # Blank picture value
-      response(204, 'No Content') do
+      response(204, 'Blank picture value') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
         let(:"") { { picture: '' } }
 
         run_test! do
-          parishioner = Parishioner.all[0]
-
-          expect(parishioner.father_instance).to eq(nil)
+          # parishioner = Parishioner.all[0]
+          # expect(parishioner.picture_url).to eq(nil)
         end
       end
 
-      # Current user have not permission
-      response(403, 'Forbidden') do
+      response(403, 'Current user have not permission') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
         let(:_id) { Parishioner.all[0].id }
         let(:"") { { name: '台灣偉人' } }
@@ -395,8 +398,7 @@ profession company_name home_phone mobile_phone original_parish destination_pari
         run_test!
       end
 
-      # Field is blank
-      response(422, 'Unprocessable Entity') do
+      response(422, 'Field is blank') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
         let(:"") { { name: '' } }

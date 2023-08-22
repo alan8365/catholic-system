@@ -28,9 +28,6 @@ User.create([
                                           profession: '資訊',
                                           company_name: '科技大學',
 
-                                          sibling_number: 1,
-                                          children_number: 0,
-
                                           move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
                                           original_parish: 'ＯＯ堂區',
 
@@ -58,9 +55,6 @@ User.create([
                                            nationality: '中華民國',
                                            profession: '資訊',
                                            company_name: '科技大學',
-
-                                           sibling_number: 0,
-                                           children_number: 0,
 
                                            move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
                                            original_parish: 'ＯＯ堂區',
@@ -90,9 +84,7 @@ User.create([
 @brother_parishioner = Parishioner.create({
                                             name: '許小弟',
                                             gender: '男',
-                                            birth_at: Date.strptime('1991/02/02', '%Y/%m/%d'),
-
-                                            sibling_number: 0
+                                            birth_at: Date.strptime('1991/02/02', '%Y/%m/%d')
                                           })
 
 @move_out_parishioner = Parishioner.create({

@@ -11,6 +11,10 @@ test_m:
 
   father: 趙爸爸
   mother: 孫媽媽
+
+  father_id: 5
+  mother_id: 4
+
   home_phone: "047221245"
   mobile_phone: "0987372612"
   nationality: 中華民國
@@ -18,12 +22,8 @@ test_m:
   company_name: 科技大學
   home_number: TT520
 
-  sibling_number: 0
-  children_number: 0
-
   move_in_date: <%= Date.strptime('2013/01/01', '%Y/%m/%d') %>
   original_parish: 'ＯＯ堂區'
-
 
   comment: 測試用男性教友一號
 
@@ -45,9 +45,6 @@ test_f:
   profession: 資訊
   company_name: 科技大學
   home_number: TT520
-
-  sibling_number: 0
-  children_number: 0
 
   move_in_date: <%= Date.strptime('2013/01/01', '%Y/%m/%d') %>
   original_parish: 'ＯＯ堂區'
@@ -95,3 +92,18 @@ test_father2:
   name: 錢爸爸
   gender: 男
   birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
+
+test_sibling:
+  id: 8
+
+  name: 趙弟弟
+  gender: 男
+  birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
+  postal_code: 433
+  address: 台中市北區三民路某段某號
+
+  father: 趙爸爸
+  mother: 孫媽媽
+
+  father_id: 5
+  mother_id: 4

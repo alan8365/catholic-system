@@ -144,8 +144,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_171003) do
     t.integer "mother_id"
     t.integer "father_id"
     t.string "home_number"
-    t.integer "sibling_number", default: 0
-    t.integer "children_number", default: 0
     t.date "move_in_date"
     t.string "original_parish"
     t.date "move_out_date"

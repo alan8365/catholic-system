@@ -45,7 +45,6 @@ module Api
                                              father mother father_id mother_id
                                              home_phone mobile_phone nationality
                                              profession company_name comment
-                                             sibling_number children_number
                                              move_in_date original_parish
                                              move_out_date move_out_reason destination_parish
                                            ])
@@ -56,7 +55,9 @@ module Api
                child_for_mother child_for_father
                baptism confirmation eucharist
                wife husband
-             ], status: :ok
+             ],
+             methods: %i[children sibling],
+             status: :ok
     end
 
     # GET /parishioners/{id}
@@ -102,6 +103,7 @@ module Api
 
       update_params = parishioner_params.to_h
       update_params.delete('picture') if 'picture'.in?(update_params.keys) && (update_params['picture'].is_a? String)
+
       if update_params.include?('father_id') && !update_params['father_id'].empty?
         father_id = update_params['father_id']
         father = Parishioner.find_by_id(father_id)
@@ -150,7 +152,6 @@ module Api
                       father mother father_id mother_id
                       home_phone mobile_phone nationality
                       profession company_name comment
-                      sibling_number children_number
                       move_in_date original_parish
                       move_out_date move_out_reason destination_parish
                       picture

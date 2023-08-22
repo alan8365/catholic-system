@@ -13,7 +13,6 @@ class Parishioner < ApplicationRecord
 
   has_many :child_for_father, class_name: 'Parishioner', foreign_key: 'father_id'
   has_many :child_for_mother, class_name: 'Parishioner', foreign_key: 'mother_id'
-
   # Sacrament association
   has_one :baptism, class_name: 'Baptism', foreign_key: 'parishioner_id'
   has_one :confirmation, class_name: 'Confirmation', foreign_key: 'parishioner_id'
@@ -32,4 +31,29 @@ class Parishioner < ApplicationRecord
   validates :name, presence: true
   validates :gender, presence: true
   validates :birth_at, presence: true
+
+  def children
+    data = Parishioner
+           .where(father_id: id)
+           .or(Parishioner.where(mother_id: id))
+           .select('name')
+
+    { count: data.size, data: }
+  end
+
+  def sibling
+    same_father = Parishioner
+                  .where.not(father_id: nil)
+                  .where.not(id:)
+                  .where(father_id:)
+
+    same_mother = Parishioner
+                  .where.not(mother_id: nil)
+                  .where.not(id:)
+                  .where(mother_id:)
+
+    data = same_father.or(same_mother).select('name')
+
+    { count: data.size, data: }
+  end
 end
