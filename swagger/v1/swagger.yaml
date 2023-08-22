@@ -758,7 +758,7 @@ paths:
           type: string
       responses:
         '200':
-          description: successful
+          description: Query search any_field
         '401':
           description: unauthorized
     post:
@@ -857,11 +857,11 @@ paths:
       parameters: []
       responses:
         '204':
-          description: No Content
+          description: Blank picture value
         '403':
-          description: Forbidden
+          description: Current user have not permission
         '422':
-          description: Unprocessable Entity
+          description: Field is blank
       requestBody:
         content:
           multipart/form-data:
@@ -1447,9 +1447,9 @@ paths:
       parameters: []
       responses:
         '204':
-          description: No Content
+          description: Change password
         '403':
-          description: Forbidden
+          description: Current user have not permission
         '422':
           description: Unprocessable Entity
       requestBody:

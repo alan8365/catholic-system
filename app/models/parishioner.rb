@@ -36,7 +36,6 @@ class Parishioner < ApplicationRecord
     data = Parishioner
            .where(father_id: id)
            .or(Parishioner.where(mother_id: id))
-           .select('name')
 
     { count: data.size, data: }
   end
@@ -52,7 +51,7 @@ class Parishioner < ApplicationRecord
                   .where.not(id:)
                   .where(mother_id:)
 
-    data = same_father.or(same_mother).select('name')
+    data = same_father.or(same_mother)
 
     { count: data.size, data: }
   end
