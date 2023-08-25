@@ -175,10 +175,9 @@ For example, "2023/7" would search for donations made in July 2023.'
         end
       end
 
-      # Current user dose not have permission
-      response(403, 'Forbidden') do
+      response(403, 'Current user dose not have permission') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:user) { @example_test }
+        let(:regular_donation) { @example_test }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -190,10 +189,15 @@ For example, "2023/7" would search for donations made in July 2023.'
         run_test!
       end
 
-      # RegularDonation already exist test
-      response(422, 'Unprocessable Entity') do
+      response(422, 'RegularDonation already exist test') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:user) { { name: 'TT520' } }
+        let(:regular_donation) do
+          {
+            name: 'TT520',
+            donation_at: Date.strptime('2023/06/29', '%Y/%m/%d'),
+            donation_amount: 200
+          }
+        end
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -205,10 +209,30 @@ For example, "2023/7" would search for donations made in July 2023.'
         run_test!
       end
 
-      # Home number is blank
-      response(422, 'Unprocessable Entity') do
+      response(422, 'Home number is blank') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:user) {}
+        let(:regular_donation) {}
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test!
+      end
+
+      response(422, 'Donation_at is not sunday') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:regular_donation) do
+          {
+            home_number: 'TT520',
+
+            donation_at: Date.strptime('2023/7/3', '%Y/%m/%d'),
+            donation_amount: 1000
+          }
+        end
 
         after do |example|
           example.metadata[:response][:content] = {
