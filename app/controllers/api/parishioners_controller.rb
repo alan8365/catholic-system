@@ -14,13 +14,8 @@ module Api
 
       if query
         string_filed = %w[
-          name home_number gender address
-          father mother
-          nationality profession company_name
+          name home_number gender
           home_phone mobile_phone
-          original_parish destination_parish
-          move_out_reason
-          comment
         ]
 
         query_string = string_filed.join(" like ? or \n")

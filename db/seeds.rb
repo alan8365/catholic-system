@@ -265,7 +265,6 @@ end
 RegularDonation.create(random_regular_donation)
 
 # Event
-
 first_event = Event.create({
                              name: '聖誕',
                              start_at: Date.strptime('2023/12/25', '%Y/%m/%d')

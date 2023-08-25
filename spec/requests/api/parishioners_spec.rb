@@ -49,8 +49,7 @@ RSpec.describe 'api/parishioners', type: :request do
       tags 'Parishioner'
       security [Bearer: {}]
 
-      description = 'Search from the following fields: name home_number gender address father mother nationality
-profession company_name home_phone mobile_phone original_parish destination_parish move_out_reason comment.'
+      description = 'Search from the following fields: home_number gender name home_phone mobile_phone.'
 
       parameter name: :any_field, in: :query, description:, schema: {
         type: :string
@@ -150,7 +149,7 @@ profession company_name home_phone mobile_phone original_parish destination_pari
           parishioner_hash['sibling'] = @parishioner.sibling.as_json
           parishioner_hash['children'] = @parishioner.children.as_json
 
-          expect(data[0]).to eq(parishioner_hash)
+          # expect(data[0]).to eq(parishioner_hash)
 
           parishioner2_hash['child_for_father'] = @parishioner2.child_for_father.as_json
           parishioner2_hash['child_for_mother'] = @parishioner2.child_for_mother.as_json
@@ -158,7 +157,7 @@ profession company_name home_phone mobile_phone original_parish destination_pari
           parishioner2_hash['sibling'] = @parishioner2.sibling.as_json
           parishioner2_hash['children'] = @parishioner2.children.as_json
 
-          expect(data[1]).to eq(parishioner2_hash)
+          expect(data[0]).to eq(parishioner2_hash)
         end
       end
 
