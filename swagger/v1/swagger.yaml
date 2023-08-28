@@ -746,9 +746,8 @@ paths:
       parameters:
       - name: any_field
         in: query
-        description: |-
-          Search from the following fields: name home_number gender address father mother nationality
-          profession company_name home_phone mobile_phone original_parish destination_parish move_out_reason comment.
+        description: 'Search from the following fields: home_number gender name home_phone
+          mobile_phone.'
         schema:
           type: string
       - name: is_archive
@@ -986,9 +985,9 @@ paths:
         '201':
           description: Created
         '403':
-          description: Forbidden
+          description: Current user dose not have permission
         '422':
-          description: Unprocessable Entity
+          description: Donation_at is not sunday
       requestBody:
         content:
           application/json:
@@ -1172,7 +1171,7 @@ paths:
           description: Unauthorized
   "/api/report/special_donations/event":
     get:
-      summary: regular_donation_yearly_report report
+      summary: special_donation_event_report report
       tags:
       - Reports
       security:
@@ -1197,7 +1196,7 @@ paths:
           description: Unauthorized
   "/api/report/special_donations/year":
     get:
-      summary: regular_donation_yearly_report report
+      summary: special_donation_yearly_report report
       tags:
       - Reports
       security:
@@ -1522,12 +1521,15 @@ paths:
         '404':
           description: User not found
 servers:
+- url: http://163.17.135.152:7465
 - url: http://{defaultHost}
   variables:
     defaultHost:
       default: 0.0.0.0:3000
 components:
   securitySchemes:
+    Basic:
+      type: basic
     Bearer:
       description: JWT key necessary to use API calls
       type: apiKey
