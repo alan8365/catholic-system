@@ -1,0 +1,12 @@
+services:
+  web:
+    image: alan8365/catholic:latest
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - sqlite3:/db/sqlite3
+volumes:
+  sqlite3: {}
