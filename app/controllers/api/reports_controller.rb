@@ -707,7 +707,16 @@ module Api
         row[-1] = row[-3..-2].sum(&:to_i) if row[-1].nil?
       end
 
-      yearly_report_data
+      # Delete row if summation is 0
+      new_yearly_report_data = [yearly_report_data[0]]
+      yearly_report_data[1..-4].map do |e|
+        new_yearly_report_data << e unless (e[-1]).zero?
+      end
+      new_yearly_report_data << yearly_report_data[-3]
+      new_yearly_report_data << yearly_report_data[-2]
+      new_yearly_report_data << yearly_report_data[-1]
+
+      new_yearly_report_data
     end
 
     # @param [Integer] year
