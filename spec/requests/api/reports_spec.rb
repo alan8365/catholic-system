@@ -201,7 +201,7 @@ For example, "2023" would generate report for donations made in 2023.'
   end
 
   path '/api/report/special_donations/event' do
-    get('regular_donation_yearly_report report') do
+    get('special_donation_event_report report') do
       tags 'Reports'
       security [Bearer: {}]
 
@@ -249,7 +249,7 @@ For example, "2023" would generate report for donations made in 2023.'
   end
 
   path '/api/report/special_donations/year' do
-    get('regular_donation_yearly_report report') do
+    get('special_donation_yearly_report report') do
       tags 'Reports'
       security [Bearer: {}]
 

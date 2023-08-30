@@ -23,7 +23,6 @@ module Api
 
       p = Axlsx::Package.new
       wb = p.workbook
-      currency_style = wb.styles.add_style({ num_fmt: 3 })
 
       all_month.each do |month|
         month_string = month.to_s.rjust(2, '0')
@@ -32,25 +31,18 @@ module Api
         monthly_report_data = get_monthly_rdr_array(year, month)
         every_monthly_report[date_string] = monthly_report_data
 
-        wb.add_worksheet(name: "#{month}月") do |sheet|
-          monthly_report_data.each do |row|
-            # Parishioner summation added
-            row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
-
-            currency_count = row.size - 2
-            style = [nil, nil, *([currency_style] * currency_count)]
-
-            sheet.add_row row, style:
-          end
-        end
+        rd_monthly_xlsx_fill(monthly_report_data, wb, "#{month}月")
       end
 
       # Results array process
       yearly_report_data = get_yearly_adr_array(year)
+      currency_style = wb.styles.add_style({ num_fmt: 3 })
 
       wb.add_worksheet(name: '年度總帳') do |sheet|
         yearly_report_data.each do |row|
-          sheet.add_row row
+          style = get_xlsx_style(currency_style, 2, row.size - 2)
+
+          sheet.add_row row, style:
         end
       end
 
@@ -77,17 +69,7 @@ module Api
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
-
-      wb.add_worksheet(name: 'Worksheet 1') do |sheet|
-        monthly_report_data.each do |result|
-          sheet.add_row result
-        end
-
-        # Merge cell of summation
-        (-3..-1).each do |i|
-          sheet.merge_cells sheet.rows[i].cells[(0..1)]
-        end
-      end
+      rd_monthly_xlsx_fill(monthly_report_data, wb, 'Worksheet 1')
 
       if is_test
         render json: monthly_report_data, status: :ok
@@ -122,27 +104,17 @@ module Api
         monthly_report_data = get_monthly_rdr_array(year, month)
         every_monthly_report[date_string] = monthly_report_data
 
-        wb.add_worksheet(name: "#{month}月") do |sheet|
-          monthly_report_data.each do |row|
-            # Parishioner summation added
-            row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
-
-            sheet.add_row row
-          end
-
-          # Merge cell of summation
-          (-3..-1).each do |i|
-            sheet.merge_cells sheet.rows[i].cells[(0..1)]
-          end
-        end
+        rd_monthly_xlsx_fill(monthly_report_data, wb, "#{month}月")
       end
 
       # Results array process
       yearly_report_data = get_yearly_rdr_array(year)
 
+      currency_style = wb.styles.add_style({ num_fmt: 3 })
       wb.add_worksheet(name: '年度奉獻明細') do |sheet|
         yearly_report_data.each do |row|
-          sheet.add_row row
+          style = get_xlsx_style(currency_style, 2, row.size - 2)
+          sheet.add_row row, style:
         end
       end
 
@@ -166,10 +138,12 @@ module Api
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
+      currency_style = wb.styles.add_style({ num_fmt: 3 })
 
       wb.add_worksheet(name: 'Worksheet 1') do |sheet|
-        results.each do |result|
-          sheet.add_row result
+        results.each do |row|
+          style = get_xlsx_style(currency_style, 3, row.size - 3)
+          sheet.add_row row, style:
         end
 
         # Merge cell of summation
@@ -215,6 +189,7 @@ module Api
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
+      currency_style = wb.styles.add_style({ num_fmt: 3 })
 
       @events.each do |event|
         event_id = event.id
@@ -222,8 +197,9 @@ module Api
         event_report_data = get_sdr_array(event_id)
 
         wb.add_worksheet(name: event.name) do |sheet|
-          event_report_data.each do |result|
-            sheet.add_row result
+          event_report_data.each do |row|
+            style = get_xlsx_style(currency_style, 3, row.size - 3)
+            sheet.add_row row, style:
           end
 
           # Merge cell of summation
@@ -234,8 +210,9 @@ module Api
       end
 
       wb.add_worksheet(name: 'Worksheet 1') do |sheet|
-        yearly_report_data.each do |result|
-          sheet.add_row result
+        yearly_report_data.each do |row|
+          style = get_xlsx_style(currency_style, 2, row.size - 2)
+          sheet.add_row row, style:
         end
 
         # Merge cell of summation
@@ -305,10 +282,12 @@ module Api
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
+      currency_style = wb.styles.add_style({ num_fmt: 3 })
 
       wb.add_worksheet(name: 'Worksheet 1') do |sheet|
-        results.each do |result|
-          sheet.add_row result
+        results.each do |row|
+          style = get_xlsx_style(currency_style, 2, 1)
+          sheet.add_row row, style:
         end
 
         sheet.merge_cells sheet.rows[0].cells[(0..3)]
@@ -391,6 +370,30 @@ module Api
     end
 
     private
+
+    def get_xlsx_style(currency_style, non_currency_count, currency_count)
+      non_currency_array = [nil] * non_currency_count
+      currency_array = [currency_style] * currency_count
+
+      [*non_currency_array, *currency_array]
+    end
+
+    def rd_monthly_xlsx_fill(monthly_report_data, workbook, worksheet_name)
+      currency_style = workbook.styles.add_style({ num_fmt: 3 })
+
+      workbook.add_worksheet(name: worksheet_name) do |sheet|
+        monthly_report_data.each do |row|
+          style = get_xlsx_style(currency_style, 2, row.size - 2)
+
+          sheet.add_row row, style:
+        end
+
+        # Merge cell of summation
+        (-3..-1).each do |i|
+          sheet.merge_cells sheet.rows[i].cells[(0..1)]
+        end
+      end
+    end
 
     def get_yearly_sdr_array(events)
       all_event_name = events.map(&:name)
@@ -835,10 +838,6 @@ module Api
 
     def current_policy
       @current_policy ||= ::AccessPolicy.new(@current_user)
-    end
-
-    def helpers
-      ActionController::Base.helpers
     end
   end
 end
