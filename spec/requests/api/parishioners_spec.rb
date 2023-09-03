@@ -150,10 +150,6 @@ RSpec.describe 'api/parishioners', type: :request do
           parishioner_hash['children'] = @parishioner.children.as_json
 
           # expect(data[0]).to eq(parishioner_hash)
-
-          parishioner2_hash['child_for_father'] = @parishioner2.child_for_father.as_json
-          parishioner2_hash['child_for_mother'] = @parishioner2.child_for_mother.as_json
-
           parishioner2_hash['sibling'] = @parishioner2.sibling.as_json
           parishioner2_hash['children'] = @parishioner2.children.as_json
 
