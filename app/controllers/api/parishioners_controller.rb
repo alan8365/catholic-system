@@ -47,7 +47,6 @@ module Api
       render json: @parishioners,
              include: %i[
                mother_instance father_instance
-               child_for_mother child_for_father
                baptism confirmation eucharist
                wife husband
              ],
@@ -62,10 +61,11 @@ module Api
       render json: @parishioner,
              include: %i[
                mother_instance father_instance
-               child_for_mother child_for_father
                baptism confirmation eucharist
                wife husband
-             ], status: :ok
+             ],
+             methods: %i[children sibling],
+             status: :ok
     end
 
     def picture
