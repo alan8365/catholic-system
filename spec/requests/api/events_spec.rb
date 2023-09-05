@@ -173,7 +173,7 @@ RSpec.describe 'api/events', type: :request do
       # Current user dose not have permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
-        let(:user) { @example_test }
+        let(:event) { @example_test }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -185,10 +185,9 @@ RSpec.describe 'api/events', type: :request do
         run_test!
       end
 
-      # Event already exist test
-      response(422, 'Unprocessable Entity') do
+      response(422, 'Event already exist this year') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:user) { { name: 'TT520' } }
+        let(:event) { { name: '聖誕', start_at: Date.strptime('2023/12/25', '%Y/%m/%d') } }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -200,10 +199,9 @@ RSpec.describe 'api/events', type: :request do
         run_test!
       end
 
-      # Home number is blank
-      response(422, 'Unprocessable Entity') do
+      response(422, 'Event name is blank') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:user) {}
+        let(:event) {}
 
         after do |example|
           example.metadata[:response][:content] = {
