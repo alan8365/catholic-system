@@ -16,6 +16,17 @@ class Eucharist < ApplicationRecord
 
   validate :godfather_xor_godmother
 
+  def serial_number
+    date_range = eucharist_at.beginning_of_year..eucharist_at.end_of_year
+    this_year_array = Eucharist
+                      .where(eucharist_at: date_range)
+                      .order('eucharist_at', 'id')
+                      .pluck(:id)
+    number = this_year_array.find_index(id) + 1
+
+    "#{eucharist_at.year}/#{number}"
+  end
+
   private
 
   def godfather_xor_godmother

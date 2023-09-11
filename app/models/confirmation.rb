@@ -16,6 +16,17 @@ class Confirmation < ApplicationRecord
 
   validate :godfather_xor_godmother
 
+  def serial_number
+    date_range = confirmed_at.beginning_of_year..confirmed_at.end_of_year
+    this_year_array = Confirmation
+                      .where(confirmed_at: date_range)
+                      .order('confirmed_at', 'id')
+                      .pluck(:id)
+    number = this_year_array.find_index(id) + 1
+
+    "#{confirmed_at.year}/#{number}"
+  end
+
   private
 
   def godfather_xor_godmother

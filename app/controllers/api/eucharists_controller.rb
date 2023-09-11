@@ -38,13 +38,19 @@ module Api
                                          comment
                                        ])
 
-      render json: @eucharists, include: { parishioner: { include: :baptism } }, status: :ok
+      render json: @eucharists,
+             include: { parishioner: { include: :baptism } },
+             methods: %i[serial_number],
+             status: :ok
     end
 
     # GET /eucharists/{id}
     def show
       authorize! :read, @eucharist
-      render json: @eucharist, include: { parishioner: { include: :baptism } }, status: :ok
+      render json: @eucharist,
+             include: { parishioner: { include: :baptism } },
+             methods: %i[serial_number],
+             status: :ok
     end
 
     # POST /eucharists

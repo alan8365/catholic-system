@@ -38,13 +38,19 @@ module Api
                                      comment
                                    ])
 
-      render json: @baptisms, include: %i[parishioner], status: :ok
+      render json: @baptisms,
+             include: %i[parishioner],
+             methods: %i[serial_number],
+             status: :ok
     end
 
     # GET /baptisms/{id}
     def show
       authorize! :read, @baptism
-      render json: @baptism, include: %i[parishioner], status: :ok
+      render json: @baptism,
+             include: %i[parishioner],
+             methods: %i[serial_number],
+             status: :ok
     end
 
     # POST /baptisms

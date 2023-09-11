@@ -52,8 +52,7 @@ RSpec.describe 'api/baptisms', type: :request do
         run_test!
       end
 
-      # Query search any_field
-      response(200, 'successful') do
+      response(200, 'Query search any_field') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) { '%E5%BD%B0%E5%8C%96' }
 
@@ -76,6 +75,7 @@ RSpec.describe 'api/baptisms', type: :request do
                                  created_at updated_at
                                ])
           baptism_hash['parishioner'] = @baptism.parishioner.as_json
+          baptism_hash['serial_number'] = @baptism.serial_number
 
           expect(data).to eq([baptism_hash])
         end
@@ -230,7 +230,7 @@ RSpec.describe 'api/baptisms', type: :request do
       consumes 'application/json'
 
       parameter name: :baptism, in: :body, schema: {
-        type: :object,
+        type: :object
       }
 
       request_body_example value: {

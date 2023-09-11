@@ -17,6 +17,18 @@ class Baptism < ApplicationRecord
 
   validate :godfather_xor_godmother
 
+  # @return [String (frozen)]
+  def serial_number
+    date_range = baptized_at.beginning_of_year..baptized_at.end_of_year
+    this_year_array = Baptism
+                      .where(baptized_at: date_range)
+                      .order('baptized_at', 'id')
+                      .pluck(:id)
+    number = this_year_array.find_index(id) + 1
+
+    "#{baptized_at.year}/#{number}"
+  end
+
   private
 
   def godfather_xor_godmother

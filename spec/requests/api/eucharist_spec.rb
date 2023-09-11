@@ -66,10 +66,12 @@ RSpec.describe 'api/eucharists', type: :request do
 
           # Delete unused fields
           eucharist_hash.except!(*%w[
-                                    created_at updated_at
-                                  ])
+                                   created_at updated_at
+                                 ])
           eucharist_hash['parishioner'] = @eucharist.parishioner.as_json
           eucharist_hash['parishioner']['baptism'] = @eucharist.parishioner.baptism.as_json
+
+          eucharist_hash['serial_number'] = @eucharist.serial_number
 
           expect(data).to eq([eucharist_hash])
         end
