@@ -397,26 +397,10 @@ module Api
 
     def get_yearly_sdr_array(events)
       all_event_name = events.map(&:name)
-      col_str = ['家號', '姓名', *all_event_name, '其他奉獻']
-      col_str_index = col_str.each_index.map { |e| e }
+      all_col_name = ['家號', '姓名', *all_event_name, '其他奉獻']
 
       # Yearly report size setting
-      all_household = Household
-                      .left_outer_joins(:head_of_household)
-                      .where('guest' => false)
-                      .order('households.home_number')
-                      .pluck('households.home_number, parishioners.name')
-      all_household = Household
-                      .where('guest' => false)
-                      .order('home_number')
-
-      all_home_number = all_household.map { |e| e['home_number'] }
-      home_number_index = all_home_number.each_index.to_a.map { |i| i + 1 }
-
-      row_hash = Hash[all_home_number.zip(home_number_index)]
-      col_hash = Hash[col_str.zip(col_str_index)]
-
-      yearly_report_data = Array.new(row_hash.size + 4) { Array.new(col_hash.size) }
+      row_hash, col_hash, yearly_report_data = report_data_init(all_col_name)
 
       # Yearly report data fixed field filling
       sum_formula = []
@@ -432,29 +416,9 @@ module Api
 
       named_sum_str = ['', '記名總額', *named_sum_formula]
 
-      yearly_report_data[0] = col_str
       yearly_report_data[-3] = named_sum_str
       yearly_report_data[-2][1] = '善心總額'
       yearly_report_data[-1] = ['奉獻總額', nil, *sum_formula]
-
-      all_household.each do |household|
-        home_number = household['home_number']
-        if household.head_of_household.nil?
-          name = household.comment
-        else
-          head_of_household = household.head_of_household
-          name = head_of_household&.name
-        end
-
-        row_index = row_hash[home_number]
-        yearly_report_data[row_index][0] = home_number
-        yearly_report_data[row_index][1] = name
-      end
-
-      # row_hash.each do |home_number, row_index|
-      #   yearly_report_data[row_index][0] = home_number
-      #   yearly_report_data[row_index][1] = all_household[row_index - 1][1]
-      # end
 
       # Yearly report data IO getting
       all_sd = SpecialDonation
