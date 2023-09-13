@@ -51,6 +51,8 @@ gem 'rack-cors'
 # Use for full text search [https://github.com/sunspot/sunspot]
 gem 'sunspot_rails'
 
+gem 'rmagick'
+
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem 'debug', platforms: %i[mri mingw x64_mingw]

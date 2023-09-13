@@ -454,4 +454,52 @@ RSpec.describe 'api/parishioners', type: :request do
       end
     end
   end
+
+  path '/api/parishioners/{_id}/card' do
+    parameter name: '_id', in: :path, type: :string, description: '_id'
+
+    get('id card of parishioner') do
+      tags 'Parishioner'
+      security [Bearer: {}]
+      produces 'image/*'
+
+      response(200, 'successful') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { @parishioner.id }
+
+        run_test!
+      end
+
+      response(404, 'Not Found') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { 200 }
+
+        run_test!
+      end
+    end
+  end
+
+  path '/api/parishioners/{_id}/card_back' do
+    parameter name: '_id', in: :path, type: :string, description: '_id'
+
+    get('id card back of parishioner') do
+      tags 'Parishioner'
+      security [Bearer: {}]
+      produces 'image/*'
+
+      response(200, 'successful') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { @parishioner.id }
+
+        run_test!
+      end
+
+      response(404, 'Not Found') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { 200 }
+
+        run_test!
+      end
+    end
+  end
 end

@@ -15,6 +15,12 @@ Testing:
 rake db:test:prepare
 ```
 
+DB reset:
+```shell
+rake db:drop;rake db:prepare;rake db:seed;
+```
+
+
 ## Swagger
 Create an integration spec to describe and test your API.
 ```shell

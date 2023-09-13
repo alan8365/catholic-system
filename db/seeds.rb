@@ -112,7 +112,6 @@ User.create([
 @brother_parishioner.save
 
 # Household
-
 first_household = Household.create({
                                      home_number: 'CK123'
                                    })
@@ -162,6 +161,17 @@ Baptism.create({
                  presbyter: '黃世明神父',
 
                  parishioner_id: @first_parishioner.id
+               })
+
+Baptism.create({
+                 baptized_at: Date.strptime('1980/10/30', '%Y/%m/%d'),
+                 baptized_location: '彰化市聖十字架天主堂',
+                 christian_name: '聖畢哲',
+
+                 godfather: '王小華',
+                 presbyter: '黃世明神父',
+
+                 parishioner_id: @second_parishioner.id
                })
 
 # Confirmation

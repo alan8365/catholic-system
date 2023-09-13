@@ -17,6 +17,12 @@ class Baptism < ApplicationRecord
 
   validate :godfather_xor_godmother
 
+  def godparent
+    return godfather unless godfather.nil?
+
+    godmother
+  end
+
   # @return [String (frozen)]
   def serial_number
     date_range = baptized_at.beginning_of_year..baptized_at.end_of_year

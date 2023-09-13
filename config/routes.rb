@@ -22,6 +22,8 @@ Rails.application.routes.draw do
     resources :special_donations, param: :_id
 
     get 'parishioners/:_id/picture', to: 'parishioners#picture', param: :_id
+    get 'parishioners/:_id/card', to: 'parishioners#id_card', param: :_id
+    get 'parishioners/:_id/card_back', to: 'parishioners#id_card_back', param: :_id
 
     get 'report/all_donations/year', to: 'reports#ad_yearly_report'
     get 'report/regular_donations/month', to: 'reports#rd_monthly_report'

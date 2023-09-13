@@ -52,7 +52,7 @@ paths:
           require: false
       responses:
         '200':
-          description: successful
+          description: Query search any_field
         '401':
           description: unauthorized
     post:
@@ -438,7 +438,7 @@ paths:
         '403':
           description: Forbidden
         '422':
-          description: Unprocessable Entity
+          description: Event name is blank
       requestBody:
         content:
           application/json:
@@ -946,6 +946,44 @@ paths:
       responses:
         '200':
           description: Not Found
+        '404':
+          description: Not Found
+  "/api/parishioners/{_id}/card":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: id card of parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+  "/api/parishioners/{_id}/card_back":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: id card back of parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
         '404':
           description: Not Found
   "/api/regular_donations":
@@ -1528,8 +1566,6 @@ servers:
       default: 0.0.0.0:3000
 components:
   securitySchemes:
-    Basic:
-      type: basic
     Bearer:
       description: JWT key necessary to use API calls
       type: apiKey
