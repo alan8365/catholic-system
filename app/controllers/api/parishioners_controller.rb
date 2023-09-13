@@ -137,14 +137,15 @@ module Api
     def id_card
       authorize! :read, @parishioner
 
-      font_path = '/Users/lucyxu/RubymineProjects/catholic/DFKai-SB.ttf'
+      font_path = Rails.root.join('asset', 'DFKai-SB.ttf').to_s
 
       canvas = Magick::ImageList.new
       canvas.new_image(368, 224)
       background = canvas[0]
 
       # Draw mark
-      mark = Magick::Image.read('/Users/lucyxu/RubymineProjects/catholic/asset/堂徽.png').first
+      mark_path = Rails.root.join('asset', '堂徽.png').to_s
+      mark = Magick::Image.read(mark_path).first
       mark.resize_to_fit!(60, 60)
 
       background.composite!(mark, Magick::NorthWestGravity, 5, 10, Magick::OverCompositeOp)
@@ -238,7 +239,7 @@ module Api
 
       baptism_draw.draw(canvas)
 
-      file_path = 'tmp/card.png'
+      file_path = Rails.root.join('tmp', 'card.png')
 
       canvas.write(file_path)
 
@@ -246,7 +247,7 @@ module Api
     end
 
     def id_card_back
-      font_path = '/Users/lucyxu/RubymineProjects/catholic/DFKai-SB.ttf'
+      font_path = Rails.root.join('asset', 'DFKai-SB.ttf').to_s
 
       # Card b-side
       canvas_back = Magick::ImageList.new
@@ -254,7 +255,8 @@ module Api
       background_back = canvas_back[0]
 
       # Draw church
-      church = Magick::Image.read('/Users/lucyxu/RubymineProjects/catholic/asset/天主堂水彩畫.png').first
+      church_path = Rails.root.join('asset', '天主堂水彩畫.png').to_s
+      church = Magick::Image.read(church_path).first
       church.resize_to_fit!(303, 224)
 
       background_back.composite!(church, Magick::CenterGravity, 0, 0, Magick::OverCompositeOp)
@@ -274,7 +276,7 @@ module Api
       info_draw.annotate(canvas_back, 0, 0, info_offset_x, info_offset_y + 20, info_text1)
       info_draw.annotate(canvas_back, 0, 0, info_offset_x, info_offset_y, info_text2)
 
-      back_file_path = 'tmp/card_back.png'
+      back_file_path = Rails.root.join('tmp', 'card_back.png').to_s
 
       canvas_back.write(back_file_path)
 

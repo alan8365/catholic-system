@@ -7,9 +7,6 @@ RUN apt-get update \
 
 WORKDIR /usr/src/app
 
-# TODO change to docker compose
-#VOLUME ["/db"]
-
 COPY Gemfile* ./
 RUN bundle install
 COPY . .
