@@ -397,7 +397,7 @@ module Api
 
     def get_yearly_sdr_array(events)
       all_event_name = events.map(&:name)
-      all_col_name = ['家號', '姓名', *all_event_name, '其他奉獻']
+      all_col_name = ['家號', '姓名', *all_event_name, '總計']
 
       # Yearly report size setting
       row_hash, col_hash, yearly_report_data = report_data_init(all_col_name)
