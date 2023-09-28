@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <%= wicked_pdf_stylesheet_link_tag "pdf" -%>
+    <%= javascript_include_tag wicked_pdf_asset_base64("number_pages") %>
+</head>
+<body>
+    <div>
+<!--        <img src="../tmp/card.png" alt="card">-->
+<!--        <%= image_tag wicked_pdf_asset_base64('') %>-->
+        <%= wicked_pdf_image_tag '../tmp/card.png' %>
+    </div>
+</body>
+</html>
