@@ -51,7 +51,17 @@ gem 'rack-cors'
 # Use for full text search [https://github.com/sunspot/sunspot]
 gem 'sunspot_rails'
 
+# Use RMagick for image processing [https://github.com/rmagick/rmagick]
 gem 'rmagick'
+
+# Use docx file processing [https://github.com/adamalbrecht/docx_replace]
+gem 'docx_replace'
+
+# Use prawn for pdf [https://github.com/prawnpdf/prawn]
+gem 'matrix'
+gem 'prawn'
+
+gem 'zip-zip'
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem

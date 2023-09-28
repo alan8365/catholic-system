@@ -4,8 +4,10 @@ module Api
   class ParishionersController < ApplicationController
     before_action :cors_setting
     before_action :authorize_request, except: %i[picture]
-    before_action :find_parishioner, except: %i[create index]
+    before_action :find_parishioner, except: %i[create index id_card_pdf]
     before_action :find_baptism, only: %i[id_card]
+
+    include ActionController::MimeResponds
 
     # GET /parishioners
     def index
@@ -137,109 +139,9 @@ module Api
     def id_card
       authorize! :read, @parishioner
 
-      font_path = Rails.root.join('asset', 'DFKai-SB.ttf').to_s
+      canvas = get_id_card_canvas(@parishioner)
 
-      canvas = Magick::ImageList.new
-      canvas.new_image(368, 224)
-      background = canvas[0]
-
-      # Draw mark
-      mark_path = Rails.root.join('asset', '堂徽.png').to_s
-      mark = Magick::Image.read(mark_path).first
-      mark.resize_to_fit!(60, 60)
-
-      background.composite!(mark, Magick::NorthWestGravity, 5, 10, Magick::OverCompositeOp)
-
-      # Draw avatar
-      size = 160
-      avatar = Magick::Image.read(@parishioner.picture_url).first
-      avatar.resize_to_fit!(size, size)
-
-      background.composite!(avatar, Magick::SouthEastGravity, 0, 0, Magick::OverCompositeOp)
-
-      # Draw title
-      title_text1 = '天主教台中教區彰化聖十字架天主堂'
-      title_text2 = '教 友 證'
-
-      title_draw = Magick::Draw.new
-      title_draw.font = font_path
-      title_draw.pointsize = 18
-      title_draw.gravity = Magick::NorthGravity
-      title_draw.fill = '#000000'
-
-      title_offset_x = 30
-      title_offset_y = 10
-      title_draw.annotate(canvas, 0, 0, title_offset_x, title_offset_y, title_text1)
-      title_draw.annotate(canvas, 0, 0, title_offset_x - 10, title_offset_y + 30, title_text2)
-
-      # Draw serial number
-      serial_number_text = "NO.#{@parishioner.baptism.serial_number}"
-
-      serial_number_draw = Magick::Draw.new
-      serial_number_draw.font = font_path
-      serial_number_draw.pointsize = 18
-      serial_number_draw.gravity = Magick::NorthWestGravity
-      serial_number_draw.fill = '#000000'
-
-      serial_number_offset_x = 30
-      serial_number_offset_y = 70
-      serial_number_draw.annotate(canvas, 0, 0, serial_number_offset_x, serial_number_offset_y, serial_number_text)
-
-      # Draw name and christian name
-      name_text = "#{@parishioner.name}/#{@parishioner.baptism.christian_name}"
-
-      name_draw = Magick::Draw.new
-      name_draw.font = font_path
-      name_draw.pointsize = 22
-      name_draw.gravity = Magick::NorthWestGravity
-      name_draw.fill = '#000000'
-
-      name_offset_x = 30
-      name_offset_y = 90
-      name_draw.annotate(canvas, 0, 0, name_offset_x, name_offset_y, name_text)
-
-      # Draw date field
-      date_field_text = '領洗日期'
-      godparent_field_text = '代父母'
-      presbyter_field_text = '付洗司鐸'
-
-      field_draw = Magick::Draw.new
-      field_draw.font = font_path
-      field_draw.pointsize = 18
-      field_draw.gravity = Magick::NorthWestGravity
-      field_draw.fill = '#000000'
-      field_draw.text_align(Magick::LeftAlign)
-
-      field_offset_x = 10
-      field_offset_y = 155
-      field_offset_y_diff = 20
-
-      field_draw.text(field_offset_x, field_offset_y, date_field_text)
-      field_draw.text(field_offset_x, field_offset_y + field_offset_y_diff, godparent_field_text)
-      field_draw.text(field_offset_x, field_offset_y + field_offset_y_diff * 2, presbyter_field_text)
-
-      field_draw.draw(canvas)
-
-      # Draw date
-      date_text = @parishioner.baptism.baptized_at.strftime('%Y/%m/%d').to_s
-      godparent_text = @parishioner.baptism.godparent.to_s
-      presbyter_text = @parishioner.baptism.presbyter.to_s
-
-      baptism_draw = Magick::Draw.new
-      baptism_draw.font = font_path
-      baptism_draw.pointsize = 18
-      baptism_draw.gravity = Magick::NorthWestGravity
-      baptism_draw.fill = '#000000'
-      baptism_draw.text_align(Magick::RightAlign)
-
-      baptism_offset_x = 185
-      baptism_draw.text(baptism_offset_x, field_offset_y, date_text)
-      baptism_draw.text(baptism_offset_x, field_offset_y + field_offset_y_diff, godparent_text)
-      baptism_draw.text(baptism_offset_x, field_offset_y + field_offset_y_diff * 2, presbyter_text)
-
-      baptism_draw.draw(canvas)
-
-      file_path = Rails.root.join('tmp', 'card.png')
+      file_path = Rails.root.join('tmp', 'cards', "#{@parishioner.id}.png")
 
       canvas.write(file_path)
 
@@ -247,9 +149,94 @@ module Api
     end
 
     def id_card_back
+      authorize! :read, @parishioner
+
       font_path = Rails.root.join('asset', 'DFKai-SB.ttf').to_s
 
       # Card b-side
+      canvas_back = get_id_card_back_canvas(font_path)
+
+      back_file_path = Rails.root.join('tmp', 'cards', 'card_back.png').to_s
+
+      canvas_back.write(back_file_path)
+
+      send_file back_file_path, type: 'image/png', disposition: 'inline'
+    end
+
+    def id_card_pdf
+      authorize! :read, Parishioner
+
+      require 'prawn'
+      require 'prawn/measurement_extensions'
+
+      parishioner_ids = params[:ids]
+
+      all_baptisms = if parishioner_ids.nil?
+                       Baptism.all
+                     else
+                       Baptism.where(id: parishioner_ids)
+                     end
+
+      save_path = Rails.root.join('tmp', 'id_cards.pdf')
+      im_back_path = Rails.root.join('tmp', 'cards', 'card_back.png').to_s
+
+      font_path = Rails.root.join('asset', 'DFKai-SB.ttf').to_s
+
+      # Card back file check
+      unless File.file?(im_back_path)
+        canvas_back = get_id_card_back_canvas(font_path)
+        canvas_back.write(im_back_path)
+      end
+
+      # Card file check
+      all_baptisms.each do |baptism|
+        im_path = Rails.root.join('tmp', 'cards', "#{baptism.parishioner.id}.png").to_s
+        unless File.file?(im_path)
+          canvas = get_id_card_canvas(baptism.parishioner)
+          canvas.write(im_path)
+        end
+      end
+
+      width = 90.mm
+      height = 54.mm
+      put_stroke = true
+      Prawn::Document.generate(save_path) do
+        row_limit = 4
+
+        all_baptisms.each_with_index do |baptism, index|
+          start_new_page if (index % row_limit).zero? && (index != 0)
+
+          im_path = Rails.root.join('tmp', 'cards', "#{baptism.parishioner.id}.png").to_s
+
+          y_position = cursor - 5.mm
+          bounding_box([0, y_position], width: 92.mm, height: 56.mm) do
+            stroke_bounds if put_stroke
+
+            move_down 1.mm
+            image im_path, width:, height:, position: :center
+          end
+
+          bounding_box([100.mm, y_position], width: 92.mm, height: 56.mm) do
+            stroke_bounds if put_stroke
+
+            move_down 1.mm
+            image im_back_path, width:, height:, position: :center
+          end
+        end
+      end
+
+      send_file save_path, type: 'application/pdf', disposition: 'attachment; filename=id_cards.pdf'
+    end
+
+    def certificate
+      authorize! :read, @parishioner
+
+      # require 'docx'
+
+      # doc = Docx::Document.open('領洗堅振證明書(微調版)_1120908.docx')
+    end
+
+    def get_id_card_back_canvas(font_path)
       canvas_back = Magick::ImageList.new
       canvas_back.new_image(368, 224)
       background_back = canvas_back[0]
@@ -275,15 +262,104 @@ module Api
       info_offset_y = 10
       info_draw.annotate(canvas_back, 0, 0, info_offset_x, info_offset_y + 20, info_text1)
       info_draw.annotate(canvas_back, 0, 0, info_offset_x, info_offset_y, info_text2)
+      canvas_back
+    end
 
-      back_file_path = Rails.root.join('tmp', 'card_back.png').to_s
+    def get_id_card_canvas(parishioner)
+      font_path = Rails.root.join('asset', 'DFKai-SB.ttf').to_s
 
-      canvas_back.write(back_file_path)
+      canvas = Magick::ImageList.new
+      canvas.new_image(368, 224)
+      background = canvas[0]
 
-      send_file back_file_path, type: 'image/png', disposition: 'inline'
+      # Draw mark
+      mark_path = Rails.root.join('asset', '堂徽.png').to_s
+      mark = Magick::Image.read(mark_path).first
+      mark.resize_to_fit!(60, 60)
+
+      background.composite!(mark, Magick::NorthWestGravity, 5, 10, Magick::OverCompositeOp)
+
+      # Draw avatar
+      size = 160
+      avatar = Magick::Image.read(parishioner.picture_url).first
+      avatar.resize_to_fit!(size, size)
+
+      background.composite!(avatar, Magick::SouthEastGravity, 0, 0, Magick::OverCompositeOp)
+
+      # Draw title
+      title_text1 = '天主教台中教區彰化聖十字架天主堂'
+      title_text2 = '教 友 證'
+
+      title_draw = get_text_draw(font_path, gravity: Magick::NorthGravity)
+
+      title_offset_x = 30
+      title_offset_y = 10
+      title_draw.annotate(canvas, 0, 0, title_offset_x, title_offset_y, title_text1)
+      title_draw.annotate(canvas, 0, 0, title_offset_x - 10, title_offset_y + 30, title_text2)
+
+      # Draw serial number
+      serial_number_text = "NO.#{parishioner.baptism.serial_number}"
+
+      serial_number_draw = get_text_draw(font_path)
+
+      serial_number_offset_x = 30
+      serial_number_offset_y = 70
+      serial_number_draw.annotate(canvas, 0, 0, serial_number_offset_x, serial_number_offset_y, serial_number_text)
+
+      # Draw name and christian name
+      name_text = "#{parishioner.name}/#{parishioner.baptism.christian_name}"
+
+      name_draw = get_text_draw(font_path, point_size: 22)
+
+      name_offset_x = 30
+      name_offset_y = 90
+      name_draw.annotate(canvas, 0, 0, name_offset_x, name_offset_y, name_text)
+
+      # Draw date field
+      date_field_text = '領洗日期'
+      godparent_field_text = '代父母'
+      presbyter_field_text = '付洗司鐸'
+
+      field_draw = get_text_draw(font_path)
+      field_draw.text_align(Magick::LeftAlign)
+
+      field_offset_x = 10
+      field_offset_y = 155
+      field_offset_y_diff = 20
+
+      field_draw.text(field_offset_x, field_offset_y, date_field_text)
+      field_draw.text(field_offset_x, field_offset_y + field_offset_y_diff, godparent_field_text)
+      field_draw.text(field_offset_x, field_offset_y + field_offset_y_diff * 2, presbyter_field_text)
+
+      field_draw.draw(canvas)
+
+      # Draw date
+      date_text = parishioner.baptism.baptized_at.strftime('%Y/%m/%d').to_s
+      godparent_text = parishioner.baptism.godparent.to_s
+      presbyter_text = parishioner.baptism.presbyter.to_s
+
+      baptism_draw = get_text_draw(font_path)
+      baptism_draw.text_align(Magick::RightAlign)
+
+      baptism_offset_x = 185
+      baptism_draw.text(baptism_offset_x, field_offset_y, date_text)
+      baptism_draw.text(baptism_offset_x, field_offset_y + field_offset_y_diff, godparent_text)
+      baptism_draw.text(baptism_offset_x, field_offset_y + field_offset_y_diff * 2, presbyter_text)
+
+      baptism_draw.draw(canvas)
+      canvas
     end
 
     private
+
+    def get_text_draw(font_path, point_size: 18, gravity: Magick::NorthWestGravity)
+      title_draw = Magick::Draw.new
+      title_draw.font = font_path
+      title_draw.pointsize = point_size
+      title_draw.gravity = gravity
+      title_draw.fill = '#000000'
+      title_draw
+    end
 
     def find_parishioner
       @parishioner = Parishioner.find_by_id!(params[:_id])

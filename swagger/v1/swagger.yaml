@@ -986,6 +986,31 @@ paths:
           description: successful
         '404':
           description: Not Found
+  "/api/id-cards":
+    post:
+      summary: id cards print of parishioners
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              ids example:
+                summary: id cards of parishioners
+                value:
+                  ids:
+                  - 1
+                  - 2
   "/api/regular_donations":
     get:
       summary: list regular_donations

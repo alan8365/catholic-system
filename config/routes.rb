@@ -25,6 +25,8 @@ Rails.application.routes.draw do
     get 'parishioners/:_id/card', to: 'parishioners#id_card', param: :_id
     get 'parishioners/:_id/card_back', to: 'parishioners#id_card_back', param: :_id
 
+    post 'id-cards', to: 'parishioners#id_card_pdf'
+
     get 'report/all_donations/year', to: 'reports#ad_yearly_report'
     get 'report/regular_donations/month', to: 'reports#rd_monthly_report'
     get 'report/regular_donations/year', to: 'reports#rd_yearly_report'
