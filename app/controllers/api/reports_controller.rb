@@ -270,14 +270,14 @@ module Api
                               .where('household.guest' => false)
                               .group('strftime("%y", donation_at), household.home_number')
                               .order('household.home_number')
-                              .pluck('household.home_number, parishioners.name, sum(donation_amount)')
+                              .pluck('household.home_number, parishioners.last_name, parishioners.first_name, sum(donation_amount)')
 
       parishioner_donations.each do |e|
         row_index = row_hash[e[0]]
 
-        3.times do |i|
-          results[row_index][i] = e[i]
-        end
+        results[row_index][0] = e[0]
+        results[row_index][0] = "#{e[1]}#{e[2]}"
+        results[row_index][2] = e[3]
       end
 
       axlsx_package = Axlsx::Package.new
@@ -470,7 +470,7 @@ module Api
                        .left_joins(:event, household: :head_of_household)
                        .where('event.id' => event_id)
                        .order(:donation_at)
-                       .pluck('special_donations.home_number, donation_at, parishioners.name, donation_amount, special_donations.comment')
+                       .pluck('special_donations.home_number, donation_at, parishioners.last_name, parishioners.first_name, donation_amount, special_donations.comment')
 
       all_home_number = event_donation.map { |e| e[0] }
       all_home_number_index = all_home_number.each_index.map { |e| e + 1 }
@@ -489,14 +489,21 @@ module Api
         row_index = row_hash[home_number]
 
         e[1] = e[1].strftime('%m/%d')
+        e[2] = if e[2].nil?
+                 '善心人士'
+               else
+                 "#{e[2]}#{e[3]}"
+               end
+        e[3] = e[4]
+        e[4] = e[5]
 
-        e[2] = '善心人士' if e[2].nil?
-
-        5.times { |i| results[row_index][i] = e[i] }
+        5.times do |i|
+          results[row_index][i] = e[i]
+        end
       end
 
       results[-1][0] = '合計'
-      results[-1][3] = event_donation.sum { |e| e[3] }
+      results[-1][3] = event_donation.sum { |e| e[4] }
       results
     end
 
@@ -803,7 +810,7 @@ module Api
           name = household.comment
         else
           head_of_household = household.head_of_household
-          name = head_of_household&.name
+          name = head_of_household&.full_name
         end
 
         row_index = row_hash[home_number]

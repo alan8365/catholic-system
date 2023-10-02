@@ -15,7 +15,8 @@ User.create([
 
 # Parishioner
 @first_parishioner = Parishioner.create({
-                                          name: '許大哥',
+                                          first_name: '大哥',
+                                          last_name: '許',
                                           gender: '男',
                                           birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
                                           postal_code: '433',
@@ -43,7 +44,8 @@ User.create([
 )
 
 @second_parishioner = Parishioner.create({
-                                           name: '王某某',
+                                           first_name: '某某',
+                                           last_name: '王',
                                            gender: '女',
                                            birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
                                            postal_code: '433',
@@ -71,24 +73,28 @@ User.create([
 )
 
 @father_parishioner = Parishioner.create({
-                                           name: '許爸爸',
+                                           first_name: '爸爸',
+                                           last_name: '許',
                                            gender: '男',
                                            birth_at: Date.strptime('1950/02/02', '%Y/%m/%d')
                                          })
 @mother_parishioner = Parishioner.create({
-                                           name: '張媽媽',
+                                           first_name: '媽媽',
+                                           last_name: '張',
                                            gender: '女',
                                            birth_at: Date.strptime('1950/02/02', '%Y/%m/%d')
                                          })
 
 @brother_parishioner = Parishioner.create({
-                                            name: '許小弟',
+                                            first_name: '小弟',
+                                            last_name: '許',
                                             gender: '男',
                                             birth_at: Date.strptime('1991/02/02', '%Y/%m/%d')
                                           })
 
 @move_out_parishioner = Parishioner.create({
-                                             name: '千某某',
+                                             first_name: '某某',
+                                             last_name: '千',
                                              gender: '女',
                                              birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
 
@@ -201,7 +207,7 @@ Marriage.create({
                   marriage_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
                   marriage_location: '彰化市聖十字架天主堂',
 
-                  groom: '許某某',
+                  groom: '許大哥',
                   bride: '王某某',
 
                   groom_id: @first_parishioner.id,

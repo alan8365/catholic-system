@@ -3,7 +3,8 @@
 test_m:
   id: 1
 
-  name: 趙男人
+  first_name: 男人
+  last_name: 趙
   gender: 男
   birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
   postal_code: 433
@@ -30,7 +31,8 @@ test_m:
 test_f:
   id: 2
 
-  name: 錢女人
+  first_name: 女人
+  last_name: 錢
   gender: 女
   birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
   postal_code: 433
@@ -57,28 +59,32 @@ test_o:
 
   home_number: KK520
 
-  name: 路人甲
+  first_name: 人甲
+  last_name: 路
   gender: 女
   birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
 
 test_mother:
   id: 4
 
-  name: 孫媽媽
+  first_name: 媽媽
+  last_name: 孫
   gender: 女
   birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
 
 test_father:
   id: 5
 
-  name: 趙爸爸
+  first_name: 爸爸
+  last_name: 趙
   gender: 男
   birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
 
 test_move_out:
   id: 6
 
-  name: 千某某
+  first_name: 某某
+  last_name: 千
   gender: 男
   birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
 
@@ -89,14 +95,16 @@ test_move_out:
 test_father2:
   id: 7
 
-  name: 錢爸爸
+  first_name: 爸爸
+  last_name: 錢
   gender: 男
   birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
 
 test_sibling:
   id: 8
 
-  name: 趙弟弟
+  first_name: 弟弟
+  last_name: 趙
   gender: 男
   birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
   postal_code: 433

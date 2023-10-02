@@ -16,7 +16,7 @@ module Api
 
       @special_donations = SpecialDonation
                            .left_outer_joins(household: :head_of_household)
-                           .select(%w[special_donations.* parishioners.name])
+                           .select(%w[special_donations.* parishioners.last_name parishioners.first_name])
 
       unless event_id.empty?
         event_id = event_id.to_i
@@ -36,7 +36,7 @@ module Api
       unless query.empty?
         string_filed = %w[
           special_donations.home_number
-          parishioners.name
+          parishioners.last_name||parishioners.first_name
           special_donations.comment
         ]
 
@@ -56,8 +56,12 @@ module Api
                                      receipt
                                      comment
                                    ])
+      result = @special_donations.as_json.map do |e|
+        e['name'] = ("#{e['last_name']}#{e['first_name']}" if e['last_name'] && e['first_name'])
+        e
+      end
 
-      render json: @special_donations, status: :ok
+      render json: result, status: :ok
     end
 
     # GET /special_donations/{id}

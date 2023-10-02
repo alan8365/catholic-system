@@ -986,6 +986,25 @@ paths:
           description: successful
         '404':
           description: Not Found
+  "/api/parishioners/{_id}/certificate":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: certificate of parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
   "/api/id-cards":
     post:
       summary: id cards print of parishioners
@@ -1005,6 +1024,9 @@ paths:
             schema:
               type: object
             examples:
+              all print example:
+                summary: print all parishioners
+                value: {}
               ids example:
                 summary: id cards of parishioners
                 value:

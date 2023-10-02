@@ -28,9 +28,14 @@ class Parishioner < ApplicationRecord
     ActiveStorage::Blob.service.path_for(picture.key)
   end
 
-  validates :name, presence: true
+  validates :first_name, presence: true
+  validates :last_name, presence: true
   validates :gender, presence: true
   validates :birth_at, presence: true
+
+  def full_name
+    "#{last_name}#{first_name}"
+  end
 
   def children
     data = Parishioner

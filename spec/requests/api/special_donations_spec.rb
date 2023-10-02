@@ -97,7 +97,10 @@ For example, "2023/7" would search for donations made in July 2023.'
           special_donation_hash = @special_donations.as_json
 
           special_donation_hash = special_donation_hash.map do |e|
-            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household.name
+            head_of_household = SpecialDonation.find_by_id(e['id']).household.head_of_household
+            e['name'] = head_of_household.full_name
+            e['first_name'] = head_of_household.first_name
+            e['last_name'] = head_of_household.last_name
 
             e
           end
@@ -124,7 +127,10 @@ For example, "2023/7" would search for donations made in July 2023.'
           special_donation_hash = @special_donations.as_json
 
           special_donation_hash = special_donation_hash.map do |e|
-            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household.name
+            head_of_household = SpecialDonation.find_by_id(e['id']).household.head_of_household
+            e['name'] = head_of_household.full_name
+            e['first_name'] = head_of_household.first_name
+            e['last_name'] = head_of_household.last_name
 
             e
           end
@@ -161,7 +167,10 @@ For example, "2023/7" would search for donations made in July 2023.'
           special_donation_hash = @special_donations.as_json
 
           special_donation_hash = special_donation_hash.map do |e|
-            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household&.name
+            head_of_household = SpecialDonation.find_by_id(e['id']).household.head_of_household
+            e['name'] = head_of_household&.full_name
+            e['first_name'] = head_of_household&.first_name
+            e['last_name'] = head_of_household&.last_name
 
             e
           end
@@ -191,7 +200,10 @@ For example, "2023/7" would search for donations made in July 2023.'
           special_donation_hash = @special_donations.as_json
 
           special_donation_hash = special_donation_hash.map do |e|
-            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household&.name
+            head_of_household = SpecialDonation.find_by_id(e['id']).household.head_of_household
+            e['name'] = head_of_household&.full_name
+            e['first_name'] = head_of_household&.first_name
+            e['last_name'] = head_of_household&.last_name
 
             e
           end
@@ -221,7 +233,10 @@ For example, "2023/7" would search for donations made in July 2023.'
           special_donation_hash = @special_donations.as_json
 
           special_donation_hash = special_donation_hash.map do |e|
-            e['name'] = SpecialDonation.find_by_id(e['id']).household.head_of_household.name
+            head_of_household = SpecialDonation.find_by_id(e['id']).household.head_of_household
+            e['name'] = head_of_household.full_name
+            e['first_name'] = head_of_household.first_name
+            e['last_name'] = head_of_household.last_name
 
             e
           end

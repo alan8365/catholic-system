@@ -3,7 +3,7 @@
 module Api
   class ParishionersController < ApplicationController
     before_action :cors_setting
-    before_action :authorize_request, except: %i[picture]
+    before_action :authorize_request, except: %i[picture certificate]
     before_action :find_parishioner, except: %i[create index id_card_pdf]
     before_action :find_baptism, only: %i[id_card]
 
@@ -17,7 +17,7 @@ module Api
 
       if query
         string_filed = %w[
-          name home_number gender
+          (last_name||first_name) home_number gender
           home_phone mobile_phone
         ]
 
@@ -39,7 +39,7 @@ module Api
 
       @parishioners = @parishioners.select(*%w[
                                              id
-                                             name gender birth_at postal_code address home_number
+                                             first_name last_name gender birth_at postal_code address home_number
                                              father mother father_id mother_id
                                              home_phone mobile_phone nationality
                                              profession company_name comment
@@ -107,7 +107,7 @@ module Api
         father = Parishioner.find_by_id(father_id)
 
         @parishioner.father_instance = father
-        @parishioner.father = father.name if father
+        @parishioner.father = father.full_name if father
 
         update_params.delete('father_id')
         update_params.delete('father')
@@ -117,7 +117,7 @@ module Api
         mother = Parishioner.find_by_id(update_params['mother_id'])
 
         @parishioner.mother_instance = mother
-        @parishioner.mother = mother.name if mother
+        @parishioner.mother = mother.full_name if mother
 
         update_params.delete('mother_id')
         update_params.delete('mother')
@@ -229,11 +229,20 @@ module Api
     end
 
     def certificate
-      authorize! :read, @parishioner
+      # authorize! :read, @parishioner
 
-      # require 'docx'
+      filename = "#{@parishioner.full_name}-領洗堅振證明書.docx"
 
-      # doc = Docx::Document.open('領洗堅振證明書(微調版)_1120908.docx')
+      doc = DocxReplace::Doc.new("#{Rails.root}/asset/領洗堅振證明書.docx", "#{Rails.root}/tmp")
+
+      doc.replace('$LastName$', 'aaa')
+
+      tmp_file = Tempfile.new('word_template', "#{Rails.root}/tmp")
+      doc.commit(tmp_file.path)
+
+      send_file tmp_file.path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                               disposition: 'attachment',
+                               filename:
     end
 
     def get_id_card_back_canvas(font_path)
@@ -307,7 +316,7 @@ module Api
       serial_number_draw.annotate(canvas, 0, 0, serial_number_offset_x, serial_number_offset_y, serial_number_text)
 
       # Draw name and christian name
-      name_text = "#{parishioner.name}/#{parishioner.baptism.christian_name}"
+      name_text = "#{parishioner.full_name}/#{parishioner.baptism.christian_name}"
 
       name_draw = get_text_draw(font_path, point_size: 22)
 
@@ -375,7 +384,7 @@ module Api
 
     def parishioner_params
       params.permit(%i[
-                      name gender birth_at postal_code address home_number
+                      first_name last_name gender birth_at postal_code address home_number
                       father mother father_id mother_id
                       home_phone mobile_phone nationality
                       profession company_name comment

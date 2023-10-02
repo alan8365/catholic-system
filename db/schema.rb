@@ -126,7 +126,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_07_12_171003) do
   end
 
   create_table "parishioners", force: :cascade do |t|
-    t.string "name"
+    t.string "first_name"
+    t.string "last_name"
     t.string "gender"
     t.date "birth_at"
     t.string "postal_code"

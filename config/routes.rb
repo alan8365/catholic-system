@@ -24,6 +24,7 @@ Rails.application.routes.draw do
     get 'parishioners/:_id/picture', to: 'parishioners#picture', param: :_id
     get 'parishioners/:_id/card', to: 'parishioners#id_card', param: :_id
     get 'parishioners/:_id/card_back', to: 'parishioners#id_card_back', param: :_id
+    get 'parishioners/:_id/certificate', to: 'parishioners#certificate', param: :_id
 
     post 'id-cards', to: 'parishioners#id_card_pdf'
 

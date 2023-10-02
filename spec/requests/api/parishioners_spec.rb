@@ -12,7 +12,8 @@ RSpec.describe 'api/parishioners', type: :request do
     @file = fixture_file_upload('profile-pic.jpeg', 'image/jpeg')
     @file2 = fixture_file_upload('profile-pic2.jpeg', 'image/jpeg')
     @example_test_parishioner = {
-      name: '周男人',
+      first_name: '男人',
+      last_name: '周',
       gender: '男',
       birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
       postal_code: '433',
@@ -181,7 +182,8 @@ RSpec.describe 'api/parishioners', type: :request do
       parameter name: '', in: :formData, schema: {
         type: :object,
         properties: {
-          name: { type: :string, example: '周男人' },
+          first_name: { type: :string, example: '男人' },
+          last_name: { type: :string, example: '周' },
           gender: { type: :string, example: '男' },
           birth_at: { type: :string, example: Date.strptime('1990/01/01', '%Y/%m/%d') },
           postal_code: { type: :string, example: '433' },
@@ -200,7 +202,7 @@ RSpec.describe 'api/parishioners', type: :request do
           company_name: { type: :string, example: '恐龍牙醫診所' },
           comment: { type: :string, example: '測試用範例教友' }
         },
-        required: %w[name gender birth_at]
+        required: %w[first_name last_name gender birth_at]
       }
 
       response(201, 'Created') do
@@ -254,7 +256,7 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:"") do
           {
-            name: '', gender: '', birth_at: ''
+            first_name: '', last_name: '', gender: '', birth_at: ''
           }
         end
 
@@ -317,7 +319,8 @@ RSpec.describe 'api/parishioners', type: :request do
       parameter name: '', in: :formData, schema: {
         type: :object,
         properties: {
-          name: { type: :string, example: '周男人' },
+          first_name: { type: :string, example: '周' },
+          last_name: { type: :string, example: '男人' },
           gender: { type: :string, example: '男' },
           birth_at: { type: :string, example: Date.strptime('1990/01/01', '%Y/%m/%d') },
           postal_code: { type: :string, example: '433' },
@@ -339,26 +342,27 @@ RSpec.describe 'api/parishioners', type: :request do
       }
 
       request_body_example value: {
-        name: '台灣偉人'
+        first_name: '偉人',
+        last_name: '台灣'
       }, name: 'test name change', summary: 'Test parishioner update'
 
       response(204, 'No Content') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:"") { { name: '台灣偉人', mother_id: 4, father_id: 5, picture: @file2 } }
+        let(:"") { { first_name: '偉人', last_name: '台灣', mother_id: 4, father_id: 5, picture: @file2 } }
 
         run_test! do
           parishioner = Parishioner.all[0]
           mother = Parishioner.find_by_id(4)
           father = Parishioner.find_by_id(5)
 
-          expect(parishioner.name).to eq('台灣偉人')
+          expect(parishioner.full_name).to eq('台灣偉人')
 
           expect(parishioner.father_instance.id).to eq(father.id)
-          expect(parishioner.father).to eq(father.name)
+          expect(parishioner.father).to eq(father.full_name)
 
           expect(parishioner.mother_instance.id).to eq(mother.id)
-          expect(parishioner.mother).to eq(mother.name)
+          expect(parishioner.mother).to eq(mother.full_name)
         end
       end
 
@@ -388,7 +392,7 @@ RSpec.describe 'api/parishioners', type: :request do
       response(403, 'Current user have not permission') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:"") { { name: '台灣偉人' } }
+        let(:"") { { first_name: '台灣偉人' } }
 
         run_test!
       end
@@ -396,7 +400,7 @@ RSpec.describe 'api/parishioners', type: :request do
       response(422, 'Field is blank') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }
-        let(:"") { { name: '' } }
+        let(:"") { { first_name: '' } }
 
         run_test!
       end
@@ -486,6 +490,29 @@ RSpec.describe 'api/parishioners', type: :request do
       tags 'Parishioner'
       security [Bearer: {}]
       produces 'image/*'
+
+      response(200, 'successful') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { @parishioner.id }
+
+        run_test!
+      end
+
+      response(404, 'Not Found') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { 200 }
+
+        run_test!
+      end
+    end
+  end
+
+  path '/api/parishioners/{_id}/certificate' do
+    parameter name: '_id', in: :path, type: :string, description: '_id'
+
+    get('certificate of parishioner') do
+      tags 'Parishioner'
+      security [Bearer: {}]
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
