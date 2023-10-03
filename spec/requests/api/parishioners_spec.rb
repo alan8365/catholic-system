@@ -521,6 +521,13 @@ RSpec.describe 'api/parishioners', type: :request do
         run_test!
       end
 
+      response(401, 'unauthorized') do
+        let(:authorization) { 'Bearer error token' }
+        let(:_id) { 1 }
+
+        run_test!
+      end
+
       response(404, 'Not Found') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { 200 }

@@ -3,7 +3,7 @@
 module Api
   class ParishionersController < ApplicationController
     before_action :cors_setting
-    before_action :authorize_request, except: %i[picture certificate]
+    before_action :authorize_request, except: %i[picture]
     before_action :find_parishioner, except: %i[create index id_card_pdf]
     before_action :find_baptism, only: %i[id_card certificate]
     before_action :find_eucharist, only: %i[certificate]
@@ -231,7 +231,7 @@ module Api
     end
 
     def certificate
-      # authorize! :read, @parishioner
+      authorize! :read, @parishioner
 
       filename = "#{@parishioner.full_name}-領洗堅振證明書.docx"
 
