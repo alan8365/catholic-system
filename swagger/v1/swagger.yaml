@@ -1011,6 +1011,8 @@ paths:
       responses:
         '200':
           description: successful
+        '401':
+          description: unauthorized
         '404':
           description: Not Found
   "/api/id-cards":
@@ -1341,6 +1343,68 @@ paths:
                 summary: Get 3 parishioners report by id
                 value:
                   pid:
+                  - 1
+                  - 2
+                  - 3
+  "/api/report/regular_donations":
+    post:
+      summary: regular_donation report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: multi id test
+        '401':
+          description: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              report test:
+                summary: Get 3 regular donations report by id
+                value:
+                  ids:
+                  - 1
+                  - 2
+                  - 3
+  "/api/report/special_donations":
+    post:
+      summary: special_donation report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: multi id test
+        '401':
+          description: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              report test:
+                summary: Get 3 special donations report by id
+                value:
+                  ids:
                   - 1
                   - 2
                   - 3

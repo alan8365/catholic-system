@@ -369,6 +369,139 @@ module Api
       end
     end
 
+    def rd_report
+      authorize! :read, RegularDonation
+
+      is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+      finding_params = params['ids'] || []
+
+      @regular_donations = RegularDonation.all
+                                          .left_joins(household: :head_of_household)
+                                          .select(%w[regular_donations.* parishioners.last_name
+                                                     parishioners.first_name households.head_of_household],
+                                                  'households.comment as hc')
+
+      unless finding_params.empty?
+        @regular_donations = @regular_donations
+                             .where(id: finding_params)
+      end
+
+      all_regular_donation_id = @regular_donations.map(&:id)
+      all_regular_donation_id_index = all_regular_donation_id.each_index.map { |e| e + 1 }
+
+      all_col_name = %w[家號 姓名/稱呼 日期 金額 備註]
+      all_col_name_org = %w[home_number name donation_at donation_amount comment]
+
+      col_name_index = all_col_name_org.each_index.to_a
+
+      row_hash = Hash[all_regular_donation_id.zip(all_regular_donation_id_index)]
+      col_hash = Hash[all_col_name_org.zip(col_name_index)]
+
+      results = Array.new(row_hash.size + 1) { Array.new(col_hash.size) }
+      results[0] = all_col_name
+
+      @regular_donations.each do |regular_donation|
+        row_index = row_hash[regular_donation.id]
+
+        data_hash = regular_donation.as_json
+        data_hash['name'] = if regular_donation.head_of_household.nil?
+                              regular_donation.hc
+                            else
+                              "#{regular_donation.last_name}#{regular_donation.first_name}"
+                            end
+
+        all_col_name_org.each do |col_name|
+          col_index = col_hash[col_name]
+
+          results[row_index][col_index] = data_hash[col_name]
+        end
+      end
+
+      axlsx_package = Axlsx::Package.new
+      wb = axlsx_package.workbook
+
+      wb.add_worksheet(name: 'Worksheet 1') do |sheet|
+        results.each do |result|
+          sheet.add_row result
+        end
+      end
+
+      if is_test
+        render json: results, status: :ok
+      else
+        send_data(axlsx_package.to_stream.read, filename: '主日捐款資料.xlsx',
+                                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      end
+    end
+
+    def sd_report
+      authorize! :read, SpecialDonation
+
+      is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+      finding_params = params['ids'] || []
+
+      @special_donations = SpecialDonation.all
+                                          .left_joins(household: :head_of_household)
+                                          .select(%w[special_donations.* parishioners.last_name
+                                                     parishioners.first_name households.head_of_household],
+                                                  'households.comment as hc')
+
+      unless finding_params.empty?
+        @special_donations = @special_donations
+                             .where(id: finding_params)
+      end
+
+      all_special_donation_id = @special_donations.map(&:id)
+      all_special_donation_id_index = all_special_donation_id.each_index.map { |e| e + 1 }
+
+      all_col_name = %w[家號 姓名/稱呼 日期 金額 備註]
+      all_col_name_org = %w[home_number name donation_at donation_amount comment]
+
+      col_name_index = all_col_name_org.each_index.to_a
+
+      row_hash = Hash[all_special_donation_id.zip(all_special_donation_id_index)]
+      col_hash = Hash[all_col_name_org.zip(col_name_index)]
+
+      results = Array.new(row_hash.size + 1) { Array.new(col_hash.size) }
+      results[0] = all_col_name
+
+      @special_donations.each do |special_donation|
+        row_index = row_hash[special_donation.id]
+
+        data_hash = special_donation.as_json
+        data_hash['name'] = if special_donation.head_of_household.nil?
+                              special_donation.hc
+                            else
+                              "#{special_donation.last_name}#{special_donation.first_name}"
+                            end
+
+        all_col_name_org.each do |col_name|
+          col_index = col_hash[col_name]
+
+          results[row_index][col_index] = data_hash[col_name]
+        end
+      end
+
+      axlsx_package = Axlsx::Package.new
+      wb = axlsx_package.workbook
+
+      wb.add_worksheet(name: 'Worksheet 1') do |sheet|
+        results.each do |result|
+          sheet.add_row result
+        end
+      end
+
+      if finding_params.empty?
+        render json: { errors: '請選擇一筆資料' },
+               status: :bad_request
+      elsif is_test
+        render json: results, status: :ok
+      else
+        send_data(axlsx_package.to_stream.read, filename: '特殊捐款資料.xlsx',
+                                                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      end
+    end
+
     private
 
     def get_xlsx_style(currency_style, non_currency_count, currency_count)

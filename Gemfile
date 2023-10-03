@@ -22,7 +22,7 @@ gem 'rswag-api'
 gem 'rswag-ui'
 
 # xlsx file processing [https://github.com/randym/axlsx]
-gem 'axlsx'
+gem 'axlsx', '~> 2.0', '>= 2.0.1'
 
 group :development, :test do
   gem 'rspec-rails'
@@ -55,7 +55,8 @@ gem 'sunspot_rails'
 gem 'rmagick'
 
 # Use docx file processing [https://github.com/adamalbrecht/docx_replace]
-gem 'docx_replace', '~> 1.2'
+# gem 'docx_replace', '~> 1.2'
+gem 'docx_replace', '~> 1.1'
 
 # Use prawn for pdf [https://github.com/prawnpdf/prawn]
 gem 'matrix'

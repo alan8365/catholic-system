@@ -38,6 +38,14 @@ For example, "2023" would generate report for donations made in 2023.'
         end
       end
 
+      response(200, 'successful') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:date) { '2023' }
+        let(:test) {}
+
+        run_test!
+      end
+
       response(400, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { '2023/07' }
@@ -311,6 +319,14 @@ For example, "2023" would generate report for donations made in 2023.'
         pid: [1, 2, 3]
       }, name: 'report test', summary: 'Get 3 parishioners report by id'
 
+      response(200, 'empty id test:false') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) {}
+        let(:test) {}
+
+        run_test!
+      end
+
       response(200, 'empty id test') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:ids) {}
@@ -353,6 +369,174 @@ For example, "2023" would generate report for donations made in 2023.'
 
           expect(data).to eq(all_id)
         end
+      end
+
+      response(401, 'Unauthorized') do
+        let(:authorization) { '' }
+        let(:ids) {}
+        let(:test) { 'true' }
+
+        run_test!
+      end
+    end
+  end
+
+  path '/api/report/regular_donations' do
+    post('regular_donation report') do
+      tags 'Reports'
+      security [Bearer: {}]
+      consumes 'application/json'
+
+      parameter name: :ids, in: :body, schema: {
+        type: :object
+      }
+
+      parameter name: :test, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      request_body_example value: {
+        ids: [1, 2, 3]
+      }, name: 'report test', summary: 'Get 3 regular donations report by id'
+
+      response(200, 'empty id test:false') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) {}
+        let(:test) {}
+
+        run_test!
+      end
+
+      response(200, 'empty id test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) {}
+        let(:test) { 'true' }
+
+        run_test! do
+          data = JSON.parse(response.body)
+          data = data.transpose[0]
+          data.delete_at(0)
+
+          all_id = RegularDonation
+                   .all
+                   .select('home_number')
+                   .as_json
+          all_id = all_id.map { |e| e['home_number'] }
+
+          expect(data).to eq(all_id)
+        end
+      end
+
+      response(200, 'multi id test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) do
+          {
+            ids: [1, 2, 3]
+          }
+        end
+        let(:test) { 'true' }
+
+        run_test! do
+          data = JSON.parse(response.body)
+          data = data.transpose[0]
+          data.delete_at(0)
+
+          all_id = RegularDonation
+                   .where(id: [1, 2, 3])
+                   .select('id')
+                   .as_json
+          all_id = all_id.map { |e| e['id'] }
+
+          expect(data).to eq(all_id)
+        end
+      end
+
+      response(401, 'Unauthorized') do
+        let(:authorization) { '' }
+        let(:ids) {}
+        let(:test) { 'true' }
+
+        run_test!
+      end
+    end
+  end
+
+  path '/api/report/special_donations' do
+    post('special_donation report') do
+      tags 'Reports'
+      security [Bearer: {}]
+      consumes 'application/json'
+
+      parameter name: :ids, in: :body, schema: {
+        type: :object
+      }
+
+      parameter name: :test, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      request_body_example value: {
+        ids: [1, 2, 3]
+      }, name: 'report test', summary: 'Get 3 special donations report by id'
+
+      # TODO: change when spec is fixed
+      response(400, 'empty id test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) {}
+        let(:test) { 'true' }
+
+        run_test!
+        # run_test! do
+        #   data = JSON.parse(response.body)
+        #   data = data.transpose[0]
+        #   data.delete_at(0)
+        #
+        #   all_id = SpecialDonation
+        #            .all
+        #            .select('home_number')
+        #            .as_json
+        #   all_id = all_id.map { |e| e['home_number'] }
+        #
+        #   expect(data).to eq(all_id)
+        # end
+      end
+
+      response(200, 'multi id test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) do
+          {
+            ids: [1, 2, 3]
+          }
+        end
+        let(:test) { 'true' }
+
+        run_test! do
+          data = JSON.parse(response.body)
+          data = data.transpose[0]
+          data.delete_at(0)
+
+          all_id = SpecialDonation
+                   .where(id: [1, 2, 3])
+                   .select('id')
+                   .as_json
+          all_id = all_id.map { |e| e['id'] }
+
+          expect(data).to eq(all_id)
+        end
+      end
+
+      response(200, 'multi id test:false') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) do
+          {
+            ids: [1, 2, 3]
+          }
+        end
+        let(:test) {}
+
+        run_test!
       end
 
       response(401, 'Unauthorized') do
