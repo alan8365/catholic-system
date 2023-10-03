@@ -243,6 +243,27 @@ For example, "2023/7" would search for donations made in July 2023.'
         end
         run_test!
       end
+
+      response(422, 'Donation_at is not future') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:regular_donation) do
+          {
+            home_number: 'TT520',
+
+            donation_at: Date.parse('Sunday') + 7,
+            donation_amount: 1000
+          }
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+        run_test!
+      end
     end
   end
 

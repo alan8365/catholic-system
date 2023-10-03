@@ -31,3 +31,4 @@
 
 en:
   hello: "Hello world"
+  donation_date_should_be_past: "Donation date should be past. Today is %s but the donation day is %s"
