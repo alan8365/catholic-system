@@ -173,7 +173,7 @@ module Api
 
       parishioner_ids = params[:ids]
 
-      all_baptisms = if parishioner_ids.nil?
+      all_baptisms = if parishioner_ids.nil? || parishioner_ids.empty?
                        Baptism.all
                      else
                        Baptism.where(id: parishioner_ids)
@@ -358,10 +358,13 @@ module Api
 
       # Draw avatar
       size = 160
-      avatar = Magick::Image.read(parishioner.picture_url).first
-      avatar.resize_to_fit!(size, size)
+      picture_url = parishioner.picture_url
+      unless picture_url.empty?
+        avatar = Magick::Image.read(picture_url).first
+        avatar.resize_to_fit!(size, size)
 
-      background.composite!(avatar, Magick::SouthEastGravity, 0, 0, Magick::OverCompositeOp)
+        background.composite!(avatar, Magick::SouthEastGravity, 0, 0, Magick::OverCompositeOp)
+      end
 
       # Draw title
       title_text1 = '天主教台中教區彰化聖十字架天主堂'

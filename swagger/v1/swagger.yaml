@@ -1391,8 +1391,10 @@ paths:
           type: string
           require: false
       responses:
+        '400':
+          description: empty id test
         '200':
-          description: multi id test
+          description: multi id test:false
         '401':
           description: Unauthorized
       requestBody:

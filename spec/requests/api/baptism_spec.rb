@@ -16,7 +16,7 @@ RSpec.describe 'api/baptisms', type: :request do
 
       parishioner_id: 2
     }
-    @baptism = Baptism.all[0]
+    @baptism = Baptism.find_by_parishioner_id(1)
   end
 
   path '/api/baptisms' do

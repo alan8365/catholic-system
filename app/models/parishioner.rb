@@ -25,7 +25,11 @@ class Parishioner < ApplicationRecord
   has_one_attached :picture
 
   def picture_url
-    ActiveStorage::Blob.service.path_for(picture.key)
+    if picture.key.nil?
+      ''
+    else
+      ActiveStorage::Blob.service.path_for(picture.key)
+    end
   end
 
   validates :first_name, presence: true

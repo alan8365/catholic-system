@@ -5,6 +5,7 @@ require 'swagger_helper'
 RSpec.describe 'api/parishioners', type: :request do
   fixtures :users
   fixtures :parishioners
+  fixtures :baptisms
   fixtures :household
   fixtures :marriages
 
@@ -552,6 +553,13 @@ RSpec.describe 'api/parishioners', type: :request do
       request_body_example value: {
         ids: [1, 2]
       }, name: 'ids example', summary: 'id cards of parishioners'
+
+      response(200, 'empty id test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) {}
+
+        run_test!
+      end
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
