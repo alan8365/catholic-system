@@ -23,8 +23,9 @@ class Eucharist < ApplicationRecord
                       .order('eucharist_at', 'id')
                       .pluck(:id)
     number = this_year_array.find_index(id) + 1
+    number = number.to_s.rjust(2, '0')
 
-    "#{eucharist_at.year}/#{number}"
+    "#{eucharist_at.year}#{number}"
   end
 
   private

@@ -37,6 +37,22 @@ class Parishioner < ApplicationRecord
     "#{last_name}#{first_name}"
   end
 
+  def father_name
+    if father_instance.nil?
+      father
+    else
+      father_instance.full_name
+    end
+  end
+
+  def mother_name
+    if mother_instance.nil?
+      mother
+    else
+      mother_instance.full_name
+    end
+  end
+
   def children
     data = Parishioner
            .where(father_id: id)
@@ -59,5 +75,9 @@ class Parishioner < ApplicationRecord
     data = same_father.or(same_mother)
 
     { count: data.size, data: }
+  end
+
+  def married?
+    wife.nil? ^ husband.nil?
   end
 end

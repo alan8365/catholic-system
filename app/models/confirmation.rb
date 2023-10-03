@@ -23,8 +23,15 @@ class Confirmation < ApplicationRecord
                       .order('confirmed_at', 'id')
                       .pluck(:id)
     number = this_year_array.find_index(id) + 1
+    number = number.to_s.rjust(2, '0')
 
-    "#{confirmed_at.year}/#{number}"
+    "#{confirmed_at.year}#{number}"
+  end
+
+  def godparent
+    return godfather unless godfather.nil?
+
+    godmother
   end
 
   private

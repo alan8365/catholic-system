@@ -5,7 +5,9 @@ module Api
     before_action :cors_setting
     before_action :authorize_request, except: %i[picture certificate]
     before_action :find_parishioner, except: %i[create index id_card_pdf]
-    before_action :find_baptism, only: %i[id_card]
+    before_action :find_baptism, only: %i[id_card certificate]
+    before_action :find_eucharist, only: %i[certificate]
+    before_action :find_confirmation, only: %i[certificate]
 
     include ActionController::MimeResponds
 
@@ -235,8 +237,74 @@ module Api
 
       doc = DocxReplace::Doc.new("#{Rails.root}/asset/領洗堅振證明書.docx", "#{Rails.root}/tmp")
 
-      doc.replace('$LastName$', 'aaa')
+      # Personal info
+      doc.replace('$LN$', @parishioner.last_name)
+      doc.replace('$FN$', @parishioner.first_name)
+      doc.replace('$CN$', @baptism.christian_name)
 
+      doc.replace('$FaN$', @parishioner.father_name)
+      doc.replace('$MoN$', @parishioner.mother_name)
+
+      birth_at = @parishioner.birth_at
+      doc.replace('$BirD$', birth_at.day)
+      doc.replace('$BirM$', birth_at.month)
+      doc.replace('$BirY$', birth_at.year)
+
+      doc.replace('$Addr$', @parishioner.address)
+      doc.replace('$Tel$', @parishioner.mobile_phone)
+
+      # Baptism info
+      baptized_at = @baptism.baptized_at
+      doc.replace('$BapD$', baptized_at.day)
+      doc.replace('$BapM$', baptized_at.month)
+      doc.replace('$BapY$', baptized_at.year)
+
+      doc.replace('$BapCh$', @baptism.baptized_location)
+      doc.replace('$BapNum$', @baptism.serial_number)
+
+      doc.replace('$BapPre$', @baptism.presbyter)
+      doc.replace('$BapGP$', @baptism.godparent)
+
+      # Eucharist info
+      eucharist_at = @eucharist.eucharist_at
+      doc.replace('$EucD$', eucharist_at.day)
+      doc.replace('$EucM$', eucharist_at.month)
+      doc.replace('$EucY$', eucharist_at.year)
+
+      doc.replace('$EucCh$', @eucharist.eucharist_location)
+      doc.replace('$EucNum$', @eucharist.serial_number)
+
+      doc.replace('$EucPre$', @eucharist.presbyter)
+
+      # Confirmation info
+      confirmed_at = @confirmation.confirmed_at
+      doc.replace('$ConD$', confirmed_at.day)
+      doc.replace('$ConM$', confirmed_at.month)
+      doc.replace('$ConY$', confirmed_at.year)
+
+      doc.replace('$ConCh$', @confirmation.confirmed_location)
+      doc.replace('$ConNum$', @confirmation.serial_number)
+
+      doc.replace('$ConPre$', @confirmation.presbyter)
+      doc.replace('$ConGP$', @confirmation.godparent)
+
+      # Marriage info
+      married = @parishioner.married?
+      married_text = if married
+                       '□Yes ■No'
+                     else
+                       '■Yes □No'
+                     end
+
+      doc.replace('$IsMarry$', married_text)
+
+      # Date today
+      today = Date.today
+      doc.replace('$ThisD$', today.day)
+      doc.replace('$ThisM$', today.month)
+      doc.replace('$ThisY$', today.year)
+
+      # Save file
       tmp_file = Tempfile.new('word_template', "#{Rails.root}/tmp")
       doc.commit(tmp_file.path)
 
@@ -380,6 +448,18 @@ module Api
       @baptism = Baptism.find_by_parishioner_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
       render json: { errors: 'Baptism not found' }, status: :not_found
+    end
+
+    def find_eucharist
+      @eucharist = Eucharist.find_by_parishioner_id!(params[:_id])
+    rescue ActiveRecord::RecordNotFound
+      render json: { errors: 'Eucharist not found' }, status: :not_found
+    end
+
+    def find_confirmation
+      @confirmation = Confirmation.find_by_parishioner_id!(params[:_id])
+    rescue ActiveRecord::RecordNotFound
+      render json: { errors: 'Confirmation not found' }, status: :not_found
     end
 
     def parishioner_params
