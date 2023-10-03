@@ -56,9 +56,16 @@ module Api
                                      receipt
                                      comment
                                    ])
-      result = @special_donations.as_json.map do |e|
-        e['name'] = ("#{e['last_name']}#{e['first_name']}" if e['last_name'] && e['first_name'])
-        e
+
+      result = @special_donations.as_json(include: { household: { include: :head_of_household } })
+      result = result.map do |e|
+        e['name'] = if e['household']['head_of_household'].nil?
+                      e['household']['comment']
+                    else
+                      "#{e['last_name']}#{e['first_name']}"
+                    end
+
+        e.except('household')
       end
 
       render json: result, status: :ok
