@@ -1082,7 +1082,7 @@ paths:
         '403':
           description: Current user dose not have permission
         '422':
-          description: Donation_at is not sunday
+          description: Donation_at is not future
       requestBody:
         content:
           application/json:
@@ -1173,9 +1173,14 @@ paths:
         schema:
           type: string
           require: false
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: any_field test
         '400':
           description: Unprocessable Entity
         '401':
@@ -1257,9 +1262,14 @@ paths:
         schema:
           type: string
           require: false
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: any_field test
         '400':
           description: Unprocessable Entity
         '401':

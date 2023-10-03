@@ -11,6 +11,7 @@ module Api
 
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+      query = params[:any_field]
 
       return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/^\d{4}$/)
 
@@ -36,6 +37,15 @@ module Api
 
       # Results array process
       yearly_report_data = get_yearly_adr_array(year)
+
+      unless query.nil?
+        temp_middle = yearly_report_data[1..-4].select do |e|
+          e.join('').include? query
+        end
+
+        yearly_report_data = yearly_report_data[..0] + temp_middle + yearly_report_data[-3..]
+      end
+
       currency_style = wb.styles.add_style({ num_fmt: 3 })
 
       wb.add_worksheet(name: '年度總帳') do |sheet|
@@ -231,6 +241,7 @@ module Api
       authorize! :read, RegularDonation
 
       date = params[:date]
+      query = params[:any_field]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
 
       return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/^\d{4}$/)
@@ -278,6 +289,14 @@ module Api
         results[row_index][0] = e[0]
         results[row_index][0] = "#{e[1]}#{e[2]}"
         results[row_index][2] = e[3]
+      end
+
+      unless query.nil?
+        temp_middle = results[2..-4].select do |e|
+          e.join('').include? query
+        end
+
+        results = results[..1] + temp_middle + results[-3..]
       end
 
       axlsx_package = Axlsx::Package.new

@@ -20,10 +20,30 @@ For example, "2023" would generate report for donations made in 2023.'
         require: false
       }
 
+      parameter name: :any_field, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      request_body_example value: {
+        date: '2023',
+        any_field: '許'
+      }, name: 'query test receipt report', summary: 'Finding the conditional report'
+
+      response(200, 'test: false') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:date) { '2023' }
+        let(:test) {}
+        let(:any_field) {}
+
+        run_test!
+      end
+
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { '2023' }
         let(:test) { 'true' }
+        let(:any_field) { '' }
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -38,10 +58,11 @@ For example, "2023" would generate report for donations made in 2023.'
         end
       end
 
-      response(200, 'successful') do
+      response(200, 'any_field test') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { '2023' }
         let(:test) {}
+        let(:any_field) { '%E8%A8%B1' }
 
         run_test!
       end
@@ -50,6 +71,7 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { '2023/07' }
         let(:test) { 'true' }
+        let(:any_field) {}
 
         run_test!
       end
@@ -58,6 +80,7 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:authorization) { '' }
         let(:date) { '2023/07' }
         let(:test) { 'true' }
+        let(:any_field) {}
 
         run_test!
       end
@@ -182,10 +205,39 @@ For example, "2023" would generate report for donations made in 2023.'
         require: false
       }
 
+      parameter name: :any_field, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      request_body_example value: {
+        date: '2023',
+        any_field: '許'
+      }, name: 'query test receipt report', summary: 'Finding the conditional report'
+
+      response(200, 'test: false') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:date) { '2023' }
+        let(:test) {}
+        let(:any_field) {}
+
+        run_test!
+      end
+
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { '2023' }
         let(:test) { 'true' }
+        let(:any_field) {}
+
+        run_test!
+      end
+
+      response(200, 'any_field test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:date) { '2023' }
+        let(:test) { 'true' }
+        let(:any_field) { '%E8%A8%B1' }
 
         run_test!
       end
@@ -194,6 +246,7 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { '2023/07' }
         let(:test) { 'true' }
+        let(:any_field) {}
 
         run_test!
       end
@@ -202,6 +255,7 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:authorization) { '' }
         let(:date) { '2023/07' }
         let(:test) { 'true' }
+        let(:any_field) {}
 
         run_test!
       end
