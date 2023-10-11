@@ -18,9 +18,13 @@ class Baptism < ApplicationRecord
   validate :godfather_xor_godmother
 
   def godparent
-    return godfather unless godfather.nil?
+    gender_flag = godfather.present?
 
-    godmother
+    if gender_flag
+      godfather
+    else
+      godmother
+    end
   end
 
   # @return [String (frozen)]

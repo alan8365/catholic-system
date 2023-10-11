@@ -563,14 +563,44 @@ RSpec.describe 'api/parishioners', type: :request do
 
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:ids) { [1, 2] }
+        let(:ids) do
+          {
+            ids: [1, 3]
+          }
+        end
 
         run_test!
       end
 
       response(401, 'unauthorized') do
         let(:authorization) { 'Bearer error token' }
-        let(:ids) { [1, 2] }
+        let(:ids) do
+          {
+            ids: [1, 3]
+          }
+        end
+
+        run_test!
+      end
+
+      response(404, 'Baptize Not Found with empty result') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) do
+          {
+            ids: [555]
+          }
+        end
+
+        run_test!
+      end
+
+      response(404, 'Baptize Not Found with multiple ids') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) do
+          {
+            ids: [1, 231, 535, 6_456_345]
+          }
+        end
 
         run_test!
       end

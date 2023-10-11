@@ -173,61 +173,72 @@ module Api
 
       parishioner_ids = params[:ids]
 
-      all_baptisms = if parishioner_ids.nil? || parishioner_ids.empty?
-                       Baptism.all
+      all_baptisms = if parishioner_ids.present?
+                       Baptism.where(parishioner_id: parishioner_ids)
                      else
-                       Baptism.where(id: parishioner_ids)
+                       Baptism.all
                      end
 
-      save_path = Rails.root.join('tmp', 'id_cards.pdf')
-      im_back_path = Rails.root.join('tmp', 'cards', 'card_back.png').to_s
+      puts parishioner_ids
+      puts all_baptisms
 
-      font_path = Rails.root.join('asset', 'DFKai-SB.ttf').to_s
+      if all_baptisms.empty?
+        render json: { errors: 'Baptisms not found' }, status: :not_found
+      elsif parishioner_ids.present? && all_baptisms.count != parishioner_ids.count
+        missing_parishioner_ids = parishioner_ids - all_baptisms.pluck(:parishioner_id).uniq
+        render json: { errors: format(I18n.t('parishioners_id_s_not_found_in_baptism'), missing_parishioner_ids.to_s) },
+               status: :not_found
+      else
+        save_path = Rails.root.join('tmp', 'id_cards.pdf')
+        im_back_path = Rails.root.join('tmp', 'cards', 'card_back.png').to_s
 
-      # Card back file check
-      unless File.file?(im_back_path)
-        canvas_back = get_id_card_back_canvas(font_path)
-        canvas_back.write(im_back_path)
-      end
+        font_path = Rails.root.join('asset', 'DFKai-SB.ttf').to_s
 
-      # Card file check
-      all_baptisms.each do |baptism|
-        im_path = Rails.root.join('tmp', 'cards', "#{baptism.parishioner.id}.png").to_s
-        unless File.file?(im_path)
-          canvas = get_id_card_canvas(baptism.parishioner)
-          canvas.write(im_path)
+        # Card back file check
+        unless File.file?(im_back_path)
+          canvas_back = get_id_card_back_canvas(font_path)
+          canvas_back.write(im_back_path)
         end
-      end
 
-      width = 90.mm
-      height = 54.mm
-      put_stroke = true
-      Prawn::Document.generate(save_path) do
-        row_limit = 4
-
-        all_baptisms.each_with_index do |baptism, index|
-          start_new_page if (index % row_limit).zero? && (index != 0)
-
+        # Card file check
+        all_baptisms.each do |baptism|
           im_path = Rails.root.join('tmp', 'cards', "#{baptism.parishioner.id}.png").to_s
-
-          y_position = cursor - 5.mm
-          bounding_box([0, y_position], width: 92.mm, height: 56.mm) do
-            stroke_bounds if put_stroke
-
-            move_down 1.mm
-            image im_path, width:, height:, position: :center
-          end
-
-          bounding_box([100.mm, y_position], width: 92.mm, height: 56.mm) do
-            stroke_bounds if put_stroke
-
-            move_down 1.mm
-            image im_back_path, width:, height:, position: :center
+          unless File.file?(im_path)
+            canvas = get_id_card_canvas(baptism.parishioner)
+            canvas.write(im_path)
           end
         end
-      end
 
-      send_file save_path, type: 'application/pdf', disposition: 'attachment; filename=id_cards.pdf'
+        width = 90.mm
+        height = 54.mm
+        put_stroke = true
+        Prawn::Document.generate(save_path) do
+          row_limit = 4
+
+          all_baptisms.each_with_index do |baptism, index|
+            start_new_page if (index % row_limit).zero? && (index != 0)
+
+            im_path = Rails.root.join('tmp', 'cards', "#{baptism.parishioner.id}.png").to_s
+
+            y_position = cursor - 5.mm
+            bounding_box([0, y_position], width: 92.mm, height: 56.mm) do
+              stroke_bounds if put_stroke
+
+              move_down 1.mm
+              image im_path, width:, height:, position: :center
+            end
+
+            bounding_box([100.mm, y_position], width: 92.mm, height: 56.mm) do
+              stroke_bounds if put_stroke
+
+              move_down 1.mm
+              image im_back_path, width:, height:, position: :center
+            end
+          end
+        end
+
+        send_file save_path, type: 'application/pdf', disposition: 'attachment; filename=id_cards.pdf'
+      end
     end
 
     def certificate

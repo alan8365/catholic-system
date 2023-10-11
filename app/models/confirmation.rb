@@ -29,9 +29,13 @@ class Confirmation < ApplicationRecord
   end
 
   def godparent
-    return godfather unless godfather.nil?
+    gender_flag = godfather.present?
 
-    godmother
+    if gender_flag
+      godfather
+    else
+      godmother
+    end
   end
 
   private
