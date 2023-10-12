@@ -32,4 +32,4 @@
 en:
   hello: "Hello world"
   donation_date_should_be_past: "Donation date should be past. Today is %s but the donation day is %s"
-  parishioners_id_s_not_found_in_baptism: "Parishioners id %s is not found in baptisms record"
+  parishioners_id_s_not_found_in_baptism: "Parishioners %s is not found in baptisms record"

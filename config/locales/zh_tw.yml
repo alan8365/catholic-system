@@ -31,4 +31,4 @@
 
 zh_tw:
   donation_date_should_be_past: "奉獻時間不應該是未來，目前時間是 %s，但是奉獻時間是 %s"
-  parishioners_id_s_not_found_in_baptism: "教友編號 %s 的教友尚未登錄受洗資訊"
+  parishioners_id_s_not_found_in_baptism: "教友 %s 尚未登錄受洗資訊"

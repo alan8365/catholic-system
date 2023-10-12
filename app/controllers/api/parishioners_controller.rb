@@ -179,14 +179,13 @@ module Api
                        Baptism.all
                      end
 
-      puts parishioner_ids
-      puts all_baptisms
-
       if all_baptisms.empty?
         render json: { errors: 'Baptisms not found' }, status: :not_found
       elsif parishioner_ids.present? && all_baptisms.count != parishioner_ids.count
         missing_parishioner_ids = parishioner_ids - all_baptisms.pluck(:parishioner_id).uniq
-        render json: { errors: format(I18n.t('parishioners_id_s_not_found_in_baptism'), missing_parishioner_ids.to_s) },
+        missing_parishioner_names = Parishioner.where(id: missing_parishioner_ids).map(&:full_name)
+
+        render json: { errors: format(I18n.t('parishioners_id_s_not_found_in_baptism'), missing_parishioner_names.to_s) },
                status: :not_found
       else
         save_path = Rails.root.join('tmp', 'id_cards.pdf')

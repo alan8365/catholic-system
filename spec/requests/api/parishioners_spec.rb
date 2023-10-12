@@ -598,11 +598,15 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:ids) do
           {
-            ids: [1, 231, 535, 6_456_345]
+            ids: [1, 2, 4, 6_456_345]
           }
         end
 
-        run_test!
+        run_test! do |response|
+          data = JSON.parse(response.body)
+
+          expect(data['errors']).to eq('教友 ["錢女人", "孫媽媽"] 尚未登錄受洗資訊')
+        end
       end
     end
   end
