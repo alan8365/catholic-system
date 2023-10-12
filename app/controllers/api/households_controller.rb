@@ -96,7 +96,7 @@ module Api
     def find_household
       @household = Household.find_by_home_number!(params[:_home_number])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Household not found' }, status: :not_found
+      render json: { errors: I18n.t('household_not_found') }, status: :not_found
     end
 
     def household_params

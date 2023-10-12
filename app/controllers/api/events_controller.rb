@@ -94,7 +94,7 @@ module Api
     def find_event
       @event = Event.find_by_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Event not found' }, status: :not_found
+      render json: { errors: I18n.t('event_not_found') }, status: :not_found
     end
 
     def event_params

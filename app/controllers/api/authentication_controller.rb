@@ -21,7 +21,7 @@ module Api
                        # exp: time.strftime('%m-%d-%Y %H:%M'),
                        username: @user.username }, status: :ok
       else
-        render json: { error: 'unauthorized' }, status: :unauthorized
+        render json: { error: I18n.t('unauthorized') }, status: :unauthorized
       end
     end
 

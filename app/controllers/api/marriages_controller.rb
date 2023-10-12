@@ -86,7 +86,7 @@ module Api
     def find_marriage
       @marriage = Marriage.find_by_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Marriage not found' }, status: :not_found
+      render json: { errors: I18n.t('marriage_not_found') }, status: :not_found
     end
 
     def marriage_params

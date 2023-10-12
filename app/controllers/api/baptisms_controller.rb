@@ -95,7 +95,7 @@ module Api
     def find_baptism
       @baptism = Baptism.find_by_parishioner_id!(params[:_parishioner_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Baptism not found' }, status: :not_found
+      render json: { errors: I18n.t('baptism_not_found') }, status: :not_found
     end
 
     def baptism_params

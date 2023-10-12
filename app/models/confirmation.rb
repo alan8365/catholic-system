@@ -43,6 +43,6 @@ class Confirmation < ApplicationRecord
   def godfather_xor_godmother
     return if godfather.blank? ^ godmother.blank?
 
-    errors.add(:base, 'Specify a godfather or a godmother, not both')
+    errors.add(:base, I18n.t('specify_a_godfather_or_a_godmother_not_both'))
   end
 end

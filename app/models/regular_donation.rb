@@ -13,7 +13,7 @@ class RegularDonation < ApplicationRecord
   def sunday_check
     return if donation_at&.sunday?
 
-    errors.add(:donation_at, 'Donation date should be sunday.')
+    errors.add(:donation_at, I18n.t('donation_date_should_be_sunday'))
   end
 
   def future_check

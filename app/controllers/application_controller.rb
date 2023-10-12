@@ -10,7 +10,7 @@ class ApplicationController < ActionController::API
   end
 
   rescue_from 'AccessGranted::AccessDenied' do |_exception|
-    render json: { errors: 'Access denied' },
+    render json: { errors: I18n.t('access_denied') },
            status: :forbidden
   end
 

@@ -115,7 +115,7 @@ module Api
     def find_special_donation
       @special_donation = SpecialDonation.find_by_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Regular Donation not found' }, status: :not_found
+      render json: { errors: I18n.t('regular_donation_not_found') }, status: :not_found
     end
 
     def special_donation_params

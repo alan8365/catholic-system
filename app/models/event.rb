@@ -18,6 +18,6 @@ class Event < ApplicationRecord
     this_year = start_at&.beginning_of_year..start_at&.end_of_year
     return unless Event.where(name:, start_at: this_year).exists?
 
-    errors.add(:name, 'is already exists in this year')
+    errors.add(:name, I18n.t('this_name_of_event_is_already_exists_in_this_year'))
   end
 end

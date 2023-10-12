@@ -87,7 +87,7 @@ module Api
     def find_confirmation
       @confirmation = Confirmation.find_by_parishioner_id!(params[:_parishioner_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Confirmation not found' }, status: :not_found
+      render json: { errors: I18n.t('confirmation_not_found') }, status: :not_found
     end
 
     def confirmation_params

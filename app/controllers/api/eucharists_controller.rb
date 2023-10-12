@@ -88,7 +88,7 @@ module Api
     def find_eucharist
       @eucharist = Eucharist.find_by_parishioner_id!(params[:_parishioner_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Eucharist not found' }, status: :not_found
+      render json: { errors: I18n.t('eucharist_not_found') }, status: :not_found
     end
 
     def eucharist_params

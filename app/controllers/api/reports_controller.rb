@@ -13,7 +13,7 @@ module Api
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
       query = params[:any_field]
 
-      return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/^\d{4}$/)
+      return render json: { errors: I18n.t('invalid_date') }, status: :bad_request unless date&.match?(/^\d{4}$/)
 
       require 'axlsx'
 
@@ -70,7 +70,10 @@ module Api
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
 
-      return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(%r{^\d{4}/\d{1,2}$})
+      unless date&.match?(%r{^\d{4}/\d{1,2}$})
+        return render json: { errors: I18n.t('invalid_date') },
+                      status: :bad_request
+      end
 
       require 'axlsx'
       # Date process
@@ -95,7 +98,7 @@ module Api
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
 
-      return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/^\d{4}$/)
+      return render json: { errors: I18n.t('invalid_date') }, status: :bad_request unless date&.match?(/^\d{4}$/)
 
       require 'axlsx'
 
@@ -170,7 +173,7 @@ module Api
                                                 type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
       end
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Event not found' }, status: :not_found
+      render json: { errors: I18n.t('event_not_found') }, status: :not_found
     end
 
     # TODO: the example xlsx file have undefined part
@@ -180,7 +183,7 @@ module Api
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
 
-      return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/^\d{4}$/)
+      return render json: { errors: I18n.t('invalid_date') }, status: :bad_request unless date&.match?(/^\d{4}$/)
 
       require 'axlsx'
 
@@ -244,7 +247,7 @@ module Api
       query = params[:any_field]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
 
-      return render json: { errors: 'Invalid date' }, status: :bad_request unless date&.match?(/^\d{4}$/)
+      return render json: { errors: I18n.t('invalid_date') }, status: :bad_request unless date&.match?(/^\d{4}$/)
 
       year = date.to_i
 
@@ -511,7 +514,7 @@ module Api
       end
 
       if finding_params.empty?
-        render json: { errors: '請選擇一筆資料' },
+        render json: { errors: I18n.t('please_choose_a_record') },
                status: :bad_request
       elsif is_test
         render json: results, status: :ok

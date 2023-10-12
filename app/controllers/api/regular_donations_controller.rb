@@ -91,7 +91,7 @@ module Api
     def find_regular_donation
       @regular_donation = RegularDonation.find_by_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Regular Donation not found' }, status: :not_found
+      render json: { errors: I18n.t('regular_donation_not_found') }, status: :not_found
     end
 
     def regular_donation_params

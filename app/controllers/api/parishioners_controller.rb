@@ -180,7 +180,7 @@ module Api
                      end
 
       if all_baptisms.empty?
-        render json: { errors: 'Baptisms not found' }, status: :not_found
+        render json: { errors: I18n.t('baptism_not_found') }, status: :not_found
       elsif parishioner_ids.present? && all_baptisms.count != parishioner_ids.count
         missing_parishioner_ids = parishioner_ids - all_baptisms.pluck(:parishioner_id).uniq
         missing_parishioner_names = Parishioner.where(id: missing_parishioner_ids).map(&:full_name)
@@ -454,25 +454,25 @@ module Api
     def find_parishioner
       @parishioner = Parishioner.find_by_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Parishioner not found' }, status: :not_found
+      render json: { errors: I18n.t('parishioner_not_found') }, status: :not_found
     end
 
     def find_baptism
       @baptism = Baptism.find_by_parishioner_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Baptism not found' }, status: :not_found
+      render json: { errors: I18n.t('baptism_not_found') }, status: :not_found
     end
 
     def find_eucharist
       @eucharist = Eucharist.find_by_parishioner_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Eucharist not found' }, status: :not_found
+      render json: { errors: I18n.t('eucharist_not_found') }, status: :not_found
     end
 
     def find_confirmation
       @confirmation = Confirmation.find_by_parishioner_id!(params[:_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Confirmation not found' }, status: :not_found
+      render json: { errors: I18n.t('confirmation_not_found') }, status: :not_found
     end
 
     def parishioner_params
