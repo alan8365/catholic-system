@@ -332,16 +332,7 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:date) { 2023 }
         let(:test) { 'true' }
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
-        run_test! do
-          data = JSON.parse(response.body)
-        end
+        run_test!
       end
 
       response(401, 'Unauthorized') do

@@ -658,7 +658,7 @@ module Api
       end
 
       results[-1][0] = '合計'
-      results[-1][3] = event_donation.sum { |e| e[4] }
+      results[-1][3] = "=SUM(D2:D#{2 + row_hash.size - 1})"
       results
     end
 
@@ -847,7 +847,7 @@ module Api
       end
 
       # Parishioner donation summation
-      yearly_report_data.each do |row|
+      yearly_report_data.each_with_index do |row, _index|
         row[-3] = row[2..].sum(&:to_i) if row[-3].nil?
         row[-1] = row[-3..-2].sum(&:to_i) if row[-1].nil?
       end
@@ -937,8 +937,16 @@ module Api
       end
 
       # Parishioner summation added
-      results.each do |result|
-        result[-1] = result[2..].sum(&:to_i) if result[-1].nil?
+      results.each_with_index do |result, index|
+        # result[-1] = result[2..].sum(&:to_i) if result[-1].nil?
+
+        c_name = get_excel_column_name(all_sunday_str.size + 2)
+        r_number = index + 1
+
+        start_cell = "C#{r_number}"
+        end_cell = "#{c_name}#{r_number}"
+
+        result[-1] = "=SUM(#{start_cell}:#{end_cell})" if result[-1].nil?
       end
 
       results
