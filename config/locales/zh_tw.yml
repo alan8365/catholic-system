@@ -31,7 +31,7 @@
 
 zh_tw:
   donation_date_should_be_past: "奉獻時間不應該是未來，目前時間是 %s，但是奉獻時間是 %s"
-  parishioners_id_s_not_found_in_baptism: "教友 %s 尚未登錄受洗資訊"
+  parishioners_id_s_not_found_in_baptism: "教友 %s 尚未登錄領洗資訊"
   specify_a_godfather_or_a_godmother_not_both: "代父母必須要有一位，且只能有一位"
   access_denied: "權限不足，存取被拒"
   baptism_not_found: "領洗資料不存在"
@@ -48,3 +48,5 @@ zh_tw:
   this_name_of_event_is_already_exists_in_this_year: "該事件名稱在該年已存在"
   donation_date_should_be_sunday: "主日奉獻的奉獻日期必須是禮拜日"
   unauthorized: "未認證"
+  parishioner:
+    picture_extension_error: "圖片格式不屬於 %s"

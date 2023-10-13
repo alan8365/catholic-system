@@ -49,3 +49,5 @@ en:
   this_name_of_event_is_already_exists_in_this_year: "This name of event is already exists in this year"
   donation_date_should_be_sunday: "Donation date should be sunday."
   unauthorized: "unauthorized"
+  parishioner:
+    picture_extension_error: "Picture extension is not belong to %s"

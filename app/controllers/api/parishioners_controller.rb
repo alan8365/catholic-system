@@ -86,7 +86,19 @@ module Api
       authorize! :create, Parishioner
 
       create_params = parishioner_params.to_h
-      create_params.delete('picture') if 'picture'.in?(create_params.keys) && (create_params['picture'].is_a? String)
+      if 'picture'.in?(create_params.keys)
+        # Picture empty check
+        create_params.delete('picture') if create_params['picture'].is_a? String
+
+        # Picture extension check
+        allow_extensions = %w[image/jpeg image/png]
+
+        # if create_params['picture'].content_type != 'image/png'
+        if create_params['picture'].content_type !~ /#{allow_extensions.join('|')}/
+          return render json: { errors: I18n.t('parishioner.picture_extension_error') % allow_extensions.to_s },
+                        status: :unprocessable_entity
+        end
+      end
 
       @parishioner = Parishioner.new(create_params)
       if @parishioner.save
@@ -194,18 +206,14 @@ module Api
         font_path = Rails.root.join('asset', 'DFKai-SB.ttf').to_s
 
         # Card back file check
-        unless File.file?(im_back_path)
-          canvas_back = get_id_card_back_canvas(font_path)
-          canvas_back.write(im_back_path)
-        end
+        canvas_back = get_id_card_back_canvas(font_path)
+        canvas_back.write(im_back_path)
 
         # Card file check
         all_baptisms.each do |baptism|
           im_path = Rails.root.join('tmp', 'cards', "#{baptism.parishioner.id}.png").to_s
-          unless File.file?(im_path)
-            canvas = get_id_card_canvas(baptism.parishioner)
-            canvas.write(im_path)
-          end
+          canvas = get_id_card_canvas(baptism.parishioner)
+          canvas.write(im_path)
         end
 
         width = 90.mm

@@ -12,6 +12,9 @@ RSpec.describe 'api/parishioners', type: :request do
   before(:each) do
     @file = fixture_file_upload('profile-pic.jpeg', 'image/jpeg')
     @file2 = fixture_file_upload('profile-pic2.jpeg', 'image/jpeg')
+
+    @file_wrong = fixture_file_upload('aaa.txt', 'text/plain')
+
     @example_test_parishioner = {
       first_name: '男人',
       last_name: '周',
@@ -210,14 +213,6 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:"") { @example_test_parishioner }
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
-
         run_test! do |response|
           data = JSON.parse(response.body)
 
@@ -269,6 +264,24 @@ RSpec.describe 'api/parishioners', type: :request do
           }
         end
         run_test!
+      end
+
+      response(422, 'Wrong picture extension') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:"") do
+          temp = @example_test_parishioner
+
+          temp['picture'] = @file_wrong
+
+          temp
+        end
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          puts data
+
+          expect(data['errors']).to eq('圖片格式不屬於 ["image/jpeg", "image/png"]')
+        end
       end
     end
   end
