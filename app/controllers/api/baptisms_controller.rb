@@ -15,7 +15,10 @@ module Api
 
       @baptisms = if query
                     string_filed = %w[
-                      baptized_location christian_name godfather godmother presbyter comment
+                      (last_name||first_name)
+                      baptized_location christian_name
+                      godfather godmother presbyter
+                      baptisms.comment
                     ]
 
                     query_string = string_filed.join(" like ? or \n")
@@ -23,7 +26,7 @@ module Api
 
                     query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-                    Baptism.where([query_string, *query_array])
+                    Baptism.joins(:parishioner).where([query_string, *query_array])
                   else
                     Baptism.all
                   end

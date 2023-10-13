@@ -618,7 +618,7 @@ RSpec.describe 'api/parishioners', type: :request do
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          expect(data['errors']).to eq('教友 ["錢女人", "孫媽媽"] 尚未登錄受洗資訊')
+          expect(data['errors']).to eq('教友 ["錢女人", "孫媽媽"] 尚未登錄領洗資訊')
         end
       end
     end

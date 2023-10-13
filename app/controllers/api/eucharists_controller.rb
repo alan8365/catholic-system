@@ -15,7 +15,10 @@ module Api
 
       @eucharists = if query
                       string_filed = %w[
-                        eucharist_location godfather godmother presbyter comment
+                        (last_name||first_name)
+                        eucharist_location
+                        godfather godmother presbyter
+                        eucharists.comment
                       ]
 
                       query_string = string_filed.join(" like ? or \n")
@@ -23,7 +26,7 @@ module Api
 
                       query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-                      Eucharist.where([query_string, *query_array])
+                      Eucharist.joins(:parishioner).where([query_string, *query_array])
                     else
                       Eucharist.all
                     end

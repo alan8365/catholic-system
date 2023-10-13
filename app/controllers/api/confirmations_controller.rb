@@ -15,14 +15,17 @@ module Api
 
       @confirmations = if query
                          string_filed = %w[
-                           confirmed_location godfather godmother presbyter comment
+                           (last_name||first_name)
+                           confirmed_location
+                           godfather godmother presbyter
+                           confirmations.comment
                          ]
 
                          query_string = string_filed.join(" like ? or \n")
                          query_string += ' like ?'
 
                          query_array = string_filed.map { |_| "%#{query}%" }.compact
-                         Confirmation.where([query_string, *query_array])
+                         Confirmation.joins(:parishioner).where([query_string, *query_array])
                        else
                          Confirmation.all
                        end
