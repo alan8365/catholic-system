@@ -86,18 +86,14 @@ module Api
       authorize! :create, Parishioner
 
       create_params = parishioner_params.to_h
-      if 'picture'.in?(create_params.keys)
-        # Picture empty check
-        create_params.delete('picture') if create_params['picture'].is_a? String
 
+      begin
         # Picture extension check
         allow_extensions = %w[image/jpeg image/png]
-
-        # if create_params['picture'].content_type != 'image/png'
-        if create_params['picture'].content_type !~ /#{allow_extensions.join('|')}/
-          return render json: { errors: I18n.t('parishioner.picture_extension_error') % allow_extensions.to_s },
-                        status: :unprocessable_entity
-        end
+        create_params = params_picture_check(create_params, allow_extensions)
+      rescue ArgumentError
+        return render json: { errors: I18n.t('parishioner.picture_extension_error') % allow_extensions.to_s },
+                      status: :unprocessable_entity
       end
 
       @parishioner = Parishioner.new(create_params)
@@ -114,7 +110,15 @@ module Api
       authorize! :update, @parishioner
 
       update_params = parishioner_params.to_h
-      update_params.delete('picture') if 'picture'.in?(update_params.keys) && (update_params['picture'].is_a? String)
+
+      begin
+        # Picture extension check
+        allow_extensions = %w[image/jpeg image/png]
+        update_params = params_picture_check(update_params, allow_extensions)
+      rescue ArgumentError
+        return render json: { errors: I18n.t('parishioner.picture_extension_error') % allow_extensions.to_s },
+                      status: :unprocessable_entity
+      end
 
       if update_params.include?('father_id') && !update_params['father_id'].empty?
         father_id = update_params['father_id']
@@ -497,6 +501,19 @@ module Api
 
     def current_policy
       @current_policy ||= ::AccessPolicy.new(@current_user)
+    end
+
+    def params_picture_check(create_params, allow_extensions)
+      # Picture empty check
+      return create_params unless 'picture'.in?(create_params.keys)
+
+      # Picture exist check
+      return create_params.except('picture') if create_params['picture'].blank?
+
+      # if create_params['picture'].content_type != 'image/png'
+      raise ArgumentError if create_params['picture'].content_type !~ /#{allow_extensions.join('|')}/
+
+      create_params
     end
   end
 end

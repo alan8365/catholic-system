@@ -232,6 +232,26 @@ RSpec.describe 'api/parishioners', type: :request do
         end
       end
 
+      response(201, 'Minimal data input') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:"") do
+          {
+            first_name: '名',
+            last_name: '姓',
+
+            birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
+
+            gender: '男',
+
+            picture: ''
+          }
+        end
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+        end
+      end
+
       # Current user dose not have permission
       response(403, 'Forbidden') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
