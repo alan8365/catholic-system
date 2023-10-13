@@ -47,7 +47,6 @@ docker build --platform linux/amd64 -t alan8365/catholic:latest .
 docker push alan8365/catholic:latest
 ```
 
-
 ## TODO
 
 * System dependencies

@@ -298,7 +298,6 @@ RSpec.describe 'api/parishioners', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
-          puts data
 
           expect(data['errors']).to eq('圖片格式不屬於 ["image/jpeg", "image/png"]')
         end
