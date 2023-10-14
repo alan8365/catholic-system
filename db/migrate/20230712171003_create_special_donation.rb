@@ -22,5 +22,7 @@ class CreateSpecialDonation < ActiveRecord::Migration[7.0]
 
     add_foreign_key :special_donations, :events,
                     column: 'event_id', primary_key: 'id', on_delete: :nullify, on_update: :cascade
+
+    add_index :special_donations, %i[event_id home_number], unique: true
   end
 end

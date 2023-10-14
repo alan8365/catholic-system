@@ -625,7 +625,9 @@ module Api
                        .left_joins(:event, household: :head_of_household)
                        .where('event.id' => event_id)
                        .order(:donation_at)
-                       .pluck('special_donations.home_number, donation_at, parishioners.last_name, parishioners.first_name, donation_amount, special_donations.comment')
+                       .pluck('special_donations.home_number, donation_at,
+parishioners.last_name, parishioners.first_name,
+donation_amount, special_donations.comment')
 
       all_home_number = event_donation.map { |e| e[0] }
       all_home_number_index = all_home_number.each_index.map { |e| e + 1 }
@@ -642,6 +644,10 @@ module Api
       event_donation.each do |e|
         home_number = e[0]
         row_index = row_hash[home_number]
+
+        # puts '---'
+        # puts e
+        # puts '---'
 
         e[1] = e[1].strftime('%m/%d')
         e[2] = if e[2].nil?

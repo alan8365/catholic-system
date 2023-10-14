@@ -51,3 +51,4 @@ en:
   unauthorized: "unauthorized"
   parishioner:
     picture_extension_error: "Picture extension is not belong to %s"
+  event_and_home_number_pair_unique: "Event and home number pair (%<event_id>s, %<home_number>s) already exists"

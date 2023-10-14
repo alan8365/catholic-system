@@ -50,3 +50,18 @@ zh_tw:
   unauthorized: "未認證"
   parishioner:
     picture_extension_error: "圖片格式不屬於 %s"
+  event_and_home_number_pair_unique: "該家號在該活動已有奉獻，活動編號：%<event_id>s、家號：%<home_number>s"
+  activerecord:
+    errors:
+      models:
+        special_donation:
+          attributes:
+            event_id:
+              blank: "活動編號不可為空"
+              taken: "該家號在該活動已有奉獻"
+            home_number:
+              blank: "家號不可為空"
+            donation_at:
+              blank: "奉獻時間不可為空"
+            donation_amount:
+              blank: "奉獻金額不可為空"

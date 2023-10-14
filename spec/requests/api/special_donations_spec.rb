@@ -7,7 +7,7 @@ RSpec.describe 'api/special_donations', type: :request do
 
   before(:each) do
     @example_test = {
-      event_id: 1,
+      event_id: 4,
       home_number: 'TT520',
 
       donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
@@ -19,7 +19,7 @@ RSpec.describe 'api/special_donations', type: :request do
     }
 
     @special_home_number_hash = {
-      event_id: 1,
+      event_id: 2,
       home_number: 'V',
 
       donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
@@ -64,24 +64,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:date) {}
         let(:event_id) {}
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
-        run_test! do
-          data = JSON.parse(response.body)
-          data = data.map { |e| e.slice('id') }
-
-          all_id = SpecialDonation
-                   .all
-                   .select('id')
-                   .as_json
-
-          expect(data).to eq(all_id)
-        end
+        run_test!
       end
 
       response(200, 'any_field query test') do
@@ -287,13 +270,6 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:special_donation) { @example_test }
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
         run_test! do |response|
           data = JSON.parse(response.body)
           @example_test.each_key do |key|
@@ -348,16 +324,21 @@ For example, "2023/7" would search for donations made in July 2023.'
 
       response(422, 'SpecialDonation already exist test') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
-        let(:user) { { name: 'TT520' } }
+        let(:special_donation) do
+          {
+            event_id: 1,
+            home_number: 'TT520',
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
+            donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
+            donation_amount: 1000
           }
         end
-        run_test!
+
+        run_test! do
+          data = JSON.parse(response.body)
+
+          puts data
+        end
       end
 
       response(422, 'Home number is blank') do

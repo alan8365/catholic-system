@@ -14,3 +14,8 @@ event-3:
   id: 3
   name: 五月
   start_at:  <%= Date.strptime("2024/05/25", "%Y/%m/%d") %>
+
+event-4:
+  id: 4
+  name: 聖誕
+  start_at:  <%= Date.strptime("2024/12/25", "%Y/%m/%d") %>
