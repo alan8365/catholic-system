@@ -17,5 +17,5 @@ event-3:
 
 event-4:
   id: 4
-  name: 聖誕
+  name: 某個節日
   start_at:  <%= Date.strptime("2024/12/25", "%Y/%m/%d") %>

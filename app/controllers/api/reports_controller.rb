@@ -370,7 +370,11 @@ module Api
         all_col_name_org.each do |col_name|
           col_index = col_hash[col_name]
 
-          results[row_index][col_index] = e[col_name]
+          results[row_index][col_index] = if col_name == 'name'
+                                            e.full_name
+                                          else
+                                            e[col_name]
+                                          end
         end
       end
 
@@ -809,6 +813,12 @@ donation_amount, special_donations.comment')
                                     .order('donation_at')
                                     .pluck('household.home_number, sum(donation_amount)')
 
+      guest_special_donation_summations = SpecialDonation
+                                          .joins(:household)
+                                          .where(donation_at: date_range)
+                                          .where('household.guest' => true)
+                                          .pluck('sum(donation_amount)')
+
       yearly_report_data[-3][0] = '單月份記名總額'
       yearly_report_data[-2][0] = '單月善心總額'
       yearly_report_data[-1][0] = '單月份奉獻總額'
@@ -833,14 +843,6 @@ donation_amount, special_donations.comment')
         yearly_report_data[-2][col_index] = amount
       end
 
-      # Guest and name donation sum
-      col_hash.map do |k, col_index|
-        guest_donation = yearly_report_data[-2][col_index].to_i
-        name_donation = yearly_report_data[-3][col_index].to_i
-
-        yearly_report_data[-1][col_index] = guest_donation + name_donation if k.match?(/\d{1,2}月/)
-      end
-
       # Parishioner special donation summation
       special_donation_summations.each do |e|
         home_number = e[0]
@@ -852,10 +854,24 @@ donation_amount, special_donations.comment')
         yearly_report_data[row_index][col_index] = amount
       end
 
+      # Parishioners special donation summation
+      yearly_report_data[-3][-2] = special_donation_summations.map { |e| e[1] }.sum
+
+      # Guest special donation summation
+      yearly_report_data[-2][-2] = guest_special_donation_summations.sum
+
       # Parishioner donation summation
       yearly_report_data.each_with_index do |row, _index|
         row[-3] = row[2..13].sum(&:to_i) if row[-3].nil?
         row[-1] = row[-3..-2].sum(&:to_i) if row[-1].nil?
+      end
+
+      # Guest and name donation sum
+      col_hash.map do |_k, col_index|
+        guest_donation = yearly_report_data[-2][col_index].to_i
+        name_donation = yearly_report_data[-3][col_index].to_i
+
+        yearly_report_data[-1][col_index] = guest_donation + name_donation if col_index > 1
       end
 
       # Delete row if summation is 0
