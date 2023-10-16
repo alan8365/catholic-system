@@ -9,7 +9,7 @@
 #   Character.create(name: "Luke", movie: movies.first)
 
 User.create([
-              { name: '管理員', username: 'admin', password: '123abc', is_admin: true },
+              { name: '管理員', username: 'admin', password: '!123abc', is_admin: true },
               { name: '普通使用者', username: 'basic', password: 'abc123!', is_modulator: true }
             ])
 

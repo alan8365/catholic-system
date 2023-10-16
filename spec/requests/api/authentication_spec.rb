@@ -17,7 +17,7 @@ RSpec.describe 'api/authentication', type: :request do
         },
         required: %w[username password]
       }
-      request_body_example value: { username: 'admin', password: '123abc' }, name: 'admin', summary: 'Admin login'
+      request_body_example value: { username: 'admin', password: '!123abc' }, name: 'admin', summary: 'Admin login'
       request_body_example value: { username: 'basic', password: 'abc123!' }, name: 'basic', summary: 'Basic login'
 
       response(200, 'OK') do

@@ -47,7 +47,7 @@ zh_tw:
   please_choose_a_record: "請選擇一筆資料"
   this_name_of_event_is_already_exists_in_this_year: "該事件名稱在該年已存在"
   donation_date_should_be_sunday: "主日奉獻的奉獻日期必須是禮拜日"
-  unauthorized: "未認證"
+  unauthorized: "認證資訊錯誤：帳號或密碼錯誤"
   parishioner:
     picture_extension_error: "圖片格式不屬於 %s"
   event_and_home_number_pair_unique: "該家號在該活動已有奉獻，活動編號：%<event_id>s、家號：%<home_number>s"

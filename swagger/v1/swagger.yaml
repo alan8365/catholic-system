@@ -31,7 +31,7 @@ paths:
                 summary: Admin login
                 value:
                   username: admin
-                  password: 123abc
+                  password: "!123abc"
               basic:
                 summary: Basic login
                 value:
@@ -769,11 +769,11 @@ paths:
       parameters: []
       responses:
         '201':
-          description: Created
+          description: Minimal data input
         '403':
           description: Forbidden
         '422':
-          description: Unprocessable Entity
+          description: Wrong picture extension
       requestBody:
         content:
           multipart/form-data:
@@ -1028,6 +1028,8 @@ paths:
           description: successful
         '401':
           description: unauthorized
+        '404':
+          description: Baptize Not Found with multiple ids
       requestBody:
         content:
           application/json:
