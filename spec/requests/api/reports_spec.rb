@@ -282,13 +282,6 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:event_id) { 1 }
         let(:test) { 'true' }
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
         run_test!
       end
 

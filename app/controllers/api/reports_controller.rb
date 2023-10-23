@@ -260,7 +260,8 @@ module Api
                               .joins(household: :head_of_household)
                               .where(donation_at: date_range)
                               .where('household.guest' => false)
-                              .where('household.is_archive' => false)
+                              .where(general_where_rule_hash)
+                              .where(general_where_rule_array)
                               .group('strftime("%y", donation_at), household.home_number')
                               .order('household.home_number')
                               .pluck('household.home_number, parishioners.last_name, parishioners.first_name, sum(donation_amount)')
@@ -292,8 +293,6 @@ module Api
         results[row_index][1] = "#{e[1]}#{e[2]}"
         results[row_index][2] = e[3]
       end
-
-      puts results
 
       unless query.nil?
         temp_middle = results[2..-4].select do |e|
@@ -584,7 +583,8 @@ module Api
       special_donations = SpecialDonation
                           .joins(:event, :household)
                           .where('event.id' => events.ids)
-                          .where('household.is_archive' => false)
+                          .where(general_where_rule_hash)
+                          .where(general_where_rule_array)
 
       all_sd = special_donations
                .where('household.guest' => false)
@@ -633,11 +633,14 @@ module Api
       event_donation = SpecialDonation
                        .left_joins(:event, household: :head_of_household)
                        .where('event.id' => event_id)
+                       .where(general_where_rule_hash)
+                       .where(general_where_rule_array)
                        .where('household.is_archive' => false)
                        .order(:donation_at)
                        .pluck('special_donations.home_number, donation_at,
 parishioners.last_name, parishioners.first_name,
-donation_amount, special_donations.comment')
+donation_amount, special_donations.comment,
+household.comment')
 
       all_home_number = event_donation.map { |e| e[0] }
       all_home_number_index = all_home_number.each_index.map { |e| e + 1 }
@@ -658,7 +661,7 @@ donation_amount, special_donations.comment')
 
         e[1] = e[1].strftime('%m/%d')
         e[2] = if e[2].nil?
-                 '善心人士'
+                 e[6] # FIXME: change to comment
                else
                  "#{e[2]}#{e[3]}"
                end
@@ -691,7 +694,8 @@ donation_amount, special_donations.comment')
       regular_donations = RegularDonation
                           .joins(:household)
                           .where(donation_at: date_range)
-                          .where('household.is_archive' => false)
+                          .where(general_where_rule_hash)
+                          .where(general_where_rule_array)
 
       monthly_donation_summations = regular_donations
                                     .where('household.guest' => false)
@@ -775,7 +779,8 @@ donation_amount, special_donations.comment')
       regular_donations = RegularDonation
                           .joins(:household)
                           .where(donation_at: date_range)
-                          .where('household.is_archive' => false)
+                          .where(general_where_rule_hash)
+                          .where(general_where_rule_array)
 
       monthly_donation_summations = regular_donations
                                     .where('household.guest' => false)
@@ -809,7 +814,8 @@ donation_amount, special_donations.comment')
       special_donations = SpecialDonation
                           .joins(:household)
                           .where(donation_at: date_range)
-                          .where('household.is_archive' => false)
+                          .where(general_where_rule_hash)
+                          .where(general_where_rule_array)
 
       special_donation_summations = special_donations
                                     .where('household.guest' => false)
@@ -897,7 +903,8 @@ donation_amount, special_donations.comment')
       # Donation amount
       regular_donations_base = RegularDonation
                                .joins(:household)
-                               .where('household.is_archive' => false)
+                               .where(general_where_rule_hash)
+                               .where(general_where_rule_array)
                                .where(donation_at: all_sunday)
 
       regular_donations = regular_donations_base
@@ -1036,6 +1043,19 @@ donation_amount, special_donations.comment')
         non_zero_report_data << e
       end
       non_zero_report_data
+    end
+
+    def general_where_rule_hash
+      {
+        'household.is_archive' => false
+      }
+    end
+
+    def general_where_rule_array
+      [
+        'household.head_of_household is not :head or (household.special = :special or household.guest = :guest)',
+        { head: nil, special: true, guest: true }
+      ]
     end
 
     def current_policy
