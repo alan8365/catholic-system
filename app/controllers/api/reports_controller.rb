@@ -401,18 +401,18 @@ module Api
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
       finding_params = params['ids'] || []
 
-      @regular_donations = RegularDonation.all
-                                          .left_joins(household: :head_of_household)
-                                          .select(%w[regular_donations.* parishioners.last_name
-                                                     parishioners.first_name households.head_of_household],
-                                                  'households.comment as hc')
+      regular_donations = RegularDonation.all
+                                         .left_joins(household: :head_of_household)
+                                         .select(%w[regular_donations.* parishioners.last_name
+                                                    parishioners.first_name households.head_of_household],
+                                                 'households.comment as hc')
 
       unless finding_params.empty?
-        @regular_donations = @regular_donations
-                             .where(id: finding_params)
+        regular_donations = regular_donations
+                            .where(id: finding_params)
       end
 
-      all_regular_donation_id = @regular_donations.map(&:id)
+      all_regular_donation_id = regular_donations.map(&:id)
       all_regular_donation_id_index = all_regular_donation_id.each_index.map { |e| e + 1 }
 
       all_col_name = %w[家號 姓名/稱呼 日期 金額 備註]
@@ -426,7 +426,7 @@ module Api
       results = Array.new(row_hash.size + 1) { Array.new(col_hash.size) }
       results[0] = all_col_name
 
-      @regular_donations.each do |regular_donation|
+      regular_donations.each do |regular_donation|
         row_index = row_hash[regular_donation.id]
 
         data_hash = regular_donation.as_json
@@ -565,13 +565,13 @@ module Api
       sum_formula = []
       named_sum_formula = []
 
-      (3..col_hash.size).each do |e|
-        c_name = get_excel_column_name(e)
-        r_number = yearly_report_data.size - 1
-
-        sum_formula << "=SUM(#{c_name}#{r_number - 1}:#{c_name}#{r_number})"
-        named_sum_formula << "=SUM(#{c_name}2:#{c_name}#{row_hash.size + 1})"
-      end
+      # (3..col_hash.size).each do |e|
+      #   c_name = get_excel_column_name(e)
+      #   r_number = yearly_report_data.size - 1
+      #
+      #   sum_formula << "=SUM(#{c_name}#{r_number - 1}:#{c_name}#{r_number})"
+      #   named_sum_formula << "=SUM(#{c_name}2:#{c_name}#{row_hash.size + 1})"
+      # end
 
       named_sum_str = ['', '記名總額', *named_sum_formula]
 
@@ -580,17 +580,18 @@ module Api
       yearly_report_data[-1] = ['奉獻總額', nil, *sum_formula]
 
       # Yearly report data IO getting
-      all_sd = SpecialDonation
-               .joins(:event, :household)
-               .where('event.id' => events.ids)
+      special_donations = SpecialDonation
+                          .joins(:event, :household)
+                          .where('event.id' => events.ids)
+                          .where('household.is_archive' => false)
+
+      all_sd = special_donations
                .where('household.guest' => false)
                .group('event.id, special_donations.home_number')
                .order('event.start_at')
                .pluck('event.name, special_donations.home_number, sum(special_donations.donation_amount)')
 
-      all_gsd = SpecialDonation
-                .joins(:event, :household)
-                .where('event.id' => events.ids)
+      all_gsd = special_donations
                 .where('household.guest' => true)
                 .group('event.id')
                 .order('event.start_at')
@@ -621,13 +622,17 @@ module Api
         row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
       end
 
-      yearly_report_data
+      header_index = 1
+      footer_index = -3
+
+      exclude_zero_value(footer_index, header_index, yearly_report_data)
     end
 
     def get_sdr_array(event_id)
       event_donation = SpecialDonation
                        .left_joins(:event, household: :head_of_household)
                        .where('event.id' => event_id)
+                       .where('household.is_archive' => false)
                        .order(:donation_at)
                        .pluck('special_donations.home_number, donation_at,
 parishioners.last_name, parishioners.first_name,
@@ -645,13 +650,10 @@ donation_amount, special_donations.comment')
       results = Array.new(row_hash.size + 3) { Array.new(col_hash.size) }
       results[0] = all_col_name
 
+      summation = 0
       event_donation.each do |e|
         home_number = e[0]
         row_index = row_hash[home_number]
-
-        # puts '---'
-        # puts e
-        # puts '---'
 
         e[1] = e[1].strftime('%m/%d')
         e[2] = if e[2].nil?
@@ -665,15 +667,15 @@ donation_amount, special_donations.comment')
         5.times do |i|
           results[row_index][i] = e[i]
         end
+
+        summation += e[3]
       end
 
       results[-1][0] = '合計'
-      results[-1][3] = "=SUM(D2:D#{2 + row_hash.size - 1})"
+      results[-1][3] = summation
       results
     end
 
-    # @param [Integer] year
-    # @return [Array]
     def get_yearly_rdr_array(year)
       all_month_str = (1..12).to_a.map { |e| "#{e}月" }
 
@@ -685,13 +687,32 @@ donation_amount, special_donations.comment')
 
       date_range = begin_date..end_date
 
-      monthly_donation_summations = RegularDonation
-                                    .joins(:household)
-                                    .where(donation_at: date_range)
+      regular_donations = RegularDonation
+                          .joins(:household)
+                          .where(donation_at: date_range)
+                          .where('household.is_archive' => false)
+
+      monthly_donation_summations = regular_donations
                                     .where('household.guest' => false)
                                     .group('strftime("%m", donation_at), household.home_number')
                                     .order('donation_at')
                                     .pluck('donation_at, household.home_number, sum(donation_amount)')
+
+      donation_summations = regular_donations
+                            .where('household.guest' => false)
+                            .group('strftime("%m", donation_at)')
+                            .order('donation_at')
+                            .pluck('donation_at, sum(donation_amount)')
+
+      guest_donation_summations = regular_donations
+                                  .where('household.guest' => true)
+                                  .group('strftime("%m", donation_at)')
+                                  .order('donation_at')
+                                  .pluck('donation_at, sum(donation_amount)')
+
+      yearly_report_data[-3][0] = '有名氏合計'
+      yearly_report_data[-2][0] = '隱名氏合計'
+      yearly_report_data[-1][0] = '總合計'
 
       monthly_donation_summations.each do |e|
         month = "#{e[0].month}月"
@@ -703,26 +724,6 @@ donation_amount, special_donations.comment')
 
         yearly_report_data[row_index][col_index] = amount
       end
-
-      donation_summations = RegularDonation
-                            .joins(:household)
-                            .where(donation_at: date_range)
-                            .where('household.guest' => false)
-                            .group('strftime("%m", donation_at)')
-                            .order('donation_at')
-                            .pluck('donation_at, sum(donation_amount)')
-
-      guest_donation_summations = RegularDonation
-                                  .joins(:household)
-                                  .where(donation_at: date_range)
-                                  .where('household.guest' => true)
-                                  .group('strftime("%m", donation_at)')
-                                  .order('donation_at')
-                                  .pluck('donation_at, sum(donation_amount)')
-
-      yearly_report_data[-3][0] = '有名氏合計'
-      yearly_report_data[-2][0] = '隱名氏合計'
-      yearly_report_data[-1][0] = '總合計'
 
       donation_summations.map do |e|
         month = "#{e[0].month}月"
@@ -754,7 +755,7 @@ donation_amount, special_donations.comment')
         row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
       end
 
-      yearly_report_data
+      exclude_zero_value(-3, 1, yearly_report_data)
     end
 
     # Get all donation report
@@ -770,9 +771,12 @@ donation_amount, special_donations.comment')
 
       date_range = begin_date..end_date
 
-      monthly_donation_summations = RegularDonation
-                                    .joins(:household)
-                                    .where(donation_at: date_range)
+      regular_donations = RegularDonation
+                          .joins(:household)
+                          .where(donation_at: date_range)
+                          .where('household.is_archive' => false)
+
+      monthly_donation_summations = regular_donations
                                     .where('household.guest' => false)
                                     .group('strftime("%m", donation_at), household.home_number')
                                     .order('donation_at')
@@ -789,33 +793,30 @@ donation_amount, special_donations.comment')
         yearly_report_data[row_index][col_index] = amount
       end
 
-      donation_summations = RegularDonation
-                            .joins(:household)
-                            .where(donation_at: date_range)
+      donation_summations = regular_donations
                             .where('household.guest' => false)
                             .group('strftime("%m", donation_at)')
                             .order('donation_at')
                             .pluck('donation_at, sum(donation_amount)')
 
-      guest_donation_summations = RegularDonation
-                                  .joins(:household)
-                                  .where(donation_at: date_range)
+      guest_donation_summations = regular_donations
                                   .where('household.guest' => true)
                                   .group('strftime("%m", donation_at)')
                                   .order('donation_at')
                                   .pluck('donation_at, sum(donation_amount)')
 
-      special_donation_summations = SpecialDonation
-                                    .joins(:household)
-                                    .where(donation_at: date_range)
+      special_donations = SpecialDonation
+                          .joins(:household)
+                          .where(donation_at: date_range)
+                          .where('household.is_archive' => false)
+
+      special_donation_summations = special_donations
                                     .where('household.guest' => false)
                                     .group('strftime("%y", donation_at), household.home_number')
                                     .order('donation_at')
                                     .pluck('household.home_number, sum(donation_amount)')
 
-      guest_special_donation_summations = SpecialDonation
-                                          .joins(:household)
-                                          .where(donation_at: date_range)
+      guest_special_donation_summations = special_donations
                                           .where('household.guest' => true)
                                           .pluck('sum(donation_amount)')
 
@@ -875,15 +876,10 @@ donation_amount, special_donations.comment')
       end
 
       # Delete row if summation is 0
-      new_yearly_report_data = [yearly_report_data[0]]
-      yearly_report_data[1..-4].map do |e|
-        new_yearly_report_data << e unless (e[-1]).zero?
-      end
-      new_yearly_report_data << yearly_report_data[-3]
-      new_yearly_report_data << yearly_report_data[-2]
-      new_yearly_report_data << yearly_report_data[-1]
+      header_index = 1
+      footer_index = -3
 
-      new_yearly_report_data
+      exclude_zero_value(footer_index, header_index, yearly_report_data)
     end
 
     # @param [Integer] year
@@ -898,12 +894,15 @@ donation_amount, special_donations.comment')
       row_hash, col_hash, results = report_data_init(all_col_name)
 
       # Donation amount
-      @regular_donations = RegularDonation
-                           .joins(:household)
-                           .where('household.guest' => false)
-                           .where('regular_donations.donation_at' => all_sunday)
+      regular_donations_base = RegularDonation
+                               .joins(:household)
+                               .where('household.is_archive' => false)
+                               .where(donation_at: all_sunday)
 
-      @regular_donations.each do |regular_donation|
+      regular_donations = regular_donations_base
+                          .where('household.guest' => false)
+
+      regular_donations.each do |regular_donation|
         home_number = regular_donation['home_number']
 
         donation_at = regular_donation['donation_at'].strftime('%m/%d')
@@ -920,17 +919,14 @@ donation_amount, special_donations.comment')
         results[row_index][col_index] = donation_amount
       end
 
-      donation_summations = RegularDonation
+      donation_summations = regular_donations_base
                             .joins(:household)
-                            .where(donation_at: all_sunday)
                             .where('household.guest' => false)
                             .group('donation_at')
                             .order('donation_at')
                             .pluck('donation_at, sum(donation_amount)')
 
-      guest_donation_summations = RegularDonation
-                                  .joins(:household)
-                                  .where(donation_at: all_sunday)
+      guest_donation_summations = regular_donations_base
                                   .where('household.guest' => true)
                                   .group('donation_at')
                                   .order('donation_at')
@@ -971,7 +967,11 @@ donation_amount, special_donations.comment')
         # result[-1] = "=SUM(#{start_cell}:#{end_cell})" if result[-1].nil?
       end
 
-      results
+      # Delete row if summation is 0
+      header_index = 1
+      footer_index = -3
+
+      exclude_zero_value(footer_index, header_index, results)
     end
 
     def report_data_init(all_col_name)
@@ -1024,6 +1024,17 @@ donation_amount, special_donations.comment')
         column_number = (column_number - modulo) / 26
       end
       column_name
+    end
+
+    def exclude_zero_value(footer_index, header_index, yearly_report_data)
+      non_zero_report_data = [yearly_report_data[0]]
+      yearly_report_data[header_index..footer_index - 1].map do |e|
+        non_zero_report_data << e unless (e[-1]).zero?
+      end
+      yearly_report_data[footer_index..].map do |e|
+        non_zero_report_data << e
+      end
+      non_zero_report_data
     end
 
     def current_policy

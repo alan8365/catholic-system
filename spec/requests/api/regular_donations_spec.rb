@@ -46,13 +46,6 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:any_field) {}
         let(:date) {}
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
         run_test!
       end
 

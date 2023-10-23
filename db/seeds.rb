@@ -135,6 +135,12 @@ guest_household = Household.create({
                                      comment: '善心人士'
                                    })
 
+archive_household = Household.create({
+                                       home_number: 'A',
+                                       is_archive: true,
+                                       comment: '封存家號'
+                                     })
+
 # Parishioner association
 @first_parishioner.household = first_household
 @second_parishioner.household = first_household

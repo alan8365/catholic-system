@@ -12,10 +12,14 @@ module Api
       query = params[:any_field]
       date = params[:date]
 
+      @regular_donations = RegularDonation
+                           .joins(:household)
+                           .where(household: { is_archive: false })
+
       if query
         string_filed = %w[
-          home_number
-          comment
+          regular_donations.home_number
+          regular_donations.comment
         ]
 
         query_string = string_filed.join(" like ? or \n")
@@ -23,16 +27,16 @@ module Api
 
         query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-        @regular_donations = RegularDonation.where([query_string, *query_array])
-      elsif date&.match?(%r{\d{4}/\d{1,2}})
+        @regular_donations = @regular_donations.where([query_string, *query_array])
+      end
+
+      if date&.match?(%r{\d{4}/\d{1,2}})
         year, month = date.split('/').map(&:to_i)
 
         begin_date = Date.civil(year, month, 1)
         end_date = Date.civil(year, month, -1)
 
-        @regular_donations = RegularDonation.where(donation_at: begin_date..end_date)
-      else
-        @regular_donations = RegularDonation.all
+        @regular_donations = @regular_donations.where(donation_at: begin_date..end_date)
       end
 
       @regular_donations = @regular_donations

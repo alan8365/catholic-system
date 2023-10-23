@@ -1,12 +1,19 @@
 services:
-  web:
+  back-end:
     image: alan8365/catholic:latest
 #    build:
-#      context: ./
 #      dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "${HOST_BACK_PORT}:${CONTAINER_BACK_PORT}"
     volumes:
-      - sqlite3:/db/sqlite3
+      - sqlite3:/usr/src/app/db/sqlite3
+    environment:
+      - PORT=${CONTAINER_BACK_PORT}
+  front-end:
+    image: ping12241/church_frontend
+    ports:
+      - "${HOST_FRONT_PORT}:${CONTAINER_FRONT_PORT}"
+    environment:
+      - PORT=${CONTAINER_FRONT_PORT}
 volumes:
   sqlite3: {}

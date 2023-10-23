@@ -11,6 +11,8 @@ COPY Gemfile* ./
 RUN bundle install
 COPY . .
 
-EXPOSE 3000
-CMD ["rails", "db:prepare"]
-CMD ["rails", "server", "-b", "0.0.0.0"]
+ENV PORT 3000
+EXPOSE ${PORT}
+
+CMD rails db:prepare
+CMD rails server -b 0.0.0.0 -p $PORT
