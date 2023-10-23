@@ -333,23 +333,21 @@ module Api
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
       finding_params = params['pid'] || []
 
-      @parishioners = if finding_params.empty?
-                        Parishioner.all
-                      else
-                        Parishioner.where(id: finding_params)
-                      end
+      @parishioners = Parishioner.all
+
+      @parishioners = @parishioners.where(id: finding_params) if finding_params.present?
 
       all_parishioner_id = @parishioners.map(&:id)
       all_parishioner_id_index = all_parishioner_id.each_index.map { |e| e + 1 }
 
-      all_col_name = %w[教友編號 名稱 性別 生日
+      all_col_name = %w[領洗編號 名稱 性別 生日
                         家號 郵遞區號 地址
                         父親 母親 家機 手機
                         國籍 職業 公司名稱
                         遷入時間 原始堂區
                         遷出時間 遷出原因 遷出堂區
                         備註]
-      all_col_name_org = %w[id name gender birth_at
+      all_col_name_org = %w[serial_number name gender birth_at
                             home_number postal_code address
                             father mother home_phone mobile_phone
                             nationality profession company_name
@@ -364,18 +362,19 @@ module Api
       results = Array.new(row_hash.size + 1) { Array.new(col_hash.size) }
       results[0] = all_col_name
 
-      @parishioners.each do |e|
-        row_index = row_hash[e.id]
+      @parishioners.each do |parishioners|
+        row_index = row_hash[parishioners.id]
 
         all_col_name_org.each do |col_name|
           col_index = col_hash[col_name]
 
           results[row_index][col_index] = if col_name == 'name'
-                                            e.full_name
+                                            parishioners.full_name
                                           else
-                                            e[col_name]
+                                            parishioners[col_name]
                                           end
         end
+        results[row_index][0] = parishioners.baptism&.serial_number
       end
 
       axlsx_package = Axlsx::Package.new
