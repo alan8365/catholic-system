@@ -37,7 +37,7 @@ class Baptism < ApplicationRecord
     number = this_year_array.find_index(id) + 1
     number = number.to_s.rjust(2, '0')
 
-    "#{baptized_at.year}#{number}"
+    "B#{baptized_at.year}#{number}"
   end
 
   private

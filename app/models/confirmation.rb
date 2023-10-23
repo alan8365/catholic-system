@@ -25,7 +25,7 @@ class Confirmation < ApplicationRecord
     number = this_year_array.find_index(id) + 1
     number = number.to_s.rjust(2, '0')
 
-    "#{confirmed_at.year}#{number}"
+    "C#{confirmed_at.year}#{number}"
   end
 
   def godparent
