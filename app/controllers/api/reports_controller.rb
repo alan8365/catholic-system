@@ -240,7 +240,7 @@ module Api
       end
     end
 
-    def rd_receipt_register
+    def receipt_register
       authorize! :read, RegularDonation
 
       date = params[:date]
@@ -256,12 +256,19 @@ module Api
 
       date_range = begin_date..end_date
 
+      parishioner_donations = RegularDonation
+                              .joins(household: :head_of_household)
+                              .where(donation_at: date_range)
+                              .where('household.guest' => false)
+                              .where('household.is_archive' => false)
+                              .group('strftime("%y", donation_at), household.home_number')
+                              .order('household.home_number')
+                              .pluck('household.home_number, parishioners.last_name, parishioners.first_name, sum(donation_amount)')
+
       col_str = %w[編號 收據開立姓名或公司行號 金額 身分證字號或統一編號]
       col_str_index = col_str.each_index.map { |e| e }
 
-      all_home_number = Household
-                        .where('guest' => false)
-                        .ids
+      all_home_number = parishioner_donations.map(&:first)
       all_home_number_index = all_home_number.each_index.map { |e| e + 3 }
 
       row_hash = Hash[all_home_number.zip(all_home_number_index)]
@@ -278,21 +285,15 @@ module Api
       results[-2][0] = '若無需代為上傳國稅局，可以不提供身分證字號。'
       results[-1][0] = '主任司鐸:                  會計:                  製表人:'
 
-      parishioner_donations = RegularDonation
-                              .joins(household: :head_of_household)
-                              .where(donation_at: date_range)
-                              .where('household.guest' => false)
-                              .group('strftime("%y", donation_at), household.home_number')
-                              .order('household.home_number')
-                              .pluck('household.home_number, parishioners.last_name, parishioners.first_name, sum(donation_amount)')
-
       parishioner_donations.each do |e|
         row_index = row_hash[e[0]]
 
         results[row_index][0] = e[0]
-        results[row_index][0] = "#{e[1]}#{e[2]}"
+        results[row_index][1] = "#{e[1]}#{e[2]}"
         results[row_index][2] = e[3]
       end
+
+      puts results
 
       unless query.nil?
         temp_middle = results[2..-4].select do |e|
