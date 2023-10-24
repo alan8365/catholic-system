@@ -239,20 +239,34 @@ module Api
 
       date_range = begin_date..end_date
 
-      parishioner_donations = RegularDonation
-                              .joins(household: :head_of_household)
-                              .where(donation_at: date_range)
-                              .where('household.guest' => false)
-                              .where(general_where_rule_hash)
-                              .where(general_where_rule_array)
-                              .group('strftime("%y", donation_at), household.home_number')
-                              .order('household.home_number')
-                              .pluck('household.home_number, parishioners.last_name, parishioners.first_name, sum(donation_amount)')
+      regular_donations = RegularDonation
+                          .left_joins(household: :head_of_household)
+                          .where(donation_at: date_range)
+                          .where(receipt: true)
+                          .where('household.guest' => false)
+                          .where(general_where_rule_hash)
+                          .where(general_where_rule_array)
+                          .group('strftime("%y", donation_at), household.home_number')
+                          .order('household.home_number')
+                          .pluck('household.home_number, parishioners.last_name, parishioners.first_name, sum(donation_amount), household.comment')
+
+      special_donations = SpecialDonation
+                          .left_joins(household: :head_of_household)
+                          .where(donation_at: date_range)
+                          .where(receipt: true)
+                          .where('household.guest' => false)
+                          .where(general_where_rule_hash)
+                          .where(general_where_rule_array)
+                          .group('strftime("%y", donation_at), household.home_number')
+                          .order('household.home_number')
+                          .pluck('household.home_number, parishioners.last_name, parishioners.first_name, sum(donation_amount), household.comment')
+
+      parishioner_donations = regular_donations + special_donations
 
       col_str = %w[編號 收據開立姓名或公司行號 金額 身分證字號或統一編號]
       col_str_index = col_str.each_index.map { |e| e }
 
-      all_home_number = parishioner_donations.map(&:first)
+      all_home_number = Household.where('is_archive' => false).map(&:home_number)
       all_home_number_index = all_home_number.each_index.map { |e| e + 3 }
 
       row_hash = Hash[all_home_number.zip(all_home_number_index)]
@@ -269,12 +283,22 @@ module Api
       results[-2][0] = '若無需代為上傳國稅局，可以不提供身分證字號。'
       results[-1][0] = '主任司鐸:                  會計:                  製表人:'
 
+      results.each_with_index do |_row, index|
+        results[index][2] = 0 if index > 2 && index < results.size - 4
+      end
+
       parishioner_donations.each do |e|
         row_index = row_hash[e[0]]
 
+        name = if e[1].present?
+                 "#{e[1]}#{e[2]}"
+               else
+                 e[4]
+               end
+
         results[row_index][0] = e[0]
-        results[row_index][1] = "#{e[1]}#{e[2]}"
-        results[row_index][2] = e[3]
+        results[row_index][1] = name
+        results[row_index][2] += e[3]
       end
 
       unless query.nil?
@@ -284,6 +308,8 @@ module Api
 
         results = results[..1] + temp_middle + results[-3..]
       end
+
+      results = exclude_zero_value(3, -4, results, -2)
 
       summation = results[2..-4].sum { |e| e[2].to_i }
       results[-4][2] = summation
@@ -1071,11 +1097,11 @@ household.comment')
       column_name
     end
 
-    def exclude_zero_value(header_index, footer_index, report_data)
+    def exclude_zero_value(header_index, footer_index, report_data, check_index = -1)
       non_zero_report_data = report_data[..header_index - 1]
 
       report_data[header_index..footer_index - 1].map do |e|
-        non_zero_report_data << e unless (e[-1]).zero?
+        non_zero_report_data << e unless (e[check_index]).zero?
       end
       report_data[footer_index..].map do |e|
         non_zero_report_data << e
