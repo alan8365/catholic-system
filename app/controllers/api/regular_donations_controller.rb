@@ -48,13 +48,17 @@ module Api
                                      comment
                                    ])
 
-      render json: @regular_donations, include: { household: { include: :head_of_household } }, status: :ok
+      render json: @regular_donations,
+             include: { household: { include: :head_of_household } },
+             status: :ok
     end
 
     # GET /regular_donations/{id}
     def show
       authorize! :read, @regular_donation
-      render json: @regular_donation, status: :ok
+      render json: @regular_donation,
+             include: { household: { include: :head_of_household } },
+             status: :ok
     end
 
     # POST /regular_donations
