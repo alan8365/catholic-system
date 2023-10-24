@@ -873,22 +873,16 @@ paths:
               properties:
                 first_name:
                   type: string
-                  example: 周
                 last_name:
                   type: string
-                  example: 男人
                 gender:
                   type: string
-                  example: 男
                 birth_at:
                   type: string
-                  example: '1990-01-01'
                 postal_code:
                   type: string
-                  example: '433'
                 address:
                   type: string
-                  example: 彰化縣田尾鄉福德巷359號
                 picture:
                   type: string
                   format: binary
@@ -902,22 +896,16 @@ paths:
                   type: integer
                 home_phone:
                   type: string
-                  example: '12512515'
                 mobile_phone:
                   type: string
-                  example: '09123124512'
                 nationality:
                   type: string
-                  example: 越南
                 profession:
                   type: string
-                  example: 醫生
                 company_name:
                   type: string
-                  example: 恐龍牙醫診所
                 comment:
                   type: string
-                  example: 測試用範例教友
             examples:
               test name change:
                 summary: Test parishioner update

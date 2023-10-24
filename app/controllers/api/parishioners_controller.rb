@@ -381,7 +381,7 @@ module Api
       # Draw avatar
       size = 160
       picture_url = parishioner.picture_url
-      unless picture_url.empty?
+      if !picture_url.empty? && File.exist?(picture_url)
         avatar = Magick::Image.read(picture_url).first
         avatar.resize_to_fit!(size, size)
 

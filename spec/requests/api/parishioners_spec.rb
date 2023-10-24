@@ -352,12 +352,12 @@ RSpec.describe 'api/parishioners', type: :request do
       parameter name: '', in: :formData, schema: {
         type: :object,
         properties: {
-          first_name: { type: :string, example: '周' },
-          last_name: { type: :string, example: '男人' },
-          gender: { type: :string, example: '男' },
-          birth_at: { type: :string, example: Date.strptime('1990/01/01', '%Y/%m/%d') },
-          postal_code: { type: :string, example: '433' },
-          address: { type: :string, example: '彰化縣田尾鄉福德巷359號' },
+          first_name: { type: :string },
+          last_name: { type: :string },
+          gender: { type: :string },
+          birth_at: { type: :string },
+          postal_code: { type: :string },
+          address: { type: :string },
           picture: { type: :string, format: :binary },
 
           father: { type: :string },
@@ -365,12 +365,12 @@ RSpec.describe 'api/parishioners', type: :request do
           father_id: { type: :integer },
           mother_id: { type: :integer },
 
-          home_phone: { type: :string, example: '12512515' },
-          mobile_phone: { type: :string, example: '09123124512' },
-          nationality: { type: :string, example: '越南' },
-          profession: { type: :string, example: '醫生' },
-          company_name: { type: :string, example: '恐龍牙醫診所' },
-          comment: { type: :string, example: '測試用範例教友' }
+          home_phone: { type: :string },
+          mobile_phone: { type: :string },
+          nationality: { type: :string },
+          profession: { type: :string },
+          company_name: { type: :string },
+          comment: { type: :string }
         }
       }
 
