@@ -144,10 +144,11 @@ module Api
 
       event_id = params[:event_id]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+      is_announce = ActiveModel::Type::Boolean.new.cast(params[:announce])
 
       @event = Event.find_by_id!(event_id)
 
-      results = get_sdr_array(event_id)
+      results = get_sdr_array(event_id, is_announce:)
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
@@ -702,7 +703,7 @@ module Api
       exclude_zero_value(header_index, footer_index, yearly_report_data)
     end
 
-    def get_sdr_array(event_id)
+    def get_sdr_array(event_id, is_announce: false)
       event_donation = SpecialDonation
                        .left_joins(:event, household: :head_of_household)
                        .where('event.id' => event_id)
@@ -732,12 +733,17 @@ household.comment')
         home_number = e[0]
         row_index = row_hash[home_number]
 
-        e[1] = e[1].strftime('%m/%d')
-        e[2] = if e[2].nil?
-                 e[6] # FIXME: change to comment
+        name = if e[2].nil?
+                 e[6]
+               elsif is_announce && !/[a-zA-Z]+/.match?(e[3])
+                 e[3][0] = 'Ｏ'
+                 "#{e[2]}#{e[3]}"
                else
                  "#{e[2]}#{e[3]}"
                end
+
+        e[1] = e[1].strftime('%m/%d')
+        e[2] = name
         e[3] = e[4]
         e[4] = e[5]
 

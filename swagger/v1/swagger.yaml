@@ -1282,9 +1282,14 @@ paths:
         schema:
           type: string
           require: false
+      - name: announce
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: announce test
         '404':
           description: Not found
         '401':

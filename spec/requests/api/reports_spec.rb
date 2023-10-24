@@ -277,10 +277,25 @@ For example, "2023" would generate report for donations made in 2023.'
         require: false
       }
 
+      parameter name: :announce, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:event_id) { 1 }
         let(:test) { 'true' }
+        let(:announce) {}
+
+        run_test!
+      end
+
+      response(200, 'announce test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:event_id) { 1 }
+        let(:test) { 'true' }
+        let(:announce) { 'true' }
 
         run_test!
       end
@@ -289,6 +304,7 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:event_id) { 6 }
         let(:test) { 'true' }
+        let(:announce) {}
 
         run_test!
       end
@@ -297,6 +313,7 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:authorization) { '' }
         let(:event_id) { 1 }
         let(:test) { 'true' }
+        let(:announce) {}
 
         run_test!
       end
