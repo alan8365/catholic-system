@@ -375,11 +375,8 @@ For example, "2023" would generate report for donations made in 2023.'
           data = data.transpose[0]
           data.delete_at(0)
 
-          all_id = Parishioner
-                   .all
-                   .select('id')
-                   .as_json
-          all_id = all_id.map { |e| e['id'] }
+          all_id = Parishioner.all
+          all_id = all_id.map { |e| e.baptism&.serial_number }
 
           expect(data).to eq(all_id)
         end
@@ -401,9 +398,7 @@ For example, "2023" would generate report for donations made in 2023.'
 
           all_id = Parishioner
                    .where(id: [1, 2, 3])
-                   .select('id')
-                   .as_json
-          all_id = all_id.map { |e| e['id'] }
+          all_id = all_id.map { |e| e.baptism&.serial_number }
 
           expect(data).to eq(all_id)
         end

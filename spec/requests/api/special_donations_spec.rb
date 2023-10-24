@@ -336,8 +336,6 @@ For example, "2023/7" would search for donations made in July 2023.'
 
         run_test! do
           data = JSON.parse(response.body)
-
-          puts data
         end
       end
 

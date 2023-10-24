@@ -12,9 +12,6 @@ class SpecialDonation < ApplicationRecord
   def pair_unique
     sd = SpecialDonation.where(event_id:, home_number:)
 
-    puts sd.as_json
-    puts SpecialDonation.all.as_json
-
     return if sd.empty?
 
     errors.add(:base,

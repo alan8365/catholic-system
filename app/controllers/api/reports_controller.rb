@@ -46,12 +46,11 @@ module Api
         yearly_report_data = yearly_report_data[..0] + temp_middle + yearly_report_data[-3..]
       end
 
-      currency_style = wb.styles.add_style({ num_fmt: 3 })
-
       wb.add_worksheet(name: '年度總帳') do |sheet|
         yearly_report_data.each do |row|
-          style = get_xlsx_style(currency_style, 2, row.size - 2)
-
+          currency_array = ['currency'] * (row.size - 2)
+          style_type_index = ['', '', *currency_array]
+          style = get_xlsx_style(wb, row.size, style_type_index)
           sheet.add_row row, style:
         end
       end
@@ -123,10 +122,11 @@ module Api
       # Results array process
       yearly_report_data = get_yearly_rdr_array(year)
 
-      currency_style = wb.styles.add_style({ num_fmt: 3 })
       wb.add_worksheet(name: '年度奉獻明細') do |sheet|
         yearly_report_data.each do |row|
-          style = get_xlsx_style(currency_style, 2, row.size - 2)
+          currency_array = ['currency'] * (row.size - 2)
+          style_type_index = ['', '', *currency_array]
+          style = get_xlsx_style(wb, row.size, style_type_index)
           sheet.add_row row, style:
         end
       end
@@ -151,18 +151,9 @@ module Api
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
-      currency_style = wb.styles.add_style({ num_fmt: 3 })
 
       wb.add_worksheet(name: 'Worksheet 1') do |sheet|
-        results.each do |row|
-          style = get_xlsx_style(currency_style, 3, row.size - 3)
-          sheet.add_row row, style:
-        end
-
-        # Merge cell of summation
-        sheet.merge_cells sheet.rows[-2].cells[(0..4)]
-        sheet.merge_cells sheet.rows[-1].cells[(0..2)]
-        sheet.merge_cells sheet.rows[-1].cells[(3..4)]
+        sd_event_worksheet(sheet, wb, results)
       end
 
       if is_test
@@ -176,7 +167,6 @@ module Api
       render json: { errors: I18n.t('event_not_found') }, status: :not_found
     end
 
-    # TODO: the example xlsx file have undefined part
     def sd_yearly_report
       authorize! :read, SpecialDonation
 
@@ -202,7 +192,6 @@ module Api
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
-      currency_style = wb.styles.add_style({ num_fmt: 3 })
 
       @events.each do |event|
         event_id = event.id
@@ -210,21 +199,15 @@ module Api
         event_report_data = get_sdr_array(event_id)
 
         wb.add_worksheet(name: event.name) do |sheet|
-          event_report_data.each do |row|
-            style = get_xlsx_style(currency_style, 3, row.size - 3)
-            sheet.add_row row, style:
-          end
-
-          # Merge cell of summation
-          sheet.merge_cells sheet.rows[-2].cells[(0..4)]
-          sheet.merge_cells sheet.rows[-1].cells[(0..2)]
-          sheet.merge_cells sheet.rows[-1].cells[(3..4)]
+          sd_event_worksheet(sheet, wb, event_report_data)
         end
       end
 
       wb.add_worksheet(name: 'Worksheet 1') do |sheet|
         yearly_report_data.each do |row|
-          style = get_xlsx_style(currency_style, 2, row.size - 2)
+          currency_array = ['currency'] * (row.size - 2)
+          style_type_index = ['', '', *currency_array]
+          style = get_xlsx_style(wb, row.size, style_type_index)
           sheet.add_row row, style:
         end
 
@@ -302,21 +285,33 @@ module Api
         results = results[..1] + temp_middle + results[-3..]
       end
 
+      summation = results[2..-4].sum { |e| e[2].to_i }
+      results[-4][2] = summation
+
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
-      currency_style = wb.styles.add_style({ num_fmt: 3 })
 
       wb.add_worksheet(name: 'Worksheet 1') do |sheet|
-        results.each do |row|
-          style = get_xlsx_style(currency_style, 2, 1)
-          sheet.add_row row, style:
+        results.each_with_index  do |row, index|
+          style_type_index = if (index > 2) && (index < results.size - 3)
+                               %w[title normal currency currency]
+                             elsif index.zero?
+                               %w[title-no-border]
+                             elsif index == 2
+                               %w[title title title title]
+                             else
+                               %w[no-border no-border no-border no-border]
+                             end
+          style = get_xlsx_style(wb, row.size, style_type_index)
+          sheet.add_row row, style:, height: 27, widths: [10, 30, 20, 40]
         end
 
         sheet.merge_cells sheet.rows[0].cells[(0..3)]
         sheet.merge_cells sheet.rows[1].cells[(0..3)]
-        sheet.merge_cells sheet.rows[-1].cells[(0..3)]
-        sheet.merge_cells sheet.rows[-2].cells[(0..3)]
+        sheet.merge_cells sheet.rows[-4].cells[(0..1)]
         sheet.merge_cells sheet.rows[-3].cells[(0..3)]
+        sheet.merge_cells sheet.rows[-2].cells[(0..3)]
+        sheet.merge_cells sheet.rows[-1].cells[(0..3)]
       end
 
       if is_test
@@ -529,20 +524,81 @@ module Api
 
     private
 
-    def get_xlsx_style(currency_style, non_currency_count, currency_count)
-      non_currency_array = [nil] * non_currency_count
-      currency_array = [currency_style] * currency_count
+    def sd_event_worksheet(sheet, workbook, results)
+      results.each_with_index do |row, index|
+        if index.zero?
+          style_type_index = ['title']
+        else
+          currency_array = ['currency'] * (row.size - 3)
+          style_type_index = ['', '', '', *currency_array]
+        end
 
-      [*non_currency_array, *currency_array]
+        style = get_xlsx_style(workbook, row.size, style_type_index)
+        sheet.add_row row, style:
+      end
+
+      # Merge cell of summation
+      sheet.merge_cells sheet.rows[0].cells[(0..4)]
+      sheet.merge_cells sheet.rows[-2].cells[(0..4)]
+      sheet.merge_cells sheet.rows[-1].cells[(0..2)]
+      sheet.merge_cells sheet.rows[-1].cells[(3..4)]
+    end
+
+    def get_xlsx_style(workbook, array_size, style_type_index)
+      border = { style: :thin, color: '000000',
+                 edges: %i[top bottom left right] }
+      font_name = '標楷體'
+      sz = 14
+
+      currency_style = workbook.styles.add_style({ num_fmt: 3,
+                                                   alignment: { horizontal: :right, vertical: :center },
+                                                   border:,
+                                                   font_name:,
+                                                   sz: })
+      normal_style = workbook.styles.add_style({ num_fmt: 1,
+                                                 alignment: { horizontal: :left, vertical: :center },
+                                                 border:,
+                                                 font_name:,
+                                                 sz: })
+      title_style = workbook.styles.add_style({ num_fmt: 1,
+                                                alignment: { horizontal: :center, vertical: :center },
+                                                border:,
+                                                font_name:,
+                                                sz: })
+      title_no_border_style = workbook.styles.add_style({ num_fmt: 1,
+                                                          alignment: { horizontal: :center, vertical: :center },
+                                                          font_name:,
+                                                          sz: })
+      no_border_style = workbook.styles.add_style({ num_fmt: 1,
+                                                    alignment: { horizontal: :left, vertical: :center },
+                                                    font_name:,
+                                                    sz: })
+      results = Array.new(array_size)
+
+      style_type_index.each_with_index do |e, i|
+        results[i] = case e
+                     when 'currency'
+                       currency_style
+                     when 'title'
+                       title_style
+                     when 'title-no-border'
+                       title_no_border_style
+                     when 'no-border'
+                       no_border_style
+                     else
+                       normal_style
+                     end
+      end
+
+      results
     end
 
     def rd_monthly_xlsx_fill(monthly_report_data, workbook, worksheet_name)
-      currency_style = workbook.styles.add_style({ num_fmt: 3 })
-
       workbook.add_worksheet(name: worksheet_name) do |sheet|
         monthly_report_data.each do |row|
-          style = get_xlsx_style(currency_style, 2, row.size - 2)
-
+          currency_array = ['currency'] * (row.size - 2)
+          style_type_index = ['', '', *currency_array]
+          style = get_xlsx_style(workbook, row.size, style_type_index)
           sheet.add_row row, style:
         end
 
@@ -560,23 +616,14 @@ module Api
       # Yearly report size setting
       row_hash, col_hash, yearly_report_data = report_data_init(all_col_name)
 
-      # Yearly report data fixed field filling
-      sum_formula = []
-      named_sum_formula = []
+      # Yearly report data initialization
+      all_sum = [0] * (col_hash.size - 2)
+      named_sum = [0] * (col_hash.size - 2)
+      guest_sum = [0] * (col_hash.size - 2)
 
-      # (3..col_hash.size).each do |e|
-      #   c_name = get_excel_column_name(e)
-      #   r_number = yearly_report_data.size - 1
-      #
-      #   sum_formula << "=SUM(#{c_name}#{r_number - 1}:#{c_name}#{r_number})"
-      #   named_sum_formula << "=SUM(#{c_name}2:#{c_name}#{row_hash.size + 1})"
-      # end
-
-      named_sum_str = ['', '記名總額', *named_sum_formula]
-
-      yearly_report_data[-3] = named_sum_str
-      yearly_report_data[-2][1] = '善心總額'
-      yearly_report_data[-1] = ['奉獻總額', nil, *sum_formula]
+      yearly_report_data[-3] = ['', '記名總額', *named_sum]
+      yearly_report_data[-2] = ['', '善心總額', *guest_sum]
+      yearly_report_data[-1] = ['奉獻總額', nil, *all_sum]
 
       # Yearly report data IO getting
       special_donations = SpecialDonation
@@ -607,6 +654,7 @@ module Api
         col_index = col_hash[event_name]
 
         yearly_report_data[row_index][col_index] = amount
+        yearly_report_data[-3][col_index] += amount
       end
 
       all_gsd.each do |gsd|
@@ -625,7 +673,7 @@ module Api
       header_index = 1
       footer_index = -3
 
-      exclude_zero_value(footer_index, header_index, yearly_report_data)
+      exclude_zero_value(header_index, footer_index, yearly_report_data)
     end
 
     def get_sdr_array(event_id)
@@ -642,7 +690,7 @@ donation_amount, special_donations.comment,
 household.comment')
 
       all_home_number = event_donation.map { |e| e[0] }
-      all_home_number_index = all_home_number.each_index.map { |e| e + 1 }
+      all_home_number_index = all_home_number.each_index.map { |e| e + 2 }
 
       all_col_name = %w[家號 日期 姓名 金額 備註]
       col_name_index = all_col_name.each_index.to_a
@@ -650,8 +698,8 @@ household.comment')
       row_hash = Hash[all_home_number.zip(all_home_number_index)]
       col_hash = Hash[all_col_name.zip(col_name_index)]
 
-      results = Array.new(row_hash.size + 3) { Array.new(col_hash.size) }
-      results[0] = all_col_name
+      results = Array.new(row_hash.size + 4) { Array.new(col_hash.size) }
+      results[1] = all_col_name
 
       summation = 0
       event_donation.each do |e|
@@ -674,6 +722,7 @@ household.comment')
         summation += e[3]
       end
 
+      results[0][0] = "#{Event.find_by_id(event_id).name}奉獻"
       results[-1][0] = '合計'
       results[-1][3] = summation
       results
@@ -697,7 +746,6 @@ household.comment')
                           .where(general_where_rule_array)
 
       monthly_donation_summations = regular_donations
-                                    .where('household.guest' => false)
                                     .group('strftime("%m", donation_at), household.home_number')
                                     .order('donation_at')
                                     .pluck('donation_at, household.home_number, sum(donation_amount)')
@@ -759,7 +807,7 @@ household.comment')
         row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
       end
 
-      exclude_zero_value(-3, 1, yearly_report_data)
+      exclude_zero_value(1, -3, yearly_report_data)
     end
 
     # Get all donation report
@@ -885,7 +933,7 @@ household.comment')
       header_index = 1
       footer_index = -3
 
-      exclude_zero_value(footer_index, header_index, yearly_report_data)
+      exclude_zero_value(header_index, footer_index, yearly_report_data)
     end
 
     # @param [Integer] year
@@ -907,7 +955,6 @@ household.comment')
                                .where(donation_at: all_sunday)
 
       regular_donations = regular_donations_base
-                          .where('household.guest' => false)
 
       regular_donations.each do |regular_donation|
         home_number = regular_donation['home_number']
@@ -964,26 +1011,17 @@ household.comment')
       # Parishioner summation added
       results.each_with_index do |result, _index|
         result[-1] = result[2..].sum(&:to_i) if result[-1].nil?
-
-        # c_name = get_excel_column_name(all_sunday_str.size + 2)
-        # r_number = index + 1
-        #
-        # start_cell = "C#{r_number}"
-        # end_cell = "#{c_name}#{r_number}"
-        #
-        # result[-1] = "=SUM(#{start_cell}:#{end_cell})" if result[-1].nil?
       end
 
       # Delete row if summation is 0
       header_index = 1
       footer_index = -3
 
-      exclude_zero_value(footer_index, header_index, results)
+      exclude_zero_value(header_index, footer_index, results)
     end
 
     def report_data_init(all_col_name)
       all_household = Household
-                      .where('guest' => false)
                       .order('home_number')
       all_home_number = all_household.map { |e| e['home_number'] }
       home_number_index = all_home_number.each_index.to_a.map { |i| i + 1 }
@@ -1033,14 +1071,16 @@ household.comment')
       column_name
     end
 
-    def exclude_zero_value(footer_index, header_index, yearly_report_data)
-      non_zero_report_data = [yearly_report_data[0]]
-      yearly_report_data[header_index..footer_index - 1].map do |e|
+    def exclude_zero_value(header_index, footer_index, report_data)
+      non_zero_report_data = report_data[..header_index - 1]
+
+      report_data[header_index..footer_index - 1].map do |e|
         non_zero_report_data << e unless (e[-1]).zero?
       end
-      yearly_report_data[footer_index..].map do |e|
+      report_data[footer_index..].map do |e|
         non_zero_report_data << e
       end
+
       non_zero_report_data
     end
 
