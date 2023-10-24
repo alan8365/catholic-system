@@ -50,11 +50,15 @@ module Api
                                            ])
 
       render json: @parishioners,
-             include: %i[
-               mother_instance father_instance
-               baptism confirmation eucharist
-               wife husband
-             ],
+             include: {
+               mother_instance: {},
+               father_instance: {},
+               baptism: { methods: [:serial_number] },
+               confirmation: { methods: [:serial_number] },
+               eucharist: { methods: [:serial_number] },
+               wife: {},
+               husband: {}
+             },
              methods: %i[children sibling],
              status: :ok
     end
@@ -64,11 +68,15 @@ module Api
       authorize! :read, @parishioner
 
       render json: @parishioner,
-             include: %i[
-               mother_instance father_instance
-               baptism confirmation eucharist
-               wife husband
-             ],
+             include: {
+               mother_instance: {},
+               father_instance: {},
+               baptism: { methods: [:serial_number] },
+               confirmation: { methods: [:serial_number] },
+               eucharist: { methods: [:serial_number] },
+               wife: {},
+               husband: {}
+             },
              methods: %i[children sibling],
              status: :ok
     end
