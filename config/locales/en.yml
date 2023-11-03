@@ -52,3 +52,33 @@ en:
   parishioner:
     picture_extension_error: "Picture extension is not belong to %s"
   event_and_home_number_pair_unique: "Event and home number pair (%<event_id>s, %<home_number>s) already exists"
+  activerecord:
+    errors:
+      models:
+        parishioners:
+          attributes:
+            first_name:
+              blank: "first name can't be blank"
+            last_name:
+              blank: "last name can't be blank"
+            birth_at:
+              blank: "birth date can't be blank"
+            gender:
+              blank: "gender can't be blank"
+            mother_id:
+              not_found: "Mother not found"
+            father_id:
+              not_found: "Father not found"
+            home_number:
+              not_found: "Home number not found"
+        special_donation:
+          attributes:
+            event_id:
+              blank: "event id can't be blank"
+              taken: "event has been taken"
+            home_number:
+              blank: "home number can't be blank"
+            donation_at:
+              blank: "donation date can't be blank"
+            donation_amount:
+              blank: "donation amount can't be blank"

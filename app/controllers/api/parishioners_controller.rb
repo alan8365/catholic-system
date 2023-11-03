@@ -143,6 +143,13 @@ module Api
         father_id = update_params['father_id']
         father = Parishioner.find_by_id(father_id)
 
+        if father.nil?
+          return render json: {
+                          errors: I18n.t('activerecord.errors.models.parishioners.attributes.father_id.not_found')
+                        },
+                        status: :unprocessable_entity
+        end
+
         @parishioner.father_instance = father
         @parishioner.father = father.full_name if father
 
@@ -151,7 +158,15 @@ module Api
       end
 
       if update_params.include?('mother_id') && !update_params['mother_id'].empty?
-        mother = Parishioner.find_by_id(update_params['mother_id'])
+        mother_id = update_params['mother_id']
+        mother = Parishioner.find_by_id(mother_id)
+
+        if mother.nil?
+          return render json: {
+                          errors: I18n.t('activerecord.errors.models.parishioners.attributes.mother_id.not_found')
+                        },
+                        status: :unprocessable_entity
+        end
 
         @parishioner.mother_instance = mother
         @parishioner.mother = mother.full_name if mother

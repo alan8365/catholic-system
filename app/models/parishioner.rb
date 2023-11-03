@@ -24,6 +24,13 @@ class Parishioner < ApplicationRecord
   # Image
   has_one_attached :picture
 
+  validates :first_name, presence: true
+  validates :last_name, presence: true
+  validates :gender, presence: true
+  validates :birth_at, presence: true
+
+  before_validation :check_foreign_key_existence
+
   def picture_url
     if picture.key.nil?
       ''
@@ -31,11 +38,6 @@ class Parishioner < ApplicationRecord
       ActiveStorage::Blob.service.path_for(picture.key)
     end
   end
-
-  validates :first_name, presence: true
-  validates :last_name, presence: true
-  validates :gender, presence: true
-  validates :birth_at, presence: true
 
   def full_name
     "#{last_name}#{first_name}"
@@ -83,5 +85,23 @@ class Parishioner < ApplicationRecord
 
   def married?
     wife.nil? ^ husband.nil?
+  end
+
+  private
+
+  def check_foreign_key_existence
+    if home_number.present? && !Household.exists?(home_number)
+      errors.add(:base, I18n.t('activerecord.errors.models.parishioners.attributes.home_number.not_found'))
+    end
+
+    if father_id.present? && !Parishioner.exists?(father_id)
+      errors.add(:base, I18n.t('activerecord.errors.models.parishioners.attributes.father_id.not_found'))
+    end
+
+    if mother_id.present? && !Parishioner.exists?(mother_id)
+      errors.add(:base, I18n.t('activerecord.errors.models.parishioners.attributes.mother_id.not_found'))
+    end
+
+    true
   end
 end

@@ -287,8 +287,7 @@ RSpec.describe 'api/parishioners', type: :request do
         end
       end
 
-      # Current user dose not have permission
-      response(403, 'Forbidden') do
+      response(403, 'Current user dose not have permission') do
         let(:authorization) { "Bearer #{authenticated_header 'viewer'}" }
         let(:"") {}
 
@@ -300,6 +299,32 @@ RSpec.describe 'api/parishioners', type: :request do
           }
         end
         run_test!
+      end
+
+      response(422, 'Foreign key not found') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:"") do
+          {
+            first_name: '名',
+            last_name: '姓',
+
+            birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
+
+            gender: '男',
+
+            picture: '',
+
+            mother_id: 100
+          }
+        end
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+
+          puts data
+
+          expect(data['errors']).to eq(['教友資料中未能找到母親教友資料'])
+        end
       end
 
       # Parishioner info incomplete test
@@ -471,6 +496,30 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:"") { { first_name: '' } }
 
         run_test!
+      end
+
+      response(422, 'Father id not found') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { Parishioner.all[0].id }
+        let(:"") { { father_id: 100 } }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+
+          expect(data['errors']).to eq('教友資料中未能找到父親教友資料')
+        end
+      end
+
+      response(422, 'Home number not found') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { Parishioner.all[0].id }
+        let(:"") { { home_number: 100 } }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+
+          expect(data['errors']).to eq('該家號不存在')
+        end
       end
     end
 

@@ -52,8 +52,25 @@ zh_tw:
     picture_extension_error: "圖片格式不屬於 %s"
   event_and_home_number_pair_unique: "該家號在該活動已有奉獻，活動編號：%<event_id>s、家號：%<home_number>s"
   activerecord:
+    # TODO add more error messages
     errors:
       models:
+        parishioners:
+          attributes:
+            first_name:
+              blank: "名不可為空"
+            last_name:
+              blank: "姓不可為空"
+            birth_at:
+              blank: "生日不可為空"
+            gender:
+              blank: "性別不可為空"
+            mother_id:
+              not_found: "教友資料中未能找到母親教友資料"
+            father_id:
+              not_found: "教友資料中未能找到父親教友資料"
+            home_number:
+              not_found: "該家號不存在"
         special_donation:
           attributes:
             event_id:
