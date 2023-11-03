@@ -15,18 +15,29 @@ module Api
     def index
       authorize! :read, Parishioner
       query = params[:any_field]
+      name_query = params[:name]
       is_archive = params[:is_archive]
 
-      if query
-        string_filed = %w[
-          (last_name||first_name) home_number gender
-          home_phone mobile_phone
-        ]
+      if query.present? || name_query.present?
+        string_filed = if query.present?
+                         %w[
+                           (last_name||first_name) home_number gender
+                           home_phone mobile_phone
+                         ]
+                       elsif name_query
+                         %w[
+                           (last_name||first_name)
+                         ]
+                       end
 
         query_string = string_filed.join(" like ? or \n")
         query_string += ' like ?'
 
-        query_array = string_filed.map { |_| "%#{query}%" }.compact
+        query_array = if query.present?
+                        string_filed.map { |_| "%#{query}%" }.compact
+                      elsif name_query
+                        string_filed.map { |_| "%#{name_query}%" }.compact
+                      end
 
         @parishioners = Parishioner.where([query_string, *query_array])
       else

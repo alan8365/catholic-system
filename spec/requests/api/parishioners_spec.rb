@@ -60,6 +60,10 @@ RSpec.describe 'api/parishioners', type: :request do
         type: :string
       }
 
+      parameter name: :name, in: :query, description: 'Search from the combine of first_name and last_name', schema: {
+        type: :string
+      }
+
       parameter name: :is_archive, in: :query, description: 'Search in archive if the value is "true"', schema: {
         type: :string
       }
@@ -71,6 +75,7 @@ RSpec.describe 'api/parishioners', type: :request do
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
+        let(:name) {}
         let(:is_archive) {}
 
         after do |example|
@@ -92,6 +97,7 @@ RSpec.describe 'api/parishioners', type: :request do
       response(200, 'Search in archive') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
+        let(:name) {}
         let(:is_archive) { 'true' }
 
         after do |example|
@@ -113,6 +119,7 @@ RSpec.describe 'api/parishioners', type: :request do
       response(200, 'Query search any_field') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { '%E8%B6%99%E7%88%B8%E7%88%B8' }
+        let(:name) {}
         let(:is_archive) {}
 
         after do |example|
@@ -162,9 +169,37 @@ RSpec.describe 'api/parishioners', type: :request do
         end
       end
 
+      response(200, 'Query search name') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:any_field) {}
+        let(:name) { '%E7%88%B8%E7%88%B8' }
+        let(:is_archive) {}
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          data = data.map { |hash| hash['id'] }
+
+          @parishioner2 = Parishioner.where('first_name LIKE ?', '爸爸').pluck('id')
+
+          # ApplicationRecord to hash
+          parishioner2_hash = @parishioner2.as_json
+
+          expect(data).to eq(parishioner2_hash)
+        end
+      end
+
       response(401, 'unauthorized') do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
+        let(:name) {}
         let(:is_archive) {}
 
         after do |example|

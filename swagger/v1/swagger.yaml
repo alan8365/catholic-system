@@ -750,6 +750,11 @@ paths:
           mobile_phone.'
         schema:
           type: string
+      - name: name
+        in: query
+        description: Search from the combine of first_name and last_name
+        schema:
+          type: string
       - name: is_archive
         in: query
         description: Search in archive if the value is "true"
@@ -757,7 +762,7 @@ paths:
           type: string
       responses:
         '200':
-          description: Query search any_field
+          description: Query search name
         '401':
           description: unauthorized
     post:
