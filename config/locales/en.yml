@@ -55,6 +55,16 @@ en:
   activerecord:
     errors:
       models:
+        sacraments:
+          attributes:
+            godfather_id:
+              not_found: "Godfather not found"
+            godmother_id:
+              not_found: "Godmother not found"
+            presbyter_id:
+              not_found: "Presbyter not found"
+            parishioner_id:
+              not_found: "Parishioner not found"
         parishioners:
           attributes:
             first_name:

@@ -518,7 +518,7 @@ RSpec.describe 'api/parishioners', type: :request do
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          expect(data['errors']).to eq('該家號不存在')
+          expect(data['errors']).to eq(['該家號不存在'])
         end
       end
     end

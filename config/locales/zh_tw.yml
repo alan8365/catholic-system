@@ -55,6 +55,16 @@ zh_tw:
     # TODO add more error messages
     errors:
       models:
+        sacraments:
+          attributes:
+            godfather_id:
+              not_found: "教友資料中未能找到代父教友資料"
+            godmother_id:
+              not_found: "教友資料中未能找到代母教友資料"
+            presbyter_id:
+              not_found: "教友資料中未能找到神父資料"
+            parishioner_id:
+              not_found: "教友不存在"
         parishioners:
           attributes:
             first_name:
