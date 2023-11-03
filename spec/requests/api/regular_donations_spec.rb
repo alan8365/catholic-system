@@ -276,6 +276,7 @@ For example, "2023/7" would search for donations made in July 2023.'
           data = JSON.parse(response.body)
 
           regular_donation_hash = @regular_donation.as_json
+          regular_donation_hash['household'] = @regular_donation.household.as_json
 
           expect(data).to eq(regular_donation_hash)
         end
