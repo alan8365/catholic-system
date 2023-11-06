@@ -12,6 +12,7 @@ module Api
     def index
       authorize! :read, Confirmation
       query = params[:any_field]
+      date = params[:date]
 
       @confirmations = if query
                          string_filed = %w[
@@ -29,6 +30,13 @@ module Api
                        else
                          Confirmation.all
                        end
+
+      if date&.match?(/\d{4}/)
+        year = date.to_i
+        date_range = Date.civil(year, 1, 1)..Date.civil(year, 12, -1)
+
+        @confirmations = @confirmations.where(confirmed_at: date_range)
+      end
 
       @confirmations = @confirmations.select(*%w[
                                                id

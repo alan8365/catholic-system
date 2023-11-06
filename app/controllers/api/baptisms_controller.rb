@@ -12,8 +12,9 @@ module Api
     def index
       authorize! :read, Baptism
       query = params[:any_field]
+      date = params[:date]
 
-      @baptisms = if query
+      @baptisms = if query.present?
                     string_filed = %w[
                       (last_name||first_name)
                       baptized_location christian_name
@@ -30,6 +31,13 @@ module Api
                   else
                     Baptism.all
                   end
+
+      if date&.match?(/\d{4}/)
+        year = date.to_i
+        date_range = Date.civil(year, 1, 1)..Date.civil(year, 12, -1)
+
+        @baptisms = @baptisms.where(baptized_at: date_range)
+      end
 
       @baptisms = @baptisms.select(*%w[
                                      id

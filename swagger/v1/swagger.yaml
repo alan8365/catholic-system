@@ -50,9 +50,17 @@ paths:
         schema:
           type: string
           require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for baptism searches.
+          For example, "2023" would search for baptisms made in 2023.
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: Query search any_field
+          description: Query search any_field with year
         '401':
           description: unauthorized
     post:
@@ -167,9 +175,17 @@ paths:
         schema:
           type: string
           require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for confirmation searches.
+          For example, "2023" would search for confirmations made in 2023.
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: Date search
         '401':
           description: unauthorized
     post:
@@ -291,9 +307,17 @@ paths:
         schema:
           type: string
           require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for baptism searches.
+          For example, "2023" would search for baptisms made in 2023.
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: Date search
         '401':
           description: unauthorized
     post:
@@ -776,7 +800,7 @@ paths:
         '201':
           description: Minimal data input
         '403':
-          description: Forbidden
+          description: Current user dose not have permission
         '422':
           description: Wrong picture extension
       requestBody:
@@ -869,7 +893,7 @@ paths:
         '403':
           description: Current user have not permission
         '422':
-          description: Field is blank
+          description: Home number not found
       requestBody:
         content:
           multipart/form-data:

@@ -8,3 +8,21 @@ first_confirmation:
   presbyter: 黃世明神父
 
   parishioner_id: 1
+
+second_confirmation:
+  confirmed_at: 1980-10-30
+  confirmed_location: 台中市聖十字架天主堂
+
+  godfather: 王小華
+  presbyter: 黃世明神父
+
+  parishioner_id: 3
+
+third_baptism:
+  confirmed_at: 1988-10-30
+  confirmed_location: 台中市聖十字架天主堂
+
+  godfather: 王小華
+  presbyter: 黃世明神父
+
+  parishioner_id: 8

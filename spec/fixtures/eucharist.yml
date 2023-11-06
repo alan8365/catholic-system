@@ -8,3 +8,21 @@ first_eucharist:
   presbyter: 黃世明神父
 
   parishioner_id: 1
+
+second_eucharist:
+  eucharist_at: 1980-10-30
+  eucharist_location: 台中市聖十字架天主堂
+
+  godfather: 王小華
+  presbyter: 黃世明神父
+
+  parishioner_id: 3
+
+third_baptism:
+  eucharist_at: 1988-10-30
+  eucharist_location: 台中市聖十字架天主堂
+
+  godfather: 王小華
+  presbyter: 黃世明神父
+
+  parishioner_id: 8

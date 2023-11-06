@@ -28,6 +28,13 @@ RSpec.describe 'api/baptisms', type: :request do
         require: false
       }
 
+      date_description = 'The date field accepts the yyyy format string for baptism searches.
+For example, "2023" would search for baptisms made in 2023.'
+      parameter name: :date, in: :query, description: date_description, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: '彰化'
       }, name: 'query test parishioner', summary: 'Finding the specific parishioner'
@@ -35,6 +42,7 @@ RSpec.describe 'api/baptisms', type: :request do
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) {}
+        let(:date) {}
 
         after do |example|
           content = example.metadata[:response][:content] || {}
@@ -55,6 +63,7 @@ RSpec.describe 'api/baptisms', type: :request do
       response(200, 'Query search any_field') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) { '%E5%BD%B0%E5%8C%96' }
+        let(:date) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -81,9 +90,28 @@ RSpec.describe 'api/baptisms', type: :request do
         end
       end
 
+      response(200, 'Query search any_field with year') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:any_field) {}
+        let(:date) { '1988' }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          data = data.map { |hash| hash['id'] }
+
+          date_range = Date.civil(1988, 1, 1)..Date.civil(1988, 12, 31)
+          baptism_hash = Baptism
+                         .where(baptized_at: date_range)
+                         .pluck('id')
+
+          expect(data).to eq(baptism_hash)
+        end
+      end
+
       response(401, 'unauthorized') do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
+        let(:date) {}
 
         after do |example|
           example.metadata[:response][:content] = {

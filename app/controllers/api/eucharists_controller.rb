@@ -12,6 +12,7 @@ module Api
     def index
       authorize! :read, Eucharist
       query = params[:any_field]
+      date = params[:date]
 
       @eucharists = if query
                       string_filed = %w[
@@ -30,6 +31,13 @@ module Api
                     else
                       Eucharist.all
                     end
+
+      if date&.match?(/\d{4}/)
+        year = date.to_i
+        date_range = Date.civil(year, 1, 1)..Date.civil(year, 12, -1)
+
+        @eucharists = @eucharists.where(eucharist_at: date_range)
+      end
 
       @eucharists = @eucharists.select(*%w[
                                          id
