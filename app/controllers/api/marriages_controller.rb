@@ -12,6 +12,7 @@ module Api
     def index
       authorize! :read, Marriage
       query = params[:any_field]
+      date = params[:date]
 
       @marriages = if query
                      string_filed = %w[
@@ -28,6 +29,13 @@ module Api
                      Marriage.all
                    end
 
+      if date&.match?(/\d{4}/)
+        year = date.to_i
+        date_range = Date.civil(year, 1, 1)..Date.civil(year, 12, -1)
+
+        @marriages = @marriages.where(marriage_at: date_range)
+      end
+
       @marriages = @marriages.select(*%w[
                                        id
                                        marriage_at marriage_location
@@ -40,7 +48,12 @@ module Api
 
       # render json: @marriages, include: %i[groom_instance bride_instance], status: :ok
       render json: @marriages,
-             include: { groom_instance: { include: :baptism }, bride_instance: { include: :baptism } }, status: :ok
+             include: {
+               groom_instance: { include: :baptism },
+               bride_instance: { include: :baptism }
+             },
+             methods: %i[serial_number],
+             status: :ok
     end
 
     # GET /marriages/{id}

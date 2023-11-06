@@ -12,4 +12,16 @@ class Marriage < ApplicationRecord
 
   validates :marriage_at, presence: true
   validates :marriage_location, presence: true
+
+  def serial_number
+    date_range = marriage_at.beginning_of_year..marriage_at.end_of_year
+    this_year_array = Marriage
+                      .where(marriage_at: date_range)
+                      .order('marriage_at', 'id')
+                      .pluck(:id)
+    number = this_year_array.find_index(id) + 1
+    number = number.to_s.rjust(2, '0')
+
+    "M#{marriage_at.year}#{number}"
+  end
 end
