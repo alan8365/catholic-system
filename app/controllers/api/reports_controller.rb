@@ -307,10 +307,10 @@ module Api
           e.join('').include? query
         end
 
-        results = results[..1] + temp_middle + results[-3..]
+        results = results[..1] + temp_middle + results[-4..]
       end
 
-      results = exclude_zero_value(3, -4, results, -2)
+      results = exclude_zero_value(2, -4, results, -2)
 
       summation = results[2..-4].sum { |e| e[2].to_i }
       results[-4][2] = summation
@@ -320,7 +320,7 @@ module Api
 
       wb.add_worksheet(name: 'Worksheet 1') do |sheet|
         results.each_with_index  do |row, index|
-          style_type_index = if (index > 2) && (index < results.size - 3)
+          style_type_index = if (index > 1) && (index < results.size - 3)
                                %w[title normal currency currency]
                              elsif index.zero?
                                %w[title-no-border]
@@ -1103,11 +1103,11 @@ household.comment')
       column_name
     end
 
-    def exclude_zero_value(header_index, footer_index, report_data, check_index = -1)
+    def exclude_zero_value(header_index, footer_index, report_data, check_col_index = -1)
       non_zero_report_data = report_data[..header_index - 1]
 
       report_data[header_index..footer_index - 1].map do |e|
-        non_zero_report_data << e unless (e[check_index]).zero?
+        non_zero_report_data << e unless (e[check_col_index]).zero?
       end
       report_data[footer_index..].map do |e|
         non_zero_report_data << e
