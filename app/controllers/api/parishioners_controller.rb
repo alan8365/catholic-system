@@ -266,16 +266,28 @@ module Api
 
             im_path = Rails.root.join('tmp', 'cards', "#{baptism.parishioner.id}.png").to_s
 
-            y_position = cursor - 5.mm
+            y_position = cursor
             bounding_box([0, y_position], width: 92.mm, height: 56.mm) do
-              stroke_bounds if put_stroke
+              if put_stroke
+                transparent(0.5) do
+                  dash(1)
+                  stroke_bounds
+                  undash
+                end
+              end
 
               move_down 1.mm
               image im_path, width:, height:, position: :center
             end
 
-            bounding_box([100.mm, y_position], width: 92.mm, height: 56.mm) do
-              stroke_bounds if put_stroke
+            bounding_box([92.mm, y_position], width: 92.mm, height: 56.mm) do
+              if put_stroke
+                transparent(0.5) do
+                  dash(1)
+                  stroke_bounds
+                  undash
+                end
+              end
 
               move_down 1.mm
               image im_back_path, width:, height:, position: :center
