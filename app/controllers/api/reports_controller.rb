@@ -273,19 +273,21 @@ module Api
       row_hash = Hash[all_home_number.zip(all_home_number_index)]
       col_hash = Hash[col_str.zip(col_str_index)]
 
-      results = Array.new(row_hash.size + 7) { Array.new(col_hash.size) }
+      results = Array.new(row_hash.size) { Array.new(col_hash.size) }
 
-      results[0][0] = "附表一          #{year - 1911}年捐款收據名冊                堂區:彰化天主堂"
-      results[1][0] = '捐款意向:'
-      results[2] = col_str
+      headers = Array.new(3) { Array.new(col_hash.size) }
+      headers[0][0] = "附表一          #{year - 1911}年捐款收據名冊                堂區:彰化天主堂"
+      headers[1][0] = '捐款意向:'
+      headers[2] = col_str
 
-      results[-4][0] = '合計金額'
-      results[-3][0] = '* 身分證字號是為將捐款資料上傳國稅局時使用，方便個人網路申報所得，'
-      results[-2][0] = '若無需代為上傳國稅局，可以不提供身分證字號。'
-      results[-1][0] = '主任司鐸:                  會計:                  製表人:'
+      footers = Array.new(4) { Array.new(col_hash.size) }
+      footers[-4][0] = '合計金額'
+      footers[-3][0] = '* 身分證字號是為將捐款資料上傳國稅局時使用，方便個人網路申報所得，'
+      footers[-2][0] = '若無需代為上傳國稅局，可以不提供身分證字號。'
+      footers[-1][0] = '主任司鐸:                  會計:                  製表人:'
 
       results.each_with_index do |_row, index|
-        results[index][2] = 0 if index > 2 && index < results.size - 4
+        results[index][2] = 0
       end
 
       parishioner_donations.each do |e|
@@ -303,23 +305,24 @@ module Api
       end
 
       unless query.nil?
-        temp_middle = results[2..-4].select do |e|
+        results = results.select do |e|
           e.join('').include? query
         end
-
-        results = results[..1] + temp_middle + results[-4..]
       end
 
-      results = exclude_zero_value(2, -4, results, -2)
+      # results = exclude_zero_value(1, -1, results, -2)
+      results = exclude_zero_value_new(results, -2)
 
-      summation = results[2..-4].sum { |e| e[2].to_i }
-      results[-4][2] = summation
+      summation = results.sum { |e| e[2].to_i }
+      footers[0][2] = summation
+
+      results = headers + results + footers
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
 
       wb.add_worksheet(name: 'Worksheet 1') do |sheet|
-        results.each_with_index  do |row, index|
+        results.each_with_index do |row, index|
           style_type_index = if (index > 1) && (index < results.size - 3)
                                %w[title normal currency currency]
                              elsif index.zero?
@@ -1114,6 +1117,12 @@ household.comment')
       end
 
       non_zero_report_data
+    end
+
+    def exclude_zero_value_new(report_data, check_col_index = -1)
+      report_data.reject do |e|
+        (e[check_col_index]).zero?
+      end
     end
 
     def general_where_rule_hash
