@@ -87,6 +87,14 @@ class Parishioner < ApplicationRecord
     wife.nil? ^ husband.nil?
   end
 
+  def address_divided
+    if address.present?
+      divide_address(address)
+    else
+      ['', '']
+    end
+  end
+
   private
 
   def check_foreign_key_existence
@@ -103,5 +111,40 @@ class Parishioner < ApplicationRecord
     end
 
     true
+  end
+
+  def divide_address(address)
+    require 'json'
+    address = normalize_address(address)
+
+    pattern = /(?<name>.{2}[市縣])/
+    m = address.match(pattern)
+    name = m[:name]
+    prefix = name
+
+    file = File.open Rails.root.join('asset', 'taiwan_districts.json'), 'r'
+    data = JSON.parse(file.read)
+
+    data.each do |item|
+      next unless item['name'] == name
+
+      puts item
+      district = item['districts']
+      district = district.map { |e| e['name'] }
+
+      district_pattern = "(?<district>#{district.join('|')})"
+      m = address.match(district_pattern)
+      district = m[:district]
+
+      prefix += district
+      break
+    end
+    postfix = address[prefix.length..]
+
+    [prefix, postfix]
+  end
+
+  def normalize_address(address)
+    address.gsub(/台(?<uni>[北中南東])/, '臺\k<uni>')
   end
 end

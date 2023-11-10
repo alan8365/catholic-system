@@ -490,30 +490,56 @@ module Api
     def letterhead
       authorize! :read, Parishioner
 
+      parishioner_ids = params[:ids]
+
+      parishioners = if parishioner_ids.present?
+                       Parishioner.where(id: parishioner_ids)
+                     else
+                       Parishioner.all
+                     end
+
       require 'prawn'
       require 'prawn/measurement_extensions'
 
       filename = '教友信籤.pdf'
 
-      save_path = Rails.root.join('tmp', 'letterhead.pdf')
+      save_path = Rails.root.join('tmp', filename)
 
       width = 70.mm
       height = 37.mm
-      put_stroke = true
+      put_stroke = false
       Prawn::Document.generate(save_path, page_size: 'A4', margin: 0) do
-        24.times do |index|
-          y_position = height * (index / 3)
+        page_top = cursor
+
+        parishioners.each_with_index do |parishioner, index|
+          y_position = page_top - (height * (index / 3))
           x_position = width * (index % 3)
 
-          puts y_position
-
-          bounding_box([x_position, 0], width:, height:) do
+          margin_top = 0.25.in
+          margin_left = 0.3.in
+          bounding_box(
+            [x_position + margin_left, y_position - margin_top],
+            width: width - margin_left,
+            height: height - margin_top
+          ) do
             stroke_bounds if put_stroke
+
+            name = parishioner.full_name
+            postal_code = parishioner.postal_code
+            address_prefix, address_postfix = parishioner.address_divided
+            home_number = parishioner.home_phone
+
+            font(Rails.root.join('asset', 'MingLiU.ttf'), size: 12) do
+              text "#{name} 兄弟/姊妹 收"
+              text " #{postal_code} #{address_prefix}"
+              text address_postfix.to_s
+              text "家號#{home_number}", align: :center
+            end
           end
         end
       end
 
-      send_file save_path, type: 'application/pdf', disposition: 'attachment;'
+      send_file save_path, type: 'application/pdf', disposition: "attachment; filename=#{filename}.pdf"
     end
 
     private
