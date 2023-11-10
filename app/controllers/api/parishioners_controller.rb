@@ -4,7 +4,7 @@ module Api
   class ParishionersController < ApplicationController
     before_action :cors_setting
     before_action :authorize_request, except: %i[picture]
-    before_action :find_parishioner, except: %i[create index id_card_pdf]
+    before_action :find_parishioner, except: %i[create index id_card_pdf letterhead]
     before_action :find_baptism, only: %i[id_card certificate]
     before_action :find_eucharist, only: %i[certificate]
     before_action :find_confirmation, only: %i[certificate]
@@ -215,6 +215,7 @@ module Api
       send_file back_file_path, type: 'image/png', disposition: 'inline'
     end
 
+    # FIXME: change the page size from letter to A4
     def id_card_pdf
       authorize! :read, Parishioner
 
@@ -484,6 +485,35 @@ module Api
 
       baptism_draw.draw(canvas)
       canvas
+    end
+
+    def letterhead
+      authorize! :read, Parishioner
+
+      require 'prawn'
+      require 'prawn/measurement_extensions'
+
+      filename = '教友信籤.pdf'
+
+      save_path = Rails.root.join('tmp', 'letterhead.pdf')
+
+      width = 70.mm
+      height = 37.mm
+      put_stroke = true
+      Prawn::Document.generate(save_path, page_size: 'A4', margin: 0) do
+        24.times do |index|
+          y_position = height * (index / 3)
+          x_position = width * (index % 3)
+
+          puts y_position
+
+          bounding_box([x_position, 0], width:, height:) do
+            stroke_bounds if put_stroke
+          end
+        end
+      end
+
+      send_file save_path, type: 'application/pdf', disposition: 'attachment;'
     end
 
     private

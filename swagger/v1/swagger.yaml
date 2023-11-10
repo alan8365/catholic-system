@@ -652,9 +652,17 @@ paths:
         schema:
           type: string
           require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for marriage searches.
+          For example, "2023" would search for marriages made in 2023.
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: Successful
+          description: Date search
         '401':
           description: unauthorized
     post:
@@ -1047,6 +1055,34 @@ paths:
           description: unauthorized
         '404':
           description: Baptize Not Found with multiple ids
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              all print example:
+                summary: print all parishioners
+                value: {}
+              ids example:
+                summary: id cards of parishioners
+                value:
+                  ids:
+                  - 1
+                  - 2
+  "/api/letterhead":
+    post:
+      summary: id cards print of parishioners
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
       requestBody:
         content:
           application/json:

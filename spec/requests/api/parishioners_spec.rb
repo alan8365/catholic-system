@@ -726,4 +726,51 @@ RSpec.describe 'api/parishioners', type: :request do
       end
     end
   end
+
+  path '/api/letterhead' do
+    post('id cards print of parishioners') do
+      tags 'Parishioner'
+      security [Bearer: {}]
+      consumes 'application/json'
+
+      parameter name: :ids, in: :body, schema: {
+        type: :object
+      }
+
+      request_body_example value: {}, name: 'all print example', summary: 'print all parishioners'
+
+      request_body_example value: {
+        ids: [1, 2]
+      }, name: 'ids example', summary: 'id cards of parishioners'
+
+      response(200, 'empty id test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) {}
+
+        run_test!
+      end
+
+      response(200, 'successful') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:ids) do
+          {
+            ids: [1, 3]
+          }
+        end
+
+        run_test!
+      end
+
+      response(401, 'unauthorized') do
+        let(:authorization) { 'Bearer error token' }
+        let(:ids) do
+          {
+            ids: [1, 3]
+          }
+        end
+
+        run_test!
+      end
+    end
+  end
 end
