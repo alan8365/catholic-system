@@ -203,7 +203,6 @@ RSpec.describe 'api/users', type: :request do
       end
     end
 
-    # TODO: deny username change
     patch('update user') do
       tags 'User'
       security [Bearer: {}]
@@ -226,6 +225,18 @@ RSpec.describe 'api/users', type: :request do
           user = User.find_by_username('test1')
 
           expect(user.name).to eq('new1')
+        end
+      end
+
+      response(204, 'Change password') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_username) { 'test1' }
+        let(:user) { { password: 'password' } }
+
+        run_test! do |_response|
+          user = User.find_by_username('test1')
+
+          expect(user.authenticate('password').id).to eq(user.id)
         end
       end
 
