@@ -50,7 +50,7 @@ module Api
 
         yearly_report_data.each_with_index do |row, index|
           if index.zero?
-            style_type_index = ['title']
+            style_type_index = ['title'] * sheet_width
           else
             currency_array = ['currency'] * (sheet_width - 3)
             style_type_index = ['', '', '', *currency_array]
@@ -139,7 +139,7 @@ module Api
 
         yearly_report_data.each_with_index do |row, index|
           if index.zero?
-            style_type_index = ['title']
+            style_type_index = ['title'] * sheet_width
           else
             currency_array = ['currency'] * (sheet_width - 3)
             style_type_index = ['', '', '', *currency_array]
@@ -223,7 +223,7 @@ module Api
         sheet_width = yearly_report_data[0].size
         yearly_report_data.each_with_index do |row, index|
           if index.zero?
-            style_type_index = ['title']
+            style_type_index = ['title'] * sheet_width
           else
             currency_array = ['currency'] * (row.size - 2)
             style_type_index = ['', '', '', *currency_array]
@@ -585,7 +585,7 @@ module Api
       sheet_width = results[0].size
       results.each_with_index do |row, index|
         style_type_index = if index.zero?
-                             ['title']
+                             ['title'] * sheet_width
                            else
                              ['', '', '', '', 'currency', '']
                            end
@@ -657,7 +657,7 @@ module Api
 
         monthly_report_data.each_with_index do |row, index|
           if index.zero?
-            style_type_index = ['title']
+            style_type_index = ['title'] * sheet_width
           else
             currency_array = ['currency'] * (sheet_width - 3)
             style_type_index = ['', '', '', *currency_array]
