@@ -36,23 +36,35 @@ module Api
       end
 
       # Results array process
-      yearly_report_data = get_yearly_adr_array(year)
+      headers, yearly_report_data, footers = get_yearly_adr_array(year)
 
       unless query.nil?
-        temp_middle = yearly_report_data[1..-4].select do |e|
+        yearly_report_data = yearly_report_data.select do |e|
           e.join('').include? query
         end
-
-        yearly_report_data = yearly_report_data[..0] + temp_middle + yearly_report_data[-3..]
       end
 
+      yearly_report_data = headers + yearly_report_data + footers
       wb.add_worksheet(name: '年度總帳') do |sheet|
-        yearly_report_data.each do |row|
-          currency_array = ['currency'] * (row.size - 2)
-          style_type_index = ['', '', *currency_array]
-          style = get_xlsx_style(wb, row.size, style_type_index)
+        sheet_width = yearly_report_data[0].size
+
+        yearly_report_data.each_with_index do |row, index|
+          if index.zero?
+            style_type_index = ['title']
+          else
+            currency_array = ['currency'] * (sheet_width - 2)
+            style_type_index = ['', '', *currency_array]
+          end
+
+          style = get_xlsx_style(wb, sheet_width, style_type_index)
           sheet.add_row row, style:
         end
+
+        sheet.merge_cells(sheet.rows[0].cells[(0..sheet_width)])
+
+        sheet.merge_cells(sheet.rows[-3].cells[(0..1)])
+        sheet.merge_cells(sheet.rows[-2].cells[(0..1)])
+        sheet.merge_cells(sheet.rows[-1].cells[(0..1)])
       end
 
       if is_test
@@ -123,12 +135,20 @@ module Api
       yearly_report_data = get_yearly_rdr_array(year)
 
       wb.add_worksheet(name: '年度奉獻明細') do |sheet|
-        yearly_report_data.each do |row|
-          currency_array = ['currency'] * (row.size - 2)
-          style_type_index = ['', '', *currency_array]
-          style = get_xlsx_style(wb, row.size, style_type_index)
+        sheet_width = yearly_report_data[0].size
+
+        yearly_report_data.each_with_index do |row, index|
+          if index.zero?
+            style_type_index = ['title']
+          else
+            currency_array = ['currency'] * (sheet_width - 2)
+            style_type_index = ['', '', *currency_array]
+          end
+          style = get_xlsx_style(wb, sheet_width, style_type_index)
           sheet.add_row row, style:
         end
+
+        sheet.merge_cells sheet.rows[0].cells[(0..sheet_width)]
       end
 
       if is_test
@@ -180,21 +200,12 @@ module Api
 
       year = date.to_i
 
-      begin_date = Date.civil(year, 1, 1)
-      end_date = Date.civil(year, 12, -1)
-
-      date_range = begin_date..end_date
-
-      @events = Event
-                .where('start_at' => date_range)
-                .order('start_at')
-
-      yearly_report_data = get_yearly_sdr_array(@events)
+      yearly_report_data, events = get_yearly_sdr_array(year)
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
 
-      @events.each do |event|
+      events.each do |event|
         event_id = event.id
 
         event_report_data = get_sdr_array(event_id)
@@ -204,15 +215,21 @@ module Api
         end
       end
 
-      wb.add_worksheet(name: 'Worksheet 1') do |sheet|
-        yearly_report_data.each do |row|
-          currency_array = ['currency'] * (row.size - 2)
-          style_type_index = ['', '', *currency_array]
-          style = get_xlsx_style(wb, row.size, style_type_index)
+      wb.add_worksheet(name: '年度奉獻明細') do |sheet|
+        sheet_width = yearly_report_data[0].size
+        yearly_report_data.each_with_index do |row, index|
+          if index.zero?
+            style_type_index = ['title']
+          else
+            currency_array = ['currency'] * (row.size - 2)
+            style_type_index = ['', '', '', *currency_array]
+          end
+          style = get_xlsx_style(wb, sheet_width, style_type_index)
           sheet.add_row row, style:
         end
 
         # Merge cell of summation
+        sheet.merge_cells sheet.rows[0].cells[(0..sheet_width)]
         sheet.merge_cells sheet.rows[-1].cells[(0..1)]
       end
 
@@ -265,10 +282,10 @@ module Api
       parishioner_donations = regular_donations + special_donations
 
       col_str = %w[編號 收據開立姓名或公司行號 金額 身分證字號或統一編號]
-      col_str_index = col_str.each_index.map { |e| e }
+      col_str_index = col_str.each_index
 
       all_home_number = Household.where('is_archive' => false).map(&:home_number)
-      all_home_number_index = all_home_number.each_index.map { |e| e + 3 }
+      all_home_number_index = all_home_number.each_index
 
       row_hash = Hash[all_home_number.zip(all_home_number_index)]
       col_hash = Hash[col_str.zip(col_str_index)]
@@ -286,7 +303,8 @@ module Api
       footers[-2][0] = '若無需代為上傳國稅局，可以不提供身分證字號。'
       footers[-1][0] = '主任司鐸:                  會計:                  製表人:'
 
-      results.each_with_index do |_row, index|
+      # init donation amount
+      results.each_with_index do |_, index|
         results[index][2] = 0
       end
 
@@ -294,9 +312,9 @@ module Api
         row_index = row_hash[e[0]]
 
         name = if e[1].present?
-                 "#{e[1]}#{e[2]}"
+                 "#{e[1]}#{e[2]}" # e[1] is last_name, e[2] is first_name
                else
-                 e[4]
+                 e[4] # e[4] is comment of household, it contains the name of company household
                end
 
         results[row_index][0] = e[0]
@@ -310,9 +328,9 @@ module Api
         end
       end
 
-      # results = exclude_zero_value(1, -1, results, -2)
       results = exclude_zero_value_new(results, -2)
 
+      # Calculate summation
       summation = results.sum { |e| e[2].to_i }
       footers[0][2] = summation
 
@@ -625,13 +643,21 @@ module Api
 
     def rd_monthly_xlsx_fill(monthly_report_data, workbook, worksheet_name)
       workbook.add_worksheet(name: worksheet_name) do |sheet|
-        monthly_report_data.each do |row|
-          currency_array = ['currency'] * (row.size - 2)
-          style_type_index = ['', '', *currency_array]
-          style = get_xlsx_style(workbook, row.size, style_type_index)
+        sheet_width = monthly_report_data[0].size
+
+        monthly_report_data.each_with_index do |row, index|
+          if index.zero?
+            style_type_index = ['title']
+          else
+            currency_array = ['currency'] * (sheet_width - 2)
+            style_type_index = ['', '', *currency_array]
+          end
+
+          style = get_xlsx_style(workbook, sheet_width, style_type_index)
           sheet.add_row row, style:
         end
 
+        sheet.merge_cells sheet.rows[0].cells[(0..sheet_width)]
         # Merge cell of summation
         (-3..-1).each do |i|
           sheet.merge_cells sheet.rows[i].cells[(0..1)]
@@ -639,21 +665,45 @@ module Api
       end
     end
 
-    def get_yearly_sdr_array(events)
+    # Generates the yearly SDR array for a given year.
+    #
+    # Args:
+    #     year (int): The year for which to generate the SDR array.
+    #
+    # Returns:
+    #     tuple: A tuple containing:
+    #         - yearly_report_data (list): The generated yearly report data array.
+    #         - events (QuerySet): The events related to the generated report data.
+    def get_yearly_sdr_array(year)
+      begin_date = Date.civil(year, 1, 1)
+      end_date = Date.civil(year, 12, -1)
+
+      date_range = begin_date..end_date
+
+      events = Event
+               .where('start_at' => date_range)
+               .order('start_at')
+
       all_event_name = events.map(&:name)
       all_col_name = ['家號', '姓名', *all_event_name, '總計']
 
       # Yearly report size setting
       row_hash, col_hash, yearly_report_data = report_data_init(all_col_name)
 
-      # Yearly report data initialization
+      # Yearly report header setting
+      headers = Array.new(2) { Array.new(col_hash.size) }
+      headers[0][0] = "#{year}年度特殊奉獻資料"
+      headers[1] = all_col_name
+
+      # Yearly report summation data initialization
       all_sum = [0] * (col_hash.size - 2)
       named_sum = [0] * (col_hash.size - 2)
       guest_sum = [0] * (col_hash.size - 2)
 
-      yearly_report_data[-3] = ['', '記名總額', *named_sum]
-      yearly_report_data[-2] = ['', '善心總額', *guest_sum]
-      yearly_report_data[-1] = ['奉獻總額', nil, *all_sum]
+      footers = Array.new(3) { Array.new(col_hash.size) }
+      footers[0] = ['', '記名總額', *named_sum]
+      footers[1] = ['', '善心總額', *guest_sum]
+      footers[2] = ['奉獻總額', nil, *all_sum]
 
       # Yearly report data IO getting
       special_donations = SpecialDonation
@@ -684,7 +734,7 @@ module Api
         col_index = col_hash[event_name]
 
         yearly_report_data[row_index][col_index] = amount
-        yearly_report_data[-3][col_index] += amount
+        footers[0][col_index] += amount
       end
 
       all_gsd.each do |gsd|
@@ -692,18 +742,24 @@ module Api
         amount = gsd[1]
 
         col_index = col_hash[event_name]
-        yearly_report_data[-2][col_index] = amount
+        footers[1][col_index] = amount
+      end
+
+      # Named sum add to guest sum
+      col_hash.each do |_key, value|
+        footers[2][value] = footers[0][value] + footers[1][value]
       end
 
       # Yearly report data summing
       yearly_report_data.each do |row|
-        row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
+        row[-1] = row[2..].sum(&:to_i)
       end
 
-      header_index = 1
-      footer_index = -3
+      yearly_report_data = exclude_zero_value_new(yearly_report_data)
 
-      exclude_zero_value(header_index, footer_index, yearly_report_data)
+      yearly_report_data = headers + yearly_report_data + footers
+
+      [yearly_report_data, events]
     end
 
     def get_sdr_array(event_id, is_announce: false)
@@ -736,19 +792,19 @@ household.comment')
         home_number = e[0]
         row_index = row_hash[home_number]
 
-        name = if e[2].nil?
-                 e[6]
+        name = if e[2].nil? # e[2] is last name of parishioners
+                 e[6] # e[6] is comment for special_donation
                elsif is_announce && !/[a-zA-Z]+/.match?(e[3])
-                 e[3][0] = 'Ｏ'
+                 e[3][0] = 'Ｏ' # e[3] is first name
                  "#{e[2]}#{e[3]}"
                else
                  "#{e[2]}#{e[3]}"
                end
 
-        e[1] = e[1].strftime('%m/%d')
+        e[1] = e[1].strftime('%m/%d') # e[1] is donation_at
         e[2] = name
-        e[3] = e[4]
-        e[4] = e[5]
+        e[3] = e[4] # e[4] is donation amount
+        e[4] = e[5] # e[5] is comment
 
         5.times do |i|
           results[row_index][i] = e[i]
@@ -769,6 +825,20 @@ household.comment')
       all_col_name = ['家號', '姓名', *all_month_str, '戶年度奉獻總計']
       row_hash, col_hash, yearly_report_data = report_data_init(all_col_name)
 
+      headers = Array.new(2) { Array.new(col_hash.size) }
+      headers[0][0] = "#{year}年度主日奉獻資料"
+      headers[1] = all_col_name
+
+      footers = Array.new(3) { Array.new(col_hash.size) }
+      footers[0][0] = '有名氏合計'
+      footers[1][0] = '隱名氏合計'
+      footers[2][0] = '總合計'
+
+      footers[0][-1] = 0
+      footers[1][-1] = 0
+      footers[2][-1] = 0
+
+      # Dynamic data
       begin_date = Date.civil(year, 1, 1)
       end_date = Date.civil(year, -1, -1)
 
@@ -797,10 +867,6 @@ household.comment')
                                   .order('donation_at')
                                   .pluck('donation_at, sum(donation_amount)')
 
-      yearly_report_data[-3][0] = '有名氏合計'
-      yearly_report_data[-2][0] = '隱名氏合計'
-      yearly_report_data[-1][0] = '總合計'
-
       monthly_donation_summations.each do |e|
         month = "#{e[0].month}月"
         home_number = e[1]
@@ -818,7 +884,7 @@ household.comment')
 
         col_index = col_hash[month]
 
-        yearly_report_data[-3][col_index] = amount
+        footers[0][col_index] = amount
       end
 
       guest_donation_summations.map do |e|
@@ -827,22 +893,31 @@ household.comment')
 
         col_index = col_hash[month]
 
-        yearly_report_data[-2][col_index] = amount
-      end
-
-      col_hash.map do |k, col_index|
-        guest_donation = yearly_report_data[-2][col_index].to_i
-        name_donation = yearly_report_data[-3][col_index].to_i
-
-        yearly_report_data[-1][col_index] = guest_donation + name_donation if k.match?(/\d{1,2}月/)
+        footers[1][col_index] = amount
       end
 
       # Parishioner summation added
       yearly_report_data.each do |row|
-        row[-1] = row[2..].sum(&:to_i) if row[-1].nil?
+        row[-1] = row[2..].sum(&:to_i)
       end
 
-      exclude_zero_value(1, -3, yearly_report_data)
+      col_hash.map do |k, col_index|
+        next unless k.match?(/\d{1,2}月/)
+
+        name_donation = footers[0][col_index].to_i
+        guest_donation = footers[1][col_index].to_i
+
+        footers[2][col_index] = guest_donation + name_donation
+
+        footers[0][-1] += name_donation
+        footers[1][-1] += guest_donation
+        footers[2][-1] += name_donation + guest_donation
+      end
+
+      # exclude_zero_value(1, -3, yearly_report_data)
+      yearly_report_data = exclude_zero_value_new(yearly_report_data)
+
+      headers + yearly_report_data + footers
     end
 
     # Get all donation report
@@ -852,6 +927,19 @@ household.comment')
 
       all_col_name = ['家號', '姓名', *all_month_str, '年度主日奉獻總額', '個人其他奉獻總額', '年度總計']
       row_hash, col_hash, yearly_report_data = report_data_init(all_col_name)
+
+      headers = Array.new(2) { Array.new(col_hash.size) }
+      headers[0][0] = "#{year}年度總帳"
+      headers[1] = all_col_name
+
+      footers = Array.new(3) { Array.new(col_hash.size) }
+      footers[0][0] = '單月份記名總額'
+      footers[1][0] = '單月善心總額'
+      footers[2][0] = '單月份奉獻總額'
+
+      footers[0][-1] = 0
+      footers[1][-1] = 0
+      footers[2][-1] = 0
 
       begin_date = Date.civil(year, 1, 1)
       end_date = Date.civil(year, -1, -1)
@@ -909,10 +997,6 @@ household.comment')
                                           .where('household.guest' => true)
                                           .pluck('sum(donation_amount)')
 
-      yearly_report_data[-3][0] = '單月份記名總額'
-      yearly_report_data[-2][0] = '單月善心總額'
-      yearly_report_data[-1][0] = '單月份奉獻總額'
-
       # Every month regular donation summation
       donation_summations.map do |e|
         month = "#{e[0].month}月"
@@ -920,7 +1004,7 @@ household.comment')
 
         col_index = col_hash[month]
 
-        yearly_report_data[-3][col_index] = amount
+        footers[0][col_index] = amount
       end
 
       # Every month guest regular donation summation
@@ -930,7 +1014,7 @@ household.comment')
 
         col_index = col_hash[month]
 
-        yearly_report_data[-2][col_index] = amount
+        footers[1][col_index] = amount
       end
 
       # Parishioner special donation summation
@@ -945,10 +1029,10 @@ household.comment')
       end
 
       # Parishioners special donation summation
-      yearly_report_data[-3][-2] = special_donation_summations.map { |e| e[1] }.sum
+      footers[0][-2] = special_donation_summations.map { |e| e[1] }.sum
 
       # Guest special donation summation
-      yearly_report_data[-2][-2] = guest_special_donation_summations.sum
+      footers[1][-2] = guest_special_donation_summations.sum
 
       # Parishioner donation summation
       yearly_report_data.each_with_index do |row, _index|
@@ -958,17 +1042,23 @@ household.comment')
 
       # Guest and name donation sum
       col_hash.map do |_k, col_index|
-        guest_donation = yearly_report_data[-2][col_index].to_i
-        name_donation = yearly_report_data[-3][col_index].to_i
+        name_donation = footers[0][col_index].to_i
+        guest_donation = footers[1][col_index].to_i
 
-        yearly_report_data[-1][col_index] = guest_donation + name_donation if col_index > 1
+        next unless col_index > 1
+
+        footers[2][col_index] = guest_donation + name_donation
+
+        if col_index < col_hash.size - 1
+          footers[0][-1] += name_donation
+          footers[1][-1] += guest_donation
+        end
       end
 
       # Delete row if summation is 0
-      header_index = 1
-      footer_index = -3
+      yearly_report_data = exclude_zero_value_new(yearly_report_data)
 
-      exclude_zero_value(header_index, footer_index, yearly_report_data)
+      [headers, yearly_report_data, footers]
     end
 
     # @param [Integer] year
@@ -981,6 +1071,19 @@ household.comment')
       summation_str = "#{month}月份總計"
       all_col_name = ['家號', '姓名', *all_sunday_str, summation_str]
       row_hash, col_hash, results = report_data_init(all_col_name)
+
+      headers = Array.new(2) { Array.new(col_hash.size) }
+      headers[0][0] = "#{year}年度#{month}月份主日奉獻資料"
+      headers[1] = all_col_name
+
+      footers = Array.new(3) { Array.new(col_hash.size) }
+      footers[0][0] = '有名氏合計'
+      footers[1][0] = '隱名氏合計'
+      footers[2][0] = '總合計'
+
+      footers[0][-1] = 0
+      footers[1][-1] = 0
+      footers[2][-1] = 0
 
       # Donation amount
       regular_donations_base = RegularDonation
@@ -1021,26 +1124,30 @@ household.comment')
                                   .order('donation_at')
                                   .pluck('donation_at, sum(donation_amount)')
 
-      results[-3][0] = '有名氏合計'
-      results[-2][0] = '隱名氏合計'
-      results[-1][0] = '總合計'
       donation_summations.map do |e|
         col_index = col_hash[e[0].strftime('%m/%d')]
 
-        results[-3][col_index] = e[1]
+        footers[0][col_index] = e[1]
       end
 
       guest_donation_summations.map do |e|
         col_index = col_hash[e[0].strftime('%m/%d')]
 
-        results[-2][col_index] = e[1]
+        footers[1][col_index] = e[1]
       end
 
-      col_hash.map do |k, col_index|
-        guest_donation = results[-2][col_index].to_i
-        name_donation = results[-3][col_index].to_i
+      col_hash.map do |_k, col_index|
+        name_donation = footers[0][col_index].to_i
+        guest_donation = footers[1][col_index].to_i
 
-        results[-1][col_index] = guest_donation + name_donation if k.match?(%r{\d{2}/\d{2}})
+        next unless col_index > 1
+
+        footers[2][col_index] = guest_donation + name_donation
+
+        next unless col_index < col_hash.size - 1
+
+        footers[0][-1] += name_donation
+        footers[1][-1] += guest_donation
       end
 
       # Parishioner summation added
@@ -1049,25 +1156,23 @@ household.comment')
       end
 
       # Delete row if summation is 0
-      header_index = 1
-      footer_index = -3
+      results = exclude_zero_value_new(results)
 
-      exclude_zero_value(header_index, footer_index, results)
+      headers + results + footers
     end
 
-    def report_data_init(all_col_name)
+    def report_data_init(all_col_name, col_index = { home_number: 0, name: 1 })
       all_household = Household
                       .order('home_number')
       all_home_number = all_household.map { |e| e['home_number'] }
-      home_number_index = all_home_number.each_index.to_a.map { |i| i + 1 }
+      home_number_index = all_home_number.each_index.to_a
 
       col_name_index = all_col_name.each_index.to_a
 
       row_hash = Hash[all_home_number.zip(home_number_index)]
       col_hash = Hash[all_col_name.zip(col_name_index)]
 
-      results = Array.new(row_hash.size + 4) { Array.new(col_hash.size) }
-      results[0] = all_col_name
+      results = Array.new(row_hash.size) { Array.new(col_hash.size) }
 
       all_household.each do |household|
         home_number = household['home_number']
@@ -1079,8 +1184,8 @@ household.comment')
         end
 
         row_index = row_hash[home_number]
-        results[row_index][0] = home_number
-        results[row_index][1] = name
+        results[row_index][col_index[:home_number]] = home_number
+        results[row_index][col_index[:name]] = name
       end
       [row_hash, col_hash, results]
     end
