@@ -334,6 +334,11 @@ module Api
 
       results = exclude_zero_value(results, -2)
 
+      # Fill with serial number
+      results.each_with_index do |_, index|
+        results[index][0] = index + 1
+      end
+
       # Calculate summation
       summation = results.sum { |e| e[2].to_i }
       footers[0][2] = summation
