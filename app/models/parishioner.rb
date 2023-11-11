@@ -43,6 +43,13 @@ class Parishioner < ApplicationRecord
     "#{last_name}#{first_name}"
   end
 
+  def full_name_masked
+    return full_name if /[a-zA-Z]+/.match?(first_name)
+
+    first_name_masked = "Ｏ#{first_name[1..]}"
+    "#{last_name}#{first_name_masked}"
+  end
+
   def father_name
     if father_instance.nil?
       father
