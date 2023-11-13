@@ -539,7 +539,7 @@ module Api
             name = parishioner.full_name
             postal_code = parishioner.postal_code
             address_prefix, address_postfix = parishioner.address_divided
-            home_number = parishioner.home_phone
+            home_number = parishioner.home_number
 
             font(Rails.root.join('asset', 'MingLiU.ttf'), size: 12) do
               text "#{name} 兄弟/姊妹 收"
