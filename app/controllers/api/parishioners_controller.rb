@@ -227,7 +227,9 @@ module Api
       all_baptisms = if parishioner_ids.present?
                        Baptism.where(parishioner_id: parishioner_ids)
                      else
-                       Baptism.all
+                       Baptism
+                         .joins(:parishioner)
+                         .where('parishioners.move_out_date is null')
                      end
 
       if all_baptisms.empty?
@@ -507,7 +509,7 @@ module Api
       parishioners = if parishioner_ids.present?
                        Parishioner.where(id: parishioner_ids)
                      else
-                       Parishioner.all
+                       Parishioner.where('move_out_date is null')
                      end
 
       require 'prawn'
