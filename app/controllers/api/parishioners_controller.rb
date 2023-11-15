@@ -529,7 +529,7 @@ module Api
           y_position = page_top - (height * (index / 3))
           x_position = width * (index % 3)
 
-          margin_top = 0.25.in
+          margin_top = 0.4.in
           margin_left = 0.3.in
           bounding_box(
             [x_position + margin_left, y_position - margin_top],
