@@ -1,0 +1,94 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t "hello"
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t("hello") %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# The following keys must be escaped otherwise they will not be retrieved by
+# the default I18n backend:
+#
+# true, false, on, off, yes, no
+#
+# Instead, surround them with single quotes.
+#
+# en:
+#   "true": "foo"
+#
+# To learn more, please read the Rails Internationalization guide
+# available at https://guides.rubyonrails.org/i18n.html.
+
+zh_tw:
+  donation_date_should_be_past: "奉獻時間不應該是未來，目前時間是 %s，但是奉獻時間是 %s"
+  parishioners_id_s_not_found_in_baptism: "教友 %s 尚未登錄領洗資訊"
+  specify_a_godfather_or_a_godmother_not_both: "代父母必須要有一位，且只能有一位"
+  access_denied: "權限不足，存取被拒"
+  baptism_not_found: "領洗資料不存在"
+  confirmation_not_found: "堅振資料不存在"
+  eucharist_not_found: "聖體資料不存在"
+  event_not_found: "奉獻事件不存在"
+  household_not_found: "家號不存在"
+  user_not_found: "使用者不存在"
+  marriage_not_found: "結婚資料不存在"
+  regular_donation_not_found: "主日奉獻資料不存在"
+  parishioner_not_found: "教友資料不存在"
+  invalid_date: "日期選擇無效"
+  please_choose_a_record: "請選擇一筆資料"
+  this_name_of_event_is_already_exists_in_this_year: "該事件名稱在該年已存在"
+  donation_date_should_be_sunday: "主日奉獻的奉獻日期必須是禮拜日"
+  unauthorized: "認證資訊錯誤：帳號或密碼錯誤"
+  parishioner:
+    picture_extension_error: "圖片格式不屬於 %s"
+  event_and_home_number_pair_unique: "該家號在該活動已有奉獻，活動編號：%<event_id>s、家號：%<home_number>s"
+  activerecord:
+    # TODO add more error messages
+    errors:
+      models:
+        sacraments:
+          attributes:
+            godfather_id:
+              not_found: "教友資料中未能找到代父教友資料"
+            godmother_id:
+              not_found: "教友資料中未能找到代母教友資料"
+            presbyter_id:
+              not_found: "教友資料中未能找到神父資料"
+            parishioner_id:
+              not_found: "教友不存在"
+        parishioners:
+          attributes:
+            first_name:
+              blank: "名不可為空"
+            last_name:
+              blank: "姓不可為空"
+            birth_at:
+              blank: "生日不可為空"
+            gender:
+              blank: "性別不可為空"
+            mother_id:
+              not_found: "教友資料中未能找到母親教友資料"
+            father_id:
+              not_found: "教友資料中未能找到父親教友資料"
+            home_number:
+              not_found: "該家號不存在"
+        special_donation:
+          attributes:
+            event_id:
+              blank: "活動編號不可為空"
+              taken: "該家號在該活動已有奉獻"
+            home_number:
+              blank: "家號不可為空"
+            donation_at:
+              blank: "奉獻時間不可為空"
+            donation_amount:
+              blank: "奉獻金額不可為空"

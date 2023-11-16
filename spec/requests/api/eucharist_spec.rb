@@ -27,6 +27,13 @@ RSpec.describe 'api/eucharists', type: :request do
         require: false
       }
 
+      date_description = 'The date field accepts the yyyy format string for baptism searches.
+For example, "2023" would search for baptisms made in 2023.'
+      parameter name: :date, in: :query, description: date_description, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: '彰化'
       }, name: 'query test eucharist', summary: 'Finding the specific eucharist'
@@ -34,6 +41,7 @@ RSpec.describe 'api/eucharists', type: :request do
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) {}
+        let(:date) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -45,39 +53,67 @@ RSpec.describe 'api/eucharists', type: :request do
         run_test!
       end
 
-      # Query search any_field
-      response(200, 'successful') do
+      response(200, 'Format check') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
-        let(:any_field) { '%E5%BD%B0%E5%8C%96' }
-
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
+        let(:any_field) {}
+        let(:date) {}
 
         run_test! do
           data = JSON.parse(response.body)
 
-          # ApplicationRecord to hash
-          eucharist_hash = @eucharist.as_json
+          @eucharists = Eucharist
+                        .all
+                        .as_json(
+                          include: { parishioner: { include: :baptism } },
+                          methods: %i[serial_number],
+                          except: %w[
+                            created_at updated_at
+                          ]
+                        )
 
-          # Delete unused fields
-          eucharist_hash.except!(*%w[
-                                    created_at updated_at
-                                  ])
-          eucharist_hash['parishioner'] = @eucharist.parishioner.as_json
-          eucharist_hash['parishioner']['baptism'] = @eucharist.parishioner.baptism.as_json
+          expect(data).to eq(@eucharists)
+        end
+      end
 
-          expect(data).to eq([eucharist_hash])
+      response(200, 'Query search any_field') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:any_field) { '%E5%BD%B0%E5%8C%96' }
+        let(:date) {}
+
+        run_test! do
+          data = JSON.parse(response.body)
+          data = data.map { |hash| hash['id'] }
+
+          eucharist_hash = Eucharist
+                           .where('eucharist_location LIKE "%彰化%"')
+                           .pluck('id')
+
+          expect(data).to eq(eucharist_hash)
+        end
+      end
+
+      response(200, 'Date search') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:any_field) {}
+        let(:date) { '1988' }
+
+        run_test! do
+          data = JSON.parse(response.body)
+          data = data.map { |hash| hash['id'] }
+
+          date_range = Date.civil(1988, 1, 1)..Date.civil(1988, 12, 31)
+          eucharist_hash = Eucharist
+                           .where(eucharist_at: date_range)
+                           .pluck('id')
+
+          expect(data).to eq(eucharist_hash)
         end
       end
 
       response(401, 'unauthorized') do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
+        let(:date) {}
 
         run_test!
       end

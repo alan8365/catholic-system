@@ -3,6 +3,7 @@
 module Api
   # Eucharists controller
   class EucharistsController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request
     before_action :find_eucharist, except: %i[create index]
 
@@ -11,10 +12,14 @@ module Api
     def index
       authorize! :read, Eucharist
       query = params[:any_field]
+      date = params[:date]
 
       @eucharists = if query
                       string_filed = %w[
-                        eucharist_location godfather godmother presbyter comment
+                        (last_name||first_name)
+                        eucharist_location
+                        godfather godmother presbyter
+                        eucharists.comment
                       ]
 
                       query_string = string_filed.join(" like ? or \n")
@@ -22,10 +27,17 @@ module Api
 
                       query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-                      Eucharist.where([query_string, *query_array])
+                      Eucharist.joins(:parishioner).where([query_string, *query_array])
                     else
                       Eucharist.all
                     end
+
+      if date&.match?(/\d{4}/)
+        year = date.to_i
+        date_range = Date.civil(year, 1, 1)..Date.civil(year, 12, -1)
+
+        @eucharists = @eucharists.where(eucharist_at: date_range)
+      end
 
       @eucharists = @eucharists.select(*%w[
                                          id
@@ -37,13 +49,19 @@ module Api
                                          comment
                                        ])
 
-      render json: @eucharists, include: { parishioner: { include: :baptism } }, status: :ok
+      render json: @eucharists,
+             include: { parishioner: { include: :baptism } },
+             methods: %i[serial_number],
+             status: :ok
     end
 
     # GET /eucharists/{id}
     def show
       authorize! :read, @eucharist
-      render json: @eucharist, include:{ parishioner: { include: :baptism } }, status: :ok
+      render json: @eucharist,
+             include: { parishioner: { include: :baptism } },
+             methods: %i[serial_number],
+             status: :ok
     end
 
     # POST /eucharists
@@ -81,7 +99,7 @@ module Api
     def find_eucharist
       @eucharist = Eucharist.find_by_parishioner_id!(params[:_parishioner_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Eucharist not found' }, status: :not_found
+      render json: { errors: I18n.t('eucharist_not_found') }, status: :not_found
     end
 
     def eucharist_params

@@ -50,9 +50,17 @@ paths:
         schema:
           type: string
           require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for baptism searches.
+          For example, "2023" would search for baptisms made in 2023.
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: Query search any_field with year
         '401':
           description: unauthorized
     post:
@@ -167,9 +175,17 @@ paths:
         schema:
           type: string
           require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for confirmation searches.
+          For example, "2023" would search for confirmations made in 2023.
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: Date search
         '401':
           description: unauthorized
     post:
@@ -194,7 +210,6 @@ paths:
               required:
               - confirmed_at
               - confirmed_location
-              - christian_name
               - presbyter
               - parishioner_id
             examples:
@@ -203,7 +218,6 @@ paths:
                 value:
                   confirmed_at: '1981-11-11'
                   confirmed_location: 彰化市聖十字架天主堂
-                  christian_name: 聖施達
                   godfather: ''
                   godfather_id:
                   godmother: 許00
@@ -252,7 +266,6 @@ paths:
               required:
               - confirmed_at
               - confirmed_location
-              - christian_name
               - presbyter
               - parishioner_id
             examples:
@@ -261,7 +274,6 @@ paths:
                 value:
                   confirmed_at: '1981-11-11'
                   confirmed_location: 彰化市聖十字架天主堂
-                  christian_name: 聖施達
                   godfather: ''
                   godfather_id:
                   godmother: 許00
@@ -295,9 +307,17 @@ paths:
         schema:
           type: string
           require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for baptism searches.
+          For example, "2023" would search for baptisms made in 2023.
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: Date search
         '401':
           description: unauthorized
     post:
@@ -322,7 +342,6 @@ paths:
               required:
               - eucharist_at
               - eucharist_location
-              - christian_name
               - presbyter
               - parishioner_id
             examples:
@@ -331,7 +350,6 @@ paths:
                 value:
                   eucharist_at: '1981-11-11'
                   eucharist_location: 彰化市聖十字架天主堂
-                  christian_name: 聖施達
                   godfather: ''
                   godfather_id:
                   godmother: 許00
@@ -380,7 +398,6 @@ paths:
               required:
               - eucharist_at
               - eucharist_location
-              - christian_name
               - presbyter
               - parishioner_id
             examples:
@@ -389,7 +406,6 @@ paths:
                 value:
                   eucharist_at: '1981-11-11'
                   eucharist_location: 彰化市聖十字架天主堂
-                  christian_name: 聖施達
                   godfather: ''
                   godfather_id:
                   godmother: 許00
@@ -410,6 +426,110 @@ paths:
           description: Forbidden
         '404':
           description: Not Found
+  "/api/events":
+    get:
+      summary: list events
+      tags:
+      - Event
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: date
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: date & any_field mix test
+        '401':
+          description: unauthorized
+    post:
+      summary: create event
+      tags:
+      - Event
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Forbidden
+        '422':
+          description: Event name is blank
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - home_number
+            examples:
+              test event:
+                summary: Test event create
+                value:
+                  name: 聖誕
+                  start_at: '2023-12-25'
+                  comment: 測試用活動
+  "/api/events/{_id}":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show event
+      tags:
+      - Event
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update event
+      tags:
+      - Event
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              test home number change:
+                summary: Test event update
+                value:
+                  home_number: TT521
+                  head_of_event_id: 2
+    delete:
+      summary: delete event
+      tags:
+      - Event
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: successful
+        '403':
+          description: successful
   "/api/households":
     get:
       summary: list households
@@ -424,9 +544,14 @@ paths:
           type: string
           description: aaa
           require: false
+      - name: is_archive
+        in: query
+        description: Search in archive if the value is "true"
+        schema:
+          type: string
       responses:
         '200':
-          description: successful
+          description: Find TT in text field
         '401':
           description: unauthorized
     post:
@@ -486,7 +611,7 @@ paths:
       parameters: []
       responses:
         '204':
-          description: No Content
+          description: Archive household
         '403':
           description: Forbidden
       requestBody:
@@ -500,6 +625,9 @@ paths:
                 value:
                   home_number: TT521
                   head_of_household_id: 2
+                  special: false
+                  guest: false
+                  is_archive: false
     delete:
       summary: delete household
       tags:
@@ -524,9 +652,17 @@ paths:
         schema:
           type: string
           require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for marriage searches.
+          For example, "2023" would search for marriages made in 2023.
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: Successful
+          description: Date search
         '401':
           description: unauthorized
     post:
@@ -609,11 +745,16 @@ paths:
               test_marriage:
                 summary: Test marriage update
                 value:
-                  baptized_at: '1981-11-11'
-                  baptized_location: 彰化市聖十字架天主堂
-                  christian_name: 聖施達
-                  godmother: 許00
+                  marriage_at: '1961-11-11'
+                  marriage_location: 彰化市聖十字架天主堂
+                  groom: 趙爸爸
+                  bride: 孫媽媽
+                  groom_id: 5
+                  bride_id: 4
                   presbyter: 黃世明神父
+                  witness1: 千里眼
+                  witness2: 順風耳
+                  comment: 結婚測試
     delete:
       summary: delete marriage
       tags:
@@ -637,9 +778,13 @@ paths:
       parameters:
       - name: any_field
         in: query
-        description: |-
-          Search from the following fields: name home_number gender address father mother nationality
-          profession company_name home_phone mobile_phone original_parish destination_parish move_out_reason comment.
+        description: 'Search from the following fields: home_number gender name home_phone
+          mobile_phone.'
+        schema:
+          type: string
+      - name: name
+        in: query
+        description: Search from the combine of first_name and last_name
         schema:
           type: string
       - name: is_archive
@@ -649,7 +794,7 @@ paths:
           type: string
       responses:
         '200':
-          description: successful
+          description: Query search name
         '401':
           description: unauthorized
     post:
@@ -661,20 +806,23 @@ paths:
       parameters: []
       responses:
         '201':
-          description: Created
+          description: Minimal data input
         '403':
-          description: Forbidden
+          description: Current user dose not have permission
         '422':
-          description: Unprocessable Entity
+          description: Wrong picture extension
       requestBody:
         content:
           multipart/form-data:
             schema:
               type: object
               properties:
-                name:
+                first_name:
                   type: string
-                  example: 周男人
+                  example: 男人
+                last_name:
+                  type: string
+                  example: 周
                 gender:
                   type: string
                   example: 男
@@ -717,7 +865,8 @@ paths:
                   type: string
                   example: 測試用範例教友
               required:
-              - name
+              - first_name
+              - last_name
               - gender
               - birth_at
   "/api/parishioners/{_id}":
@@ -748,32 +897,29 @@ paths:
       parameters: []
       responses:
         '204':
-          description: No Content
+          description: Blank picture value
         '403':
-          description: Forbidden
+          description: Current user have not permission
         '422':
-          description: Unprocessable Entity
+          description: Home number not found
       requestBody:
         content:
           multipart/form-data:
             schema:
               type: object
               properties:
-                name:
+                first_name:
                   type: string
-                  example: 周男人
+                last_name:
+                  type: string
                 gender:
                   type: string
-                  example: 男
                 birth_at:
                   type: string
-                  example: '1990-01-01'
                 postal_code:
                   type: string
-                  example: '433'
                 address:
                   type: string
-                  example: 彰化縣田尾鄉福德巷359號
                 picture:
                   type: string
                   format: binary
@@ -787,27 +933,22 @@ paths:
                   type: integer
                 home_phone:
                   type: string
-                  example: '12512515'
                 mobile_phone:
                   type: string
-                  example: '09123124512'
                 nationality:
                   type: string
-                  example: 越南
                 profession:
                   type: string
-                  example: 醫生
                 company_name:
                   type: string
-                  example: 恐龍牙醫診所
                 comment:
                   type: string
-                  example: 測試用範例教友
             examples:
               test name change:
                 summary: Test parishioner update
                 value:
-                  name: 台灣偉人
+                  first_name: 偉人
+                  last_name: 台灣
     delete:
       summary: delete parishioner
       tags:
@@ -840,6 +981,635 @@ paths:
           description: Not Found
         '404':
           description: Not Found
+  "/api/parishioners/{_id}/card":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: id card of parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+  "/api/parishioners/{_id}/card_back":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: id card back of parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+  "/api/parishioners/{_id}/certificate":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: certificate of parishioner
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+        '404':
+          description: Not Found
+  "/api/id-cards":
+    post:
+      summary: id cards print of parishioners
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+        '404':
+          description: Baptize Not Found with multiple ids
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              all print example:
+                summary: print all parishioners
+                value: {}
+              ids example:
+                summary: id cards of parishioners
+                value:
+                  ids:
+                  - 1
+                  - 2
+  "/api/letterhead":
+    post:
+      summary: id cards print of parishioners
+      tags:
+      - Parishioner
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              all print example:
+                summary: print all parishioners
+                value: {}
+              ids example:
+                summary: id cards of parishioners
+                value:
+                  ids:
+                  - 1
+                  - 2
+  "/api/regular_donations":
+    get:
+      summary: list regular_donations
+      tags:
+      - Regular Donations
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy/m format string for donation searches.
+          For example, "2023/7" would search for donations made in July 2023.
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: successful
+        '401':
+          description: unauthorized
+    post:
+      summary: create regular_donation
+      tags:
+      - Regular Donations
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '403':
+          description: Current user dose not have permission
+        '422':
+          description: Donation_at is not future
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - home_number
+            examples:
+              test_donation:
+                summary: Test donation create
+                value:
+                  home_number: TT520
+                  donation_at: '2023-07-02'
+                  donation_amount: 1000
+                  receipt: true
+                  comment: 測試用奉獻
+  "/api/regular_donations/{_id}":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show regular_donation
+      tags:
+      - Regular Donations
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update regular_donation
+      tags:
+      - Regular Donations
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              test home number change:
+                summary: Test regular_donation update
+                value:
+                  home_number: TT521
+                  head_of_regular_donation_id: 2
+    delete:
+      summary: delete regular_donation
+      tags:
+      - Regular Donations
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: successful
+        '403':
+          description: successful
+  "/api/report/all_donations/year":
+    get:
+      summary: all_donation_yearly_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for donation searches.
+          For example, "2023" would generate report for donations made in 2023.
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: any_field test
+        '400':
+          description: Unprocessable Entity
+        '401':
+          description: Unauthorized
+  "/api/report/regular_donations/month":
+    get:
+      summary: regular_donation_monthly_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy/mm format string for donation searches.
+          For example, "2023/7" would generate report for donations made in July 2023.
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: announce
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: announce
+        '400':
+          description: Unprocessable Entity
+        '401':
+          description: unauthorized
+  "/api/report/regular_donations/year":
+    get:
+      summary: regular_donation_yearly_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for donation searches.
+          For example, "2023" would generate report for donations made in 2023.
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: announce
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: announce
+        '400':
+          description: Unprocessable Entity
+        '401':
+          description: Unauthorized
+  "/api/report/regular_donations/receipt":
+    get:
+      summary: regular_donation_yearly_receipt report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for donation searches.
+          For example, "2023" would generate report for donations made in 2023.
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: any_field test
+        '400':
+          description: Unprocessable Entity
+        '401':
+          description: Unauthorized
+  "/api/report/special_donations/event":
+    get:
+      summary: special_donation_event_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: event_id
+        in: query
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: announce
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: announce test
+        '404':
+          description: Not found
+        '401':
+          description: Unauthorized
+  "/api/report/special_donations/year":
+    get:
+      summary: special_donation_yearly_report report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy format string for donation searches.
+          For example, "2023" would generate report for donations made in 2023.
+        schema:
+          type: string
+          require: true
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: announce
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: announce test
+        '401':
+          description: Unauthorized
+  "/api/report/parishioner":
+    post:
+      summary: parishioner report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: multi id test
+        '401':
+          description: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              report test:
+                summary: Get 3 parishioners report by id
+                value:
+                  pid:
+                  - 1
+                  - 2
+                  - 3
+  "/api/report/regular_donations":
+    post:
+      summary: regular_donation report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: multi id test
+        '401':
+          description: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              report test:
+                summary: Get 3 regular donations report by id
+                value:
+                  ids:
+                  - 1
+                  - 2
+                  - 3
+  "/api/report/special_donations":
+    post:
+      summary: special_donation report
+      tags:
+      - Reports
+      security:
+      - Bearer: {}
+      parameters:
+      - name: test
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '400':
+          description: empty id test
+        '200':
+          description: multi id test:false
+        '401':
+          description: Unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              report test:
+                summary: Get 3 special donations report by id
+                value:
+                  ids:
+                  - 1
+                  - 2
+                  - 3
+  "/api/special_donations":
+    get:
+      summary: list special_donations
+      tags:
+      - Special Donations
+      security:
+      - Bearer: {}
+      parameters:
+      - name: any_field
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: date
+        in: query
+        description: |-
+          The date field accepts the yyyy/m format string for donation searches.
+          For example, "2023/7" would search for donations made in July 2023.
+        schema:
+          type: string
+          require: false
+      - name: event_id
+        in: query
+        schema:
+          type: string
+          require: false
+      responses:
+        '200':
+          description: event_id and any_field query
+        '401':
+          description: unauthorized
+    post:
+      summary: create special_donation
+      tags:
+      - Special Donations
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '201':
+          description: Special home number added
+        '403':
+          description: Current user dose not have permission
+        '422':
+          description: Home number is blank
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - home_number
+            examples:
+              test_donation:
+                summary: Test donation create
+                value:
+                  event_id: 1
+                  home_number: TT520
+                  donation_at: '2023-07-02'
+                  donation_amount: 1000
+                  receipt: true
+                  comment: 測試用奉獻
+  "/api/special_donations/{_id}":
+    parameters:
+    - name: _id
+      in: path
+      description: _id
+      required: true
+      schema:
+        type: string
+    get:
+      summary: show special_donation
+      tags:
+      - Special Donations
+      security:
+      - Bearer: {}
+      responses:
+        '200':
+          description: successful
+        '404':
+          description: Not Found
+    patch:
+      summary: update special_donation
+      tags:
+      - Special Donations
+      security:
+      - Bearer: {}
+      parameters: []
+      responses:
+        '204':
+          description: No Content
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+            examples:
+              test home number change:
+                summary: Test special_donation update
+                value:
+                  home_number: TT521
+                  head_of_special_donation_id: 2
+    delete:
+      summary: delete special_donation
+      tags:
+      - Special Donations
+      security:
+      - Bearer: {}
+      responses:
+        '204':
+          description: successful
+        '403':
+          description: successful
   "/api/users":
     get:
       summary: list users
@@ -920,9 +1690,9 @@ paths:
       parameters: []
       responses:
         '204':
-          description: No Content
+          description: Change password
         '403':
-          description: Forbidden
+          description: Current user have not permission
         '422':
           description: Unprocessable Entity
       requestBody:
@@ -995,6 +1765,7 @@ paths:
         '404':
           description: User not found
 servers:
+- url: http://163.17.135.152:7465
 - url: http://{defaultHost}
   variables:
     defaultHost:

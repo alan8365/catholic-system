@@ -31,3 +31,64 @@
 
 en:
   hello: "Hello world"
+  donation_date_should_be_past: "Donation date should be past. Today is %s but the donation day is %s"
+  parishioners_id_s_not_found_in_baptism: "Parishioners %s is not found in baptisms record"
+  specify_a_godfather_or_a_godmother_not_both: "Specify a godfather or a godmother, not both"
+  access_denied: "Access denied"
+  baptism_not_found: "Baptism not found"
+  confirmation_not_found: "Confirmation not found"
+  eucharist_not_found: "Eucharist not found"
+  event_not_found: "Event not found"
+  household_not_found: "Household not found"
+  user_not_found: "User not found"
+  marriage_not_found: "Marriage not found"
+  regular_donation_not_found: "Regular Donation not found"
+  parishioner_not_found: "Parishioner not found"
+  invalid_date: "Invalid date"
+  please_choose_a_record: "Please choose a record"
+  this_name_of_event_is_already_exists_in_this_year: "This name of event is already exists in this year"
+  donation_date_should_be_sunday: "Donation date should be sunday."
+  unauthorized: "unauthorized"
+  parishioner:
+    picture_extension_error: "Picture extension is not belong to %s"
+  event_and_home_number_pair_unique: "Event and home number pair (%<event_id>s, %<home_number>s) already exists"
+  activerecord:
+    errors:
+      models:
+        sacraments:
+          attributes:
+            godfather_id:
+              not_found: "Godfather not found"
+            godmother_id:
+              not_found: "Godmother not found"
+            presbyter_id:
+              not_found: "Presbyter not found"
+            parishioner_id:
+              not_found: "Parishioner not found"
+        parishioners:
+          attributes:
+            first_name:
+              blank: "first name can't be blank"
+            last_name:
+              blank: "last name can't be blank"
+            birth_at:
+              blank: "birth date can't be blank"
+            gender:
+              blank: "gender can't be blank"
+            mother_id:
+              not_found: "Mother not found"
+            father_id:
+              not_found: "Father not found"
+            home_number:
+              not_found: "Home number not found"
+        special_donation:
+          attributes:
+            event_id:
+              blank: "event id can't be blank"
+              taken: "event has been taken"
+            home_number:
+              blank: "home number can't be blank"
+            donation_at:
+              blank: "donation date can't be blank"
+            donation_amount:
+              blank: "donation amount can't be blank"

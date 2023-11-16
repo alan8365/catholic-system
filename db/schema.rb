@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_30_171003) do
+ActiveRecord::Schema[7.0].define(version: 2023_07_12_171003) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -85,9 +85,19 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_30_171003) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "events", force: :cascade do |t|
+    t.string "name"
+    t.date "start_at"
+    t.string "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "households", primary_key: "home_number", id: :string, force: :cascade do |t|
     t.integer "head_of_household"
     t.boolean "special", default: false
+    t.boolean "guest", default: false
+    t.boolean "is_archive", default: false
     t.string "comment"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -116,7 +126,8 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_30_171003) do
   end
 
   create_table "parishioners", force: :cascade do |t|
-    t.string "name"
+    t.string "first_name"
+    t.string "last_name"
     t.string "gender"
     t.date "birth_at"
     t.string "postal_code"
@@ -134,13 +145,33 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_30_171003) do
     t.integer "mother_id"
     t.integer "father_id"
     t.string "home_number"
-    t.integer "sibling_number", default: 0
-    t.integer "children_number", default: 0
     t.date "move_in_date"
     t.string "original_parish"
     t.date "move_out_date"
     t.string "move_out_reason"
     t.string "destination_parish"
+  end
+
+  create_table "regular_donations", force: :cascade do |t|
+    t.string "home_number"
+    t.date "donation_at"
+    t.integer "donation_amount"
+    t.string "comment"
+    t.boolean "receipt", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "special_donations", force: :cascade do |t|
+    t.integer "event_id"
+    t.string "home_number"
+    t.date "donation_at"
+    t.integer "donation_amount"
+    t.string "comment"
+    t.boolean "receipt", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "home_number"], name: "index_special_donations_on_event_id_and_home_number", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -165,15 +196,17 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_30_171003) do
   add_foreign_key "confirmations", "parishioners", column: "presbyter_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "confirmations", "parishioners", on_update: :cascade, on_delete: :cascade
   add_foreign_key "eucharists", "parishioners", column: "godfather_id", on_update: :cascade, on_delete: :nullify
-  add_foreign_key "eucharists", "parishioners", column: "godfather_id", on_update: :cascade, on_delete: :nullify
-  add_foreign_key "eucharists", "parishioners", column: "godmother_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "eucharists", "parishioners", column: "godmother_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "eucharists", "parishioners", column: "presbyter_id", on_update: :cascade, on_delete: :nullify
-  add_foreign_key "eucharists", "parishioners", column: "presbyter_id", on_update: :cascade, on_delete: :nullify
-  add_foreign_key "eucharists", "parishioners", on_update: :cascade, on_delete: :cascade
   add_foreign_key "eucharists", "parishioners", on_update: :cascade, on_delete: :cascade
   add_foreign_key "households", "parishioners", column: "head_of_household", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "marriages", "parishioners", column: "bride_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "marriages", "parishioners", column: "groom_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "marriages", "parishioners", column: "presbyter_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "parishioners", "households", column: "home_number", primary_key: "home_number", on_update: :cascade, on_delete: :nullify
   add_foreign_key "parishioners", "parishioners", column: "father_id", on_update: :cascade, on_delete: :nullify
   add_foreign_key "parishioners", "parishioners", column: "mother_id", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "regular_donations", "households", column: "home_number", primary_key: "home_number", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "special_donations", "events", on_update: :cascade, on_delete: :nullify
+  add_foreign_key "special_donations", "households", column: "home_number", primary_key: "home_number", on_update: :cascade, on_delete: :nullify
 end

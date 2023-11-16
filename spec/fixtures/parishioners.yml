@@ -3,7 +3,8 @@
 test_m:
   id: 1
 
-  name: 趙男人
+  first_name: 男人
+  last_name: 趙
   gender: 男
   birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
   postal_code: 433
@@ -11,6 +12,10 @@ test_m:
 
   father: 趙爸爸
   mother: 孫媽媽
+
+  father_id: 5
+  mother_id: 4
+
   home_phone: "047221245"
   mobile_phone: "0987372612"
   nationality: 中華民國
@@ -18,19 +23,16 @@ test_m:
   company_name: 科技大學
   home_number: TT520
 
-  sibling_number: 0
-  children_number: 0
-
   move_in_date: <%= Date.strptime('2013/01/01', '%Y/%m/%d') %>
   original_parish: 'ＯＯ堂區'
-
 
   comment: 測試用男性教友一號
 
 test_f:
   id: 2
 
-  name: 錢女人
+  first_name: 女人
+  last_name: 錢
   gender: 女
   birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
   postal_code: 433
@@ -46,40 +48,42 @@ test_f:
   company_name: 科技大學
   home_number: TT520
 
-  sibling_number: 0
-  children_number: 0
-
   move_in_date: <%= Date.strptime('2013/01/01', '%Y/%m/%d') %>
   original_parish: 'ＯＯ堂區'
 
   comment: 測試用女性教友一號
 
-
 test_o:
   id: 3
 
-  name: 路人甲
+  home_number: KK520
+
+  first_name: 人甲
+  last_name: 路
   gender: 女
   birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
 
 test_mother:
   id: 4
 
-  name: 孫媽媽
+  first_name: 媽媽
+  last_name: 孫
   gender: 女
   birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
 
 test_father:
   id: 5
 
-  name: 趙爸爸
+  first_name: 爸爸
+  last_name: 趙
   gender: 男
   birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
 
 test_move_out:
   id: 6
 
-  name: 千某某
+  first_name: 某某
+  last_name: 千
   gender: 男
   birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
 
@@ -90,6 +94,23 @@ test_move_out:
 test_father2:
   id: 7
 
-  name: 錢爸爸
+  first_name: 爸爸
+  last_name: 錢
   gender: 男
   birth_at: <%= Date.strptime("1950/01/01", "%Y/%m/%d") %>
+
+test_sibling:
+  id: 8
+
+  first_name: 弟弟
+  last_name: 趙
+  gender: 男
+  birth_at: <%= Date.strptime("1990/01/01", "%Y/%m/%d") %>
+  postal_code: 433
+  address: 台中市北區三民路某段某號
+
+  father: 趙爸爸
+  mother: 孫媽媽
+
+  father_id: 5
+  mother_id: 4

@@ -26,6 +26,10 @@ RSpec.describe 'api/households', type: :request do
         require: false
       }
 
+      parameter name: :is_archive, in: :query, description: 'Search in archive if the value is "true"', schema: {
+        type: :string
+      }
+
       request_body_example value: {
         any_field: 'TT'
       }, name: 'query test household', summary: 'Finding all test household'
@@ -33,21 +37,42 @@ RSpec.describe 'api/households', type: :request do
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
+        let(:is_archive) {}
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
+        run_test! do
+          data = JSON.parse(response.body)
+
+          @household_archive = Household.where(is_archive: false)
+
+          data_home_number = data.map { |hash| hash['home_number'] }
+          except_home_number = @household_archive.map { |hash| hash['home_number'] }
+
+          expect(data_home_number).to eq(except_home_number)
         end
-        run_test!
+      end
+
+      response(200, 'List archive households') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:any_field) {}
+        let(:is_archive) { 'true' }
+
+        run_test! do
+          data = JSON.parse(response.body)
+
+          @household_archive = Household.where(is_archive: true)
+
+          data_home_number = data.map { |hash| hash['home_number'] }
+          except_home_number = @household_archive.map { |hash| hash['home_number'] }
+
+          expect(data_home_number).to eq(except_home_number)
+        end
       end
 
       # query
-      response(200, 'successful') do
+      response(200, 'Find TT in text field') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { 'TT' }
+        let(:is_archive) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -61,6 +86,9 @@ RSpec.describe 'api/households', type: :request do
           data = JSON.parse(response.body)
 
           household_hash = @household.as_json
+          household_hash['head_of_household'] = @household.head_of_household.as_json
+          household_hash['parishioners'] = @household.parishioners.as_json
+
           household_hash.except!(*%w[
                                    created_at updated_at
                                  ])
@@ -72,6 +100,7 @@ RSpec.describe 'api/households', type: :request do
       response(401, 'unauthorized') do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
+        let(:is_archive) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -215,9 +244,12 @@ RSpec.describe 'api/households', type: :request do
       request_body_example value: {
         home_number: 'TT521',
         head_of_household_id: 2,
+        special: false,
+        guest: false,
+        is_archive: false
       }, name: 'test home number change', summary: 'Test household update'
 
-      response(204, 'No Content') do
+      response(204, 'Change home_number and head_of_household') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_home_number) { 'TT520' }
         let(:household) { { home_number: 'TT521', head_of_household_id: 2 } }
@@ -228,13 +260,13 @@ RSpec.describe 'api/households', type: :request do
         end
       end
 
-      response(204, 'No Content') do
+      response(204, 'Archive household') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_home_number) { 'TT520' }
-        let(:household) { { head_of_household_id: 2 } }
+        let(:household) { { is_archive: true } }
 
         run_test! do
-          expect(Household.find_by_home_number('TT520').head_of_household.id).to eq(2)
+          expect(Household.find_by_home_number('TT520').is_archive).to eq(true)
         end
       end
 

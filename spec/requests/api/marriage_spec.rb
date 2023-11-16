@@ -35,6 +35,13 @@ RSpec.describe 'api/marriages', type: :request do
         require: false
       }
 
+      date_description = 'The date field accepts the yyyy format string for marriage searches.
+For example, "2023" would search for marriages made in 2023.'
+      parameter name: :date, in: :query, description: date_description, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: '某某'
       }, name: 'query test parishioner', summary: 'Finding the specific parishioner'
@@ -42,27 +49,38 @@ RSpec.describe 'api/marriages', type: :request do
       response(200, 'Successful') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) {}
+        let(:date) {}
 
-        after do |example|
-          content = example.metadata[:response][:content] || {}
-          example_spec = {
-            'application/json' => {
-              examples: {
-                test_example: {
-                  value: JSON.parse(response.body, symbolize_names: true)
-                }
-              }
-            }
-          }
-          example.metadata[:response][:content] = content.deep_merge(example_spec)
-        end
         run_test!
       end
 
-      # Query search any_field
-      response(200, 'Successful') do
+      response(200, 'Format check') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:any_field) {}
+        let(:date) {}
+
+        run_test! do
+          data = JSON.parse(response.body)
+
+          marriages_hash = Marriage
+                           .all
+                           .as_json(
+                             include: {
+                               groom_instance: { include: :baptism },
+                               bride_instance: { include: :baptism }
+                             },
+                             methods: %i[serial_number],
+                             except: %w[created_at updated_at]
+                           )
+
+          expect(data).to eq(marriages_hash)
+        end
+      end
+
+      response(200, 'Query search any_field') do
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) { '%E8%B6%99%E7%94%B7%E4%BA%BA' }
+        let(:date) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -74,27 +92,38 @@ RSpec.describe 'api/marriages', type: :request do
 
         run_test! do |response|
           data = JSON.parse(response.body)
+          data = data.map { |hash| hash['id'] }
 
           # ApplicationRecord to hash
-          marriage_hash = @marriage.as_json
-
-          # Delete unused fields
-          marriage_hash.except!(*%w[
-                                  created_at updated_at
-                                ])
-          marriage_hash['groom_instance'] = @marriage.groom_instance.as_json
-          marriage_hash['groom_instance']['baptism'] = @marriage.groom_instance.baptism.as_json
-
-          marriage_hash['bride_instance'] = @marriage.bride_instance.as_json
-          # marriage_hash['bride_instance']['baptism'] = @marriage.bride_instance.baptism.as_json
+          marriage_hash = @marriage.id
 
           expect(data).to eq([marriage_hash])
+        end
+      end
+
+      response(200, 'Date search') do
+        let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
+        let(:any_field) {}
+        let(:date) { 1960 }
+
+        run_test! do |response|
+          data = JSON.parse(response.body)
+          data = data.map { |hash| hash['id'] }
+
+          date_range = Date.civil(1960, 1, 1)..Date.civil(1960, 12, 31)
+          # ApplicationRecord to hash
+          marriage_hash = Marriage
+                          .where(marriage_at: date_range)
+                          .pluck('id')
+
+          expect(data).to eq(marriage_hash)
         end
       end
 
       response(401, 'unauthorized') do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
+        let(:date) {}
 
         after do |example|
           example.metadata[:response][:content] = {

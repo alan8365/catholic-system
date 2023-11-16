@@ -5,7 +5,27 @@ first_baptism:
   baptized_location: 彰化市聖十字架天主堂
   christian_name: 安東尼
 
-  godfather: 張00
+  godfather: 王小華
   presbyter: 黃世明神父
 
   parishioner_id: 1
+
+second_baptism:
+  baptized_at: 1980-10-30
+  baptized_location: 台中市聖十字架天主堂
+  christian_name: 路人甲
+
+  godfather: 王小華
+  presbyter: 黃世明神父
+
+  parishioner_id: 3
+
+third_baptism:
+  baptized_at: 1988-10-30
+  baptized_location: 台中市聖十字架天主堂
+  christian_name: 路人甲
+
+  godfather: 王小華
+  presbyter: 黃世明神父
+
+  parishioner_id: 8

@@ -31,10 +31,8 @@ class CreateMarriages < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
-    add_foreign_key :eucharists, :parishioners, column: 'parishioner_id', on_update: :cascade, on_delete: :cascade
-
-    add_foreign_key :eucharists, :parishioners, column: 'godfather_id', on_delete: :nullify, on_update: :cascade
-    add_foreign_key :eucharists, :parishioners, column: 'godmother_id', on_delete: :nullify, on_update: :cascade
-    add_foreign_key :eucharists, :parishioners, column: 'presbyter_id', on_delete: :nullify, on_update: :cascade
+    add_foreign_key :marriages, :parishioners, column: 'groom_id', on_delete: :nullify, on_update: :cascade
+    add_foreign_key :marriages, :parishioners, column: 'bride_id', on_delete: :nullify, on_update: :cascade
+    add_foreign_key :marriages, :parishioners, column: 'presbyter_id', on_delete: :nullify, on_update: :cascade
   end
 end

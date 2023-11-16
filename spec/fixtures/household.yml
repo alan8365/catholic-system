@@ -2,4 +2,17 @@
 
 tt520:
   home_number: TT520
-  head_of_household: test_f
+  head_of_household: 1
+
+kk520:
+  home_number: KK520
+  head_of_household: 3
+
+kk521:
+  home_number: KK521
+  head_of_household: 3
+  is_archive: true
+
+vietnam:
+  home_number: V
+  special: true

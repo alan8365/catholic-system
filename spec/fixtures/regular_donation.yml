@@ -1,0 +1,9 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+number1:
+  home_number: TT520
+
+  donation_at:  <%= Date.strptime("2023/06/29", "%Y/%m/%d") %>
+  donation_amount: 2000
+
+  comment: '測試用奉獻資料'

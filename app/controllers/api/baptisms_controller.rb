@@ -3,6 +3,7 @@
 module Api
   # CRUD for baptism
   class BaptismsController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request
     before_action :find_baptism, except: %i[create index]
 
@@ -11,10 +12,14 @@ module Api
     def index
       authorize! :read, Baptism
       query = params[:any_field]
+      date = params[:date]
 
-      @baptisms = if query
+      @baptisms = if query.present?
                     string_filed = %w[
-                      baptized_location christian_name godfather godmother presbyter comment
+                      (last_name||first_name)
+                      baptized_location christian_name
+                      godfather godmother presbyter
+                      baptisms.comment
                     ]
 
                     query_string = string_filed.join(" like ? or \n")
@@ -22,10 +27,17 @@ module Api
 
                     query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-                    Baptism.where([query_string, *query_array])
+                    Baptism.joins(:parishioner).where([query_string, *query_array])
                   else
                     Baptism.all
                   end
+
+      if date&.match?(/\d{4}/)
+        year = date.to_i
+        date_range = Date.civil(year, 1, 1)..Date.civil(year, 12, -1)
+
+        @baptisms = @baptisms.where(baptized_at: date_range)
+      end
 
       @baptisms = @baptisms.select(*%w[
                                      id
@@ -37,13 +49,19 @@ module Api
                                      comment
                                    ])
 
-      render json: @baptisms, include: %i[parishioner], status: :ok
+      render json: @baptisms,
+             include: %i[parishioner],
+             methods: %i[serial_number],
+             status: :ok
     end
 
     # GET /baptisms/{id}
     def show
       authorize! :read, @baptism
-      render json: @baptism, include: %i[parishioner], status: :ok
+      render json: @baptism,
+             include: %i[parishioner],
+             methods: %i[serial_number],
+             status: :ok
     end
 
     # POST /baptisms
@@ -88,7 +106,7 @@ module Api
     def find_baptism
       @baptism = Baptism.find_by_parishioner_id!(params[:_parishioner_id])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Baptism not found' }, status: :not_found
+      render json: { errors: I18n.t('baptism_not_found') }, status: :not_found
     end
 
     def baptism_params

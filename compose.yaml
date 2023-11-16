@@ -1,0 +1,15 @@
+services:
+  back-end:
+    image: alan8365/catholic:latest
+    ports:
+      - $HOST_BACK_PORT:$CONTAINER_BACK_PORT
+    volumes:
+      - sqlite3:/usr/src/app/db/sqlite3
+  front-end:
+    image: ping12241/church_frontend
+    ports:
+      - $HOST_FRONT_PORT:$CONTAINER_FRONT_PORT
+    environment:
+      - MODE=${MODE}
+volumes:
+  sqlite3: {}

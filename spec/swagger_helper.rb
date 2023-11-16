@@ -29,6 +29,9 @@ RSpec.configure do |config|
       paths: {},
       servers: [
         {
+          url: 'http://163.17.135.152:7465'
+        },
+        {
           url: 'http://{defaultHost}',
           variables: {
             defaultHost: {

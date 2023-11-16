@@ -2,31 +2,52 @@
 
 module Api
   class HouseholdsController < ApplicationController
+    before_action :cors_setting
     before_action :authorize_request
     before_action :find_household, except: %i[create index]
 
     # GET /households
     def index
       authorize! :read, Household
-      @query = params[:any_field]
+      query = params[:any_field]
+      is_archive = params[:is_archive]
 
-      @households = if @query
-                      Household
-                        .where(['home_number like ?', "%#{@query}%"])
+      if query
+        string_filed = %w[
+          home_number
+          comment
+        ]
+
+        query_string = string_filed.join(" like ? or \n")
+        query_string += ' like ?'
+
+        query_array = string_filed.map { |_| "%#{query}%" }.compact
+
+        @households = Household.where([query_string, *query_array])
+      else
+        @households = Household.all
+      end
+
+      @households = if is_archive == 'true'
+                      @households.where('is_archive' => true)
                     else
-                      Household.all
+                      @households.where('is_archive' => false)
                     end
 
       @households = @households
-                      .select(*%w[home_number head_of_household special comment])
+                    .select(*%w[
+                              home_number head_of_household
+                              special guest is_archive
+                              comment
+                            ])
 
-      render json: @households, status: :ok
+      render json: @households, include: %i[head_of_household parishioners], status: :ok
     end
 
     # GET /households/{home_number}
     def show
       authorize! :read, @household
-      render json: @household, status: :ok
+      render json: @household, include: %i[head_of_household parishioners], status: :ok
     end
 
     # POST /households
@@ -75,12 +96,17 @@ module Api
     def find_household
       @household = Household.find_by_home_number!(params[:_home_number])
     rescue ActiveRecord::RecordNotFound
-      render json: { errors: 'Household not found' }, status: :not_found
+      render json: { errors: I18n.t('household_not_found') }, status: :not_found
     end
 
     def household_params
       params.permit(
-        *%i[home_number head_of_household head_of_household_id special comment]
+        *%i[
+          home_number
+          head_of_household head_of_household_id
+          special guest is_archive
+          comment
+        ]
       )
     end
 
