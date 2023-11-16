@@ -104,10 +104,16 @@ For example, "2023/7" would generate report for donations made in July 2023.'
         require: false
       }
 
+      parameter name: :announce, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { '2023/07' }
         let(:test) { 'true' }
+        let(:announce) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -120,10 +126,28 @@ For example, "2023/7" would generate report for donations made in July 2023.'
         run_test!
       end
 
-      response(400, 'successful') do
+      response(200, 'announce') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:date) { '2023/07' }
+        let(:test) { 'true' }
+        let(:announce) { 'true' }
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        run_test!
+      end
+
+      response(400, 'Unprocessable Entity') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { '2023' }
         let(:test) { 'true' }
+        let(:announce) {}
 
         run_test!
       end
@@ -132,6 +156,7 @@ For example, "2023/7" would generate report for donations made in July 2023.'
         let(:authorization) { '' }
         let(:date) { '2023/07' }
         let(:test) { 'true' }
+        let(:announce) {}
 
         run_test!
       end
@@ -155,10 +180,16 @@ For example, "2023" would generate report for donations made in 2023.'
         require: false
       }
 
+      parameter name: :announce, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { '2023' }
         let(:test) { 'true' }
+        let(:announce) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -167,6 +198,15 @@ For example, "2023" would generate report for donations made in 2023.'
             }
           }
         end
+        run_test!
+      end
+
+      response(200, 'announce') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:date) { '2023' }
+        let(:test) { 'true' }
+        let(:announce) { 'true' }
+
         run_test!
       end
 
@@ -337,10 +377,25 @@ For example, "2023" would generate report for donations made in 2023.'
         require: false
       }
 
+      parameter name: :announce, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { 2023 }
         let(:test) { 'true' }
+        let(:announce) {}
+
+        run_test!
+      end
+
+      response(200, 'announce test') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:date) { 2023 }
+        let(:test) { 'true' }
+        let(:announce) { 'true' }
 
         run_test!
       end

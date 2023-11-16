@@ -1261,11 +1261,16 @@ paths:
         schema:
           type: string
           require: false
+      - name: announce
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: announce
         '400':
-          description: successful
+          description: Unprocessable Entity
         '401':
           description: unauthorized
   "/api/report/regular_donations/year":
@@ -1289,9 +1294,14 @@ paths:
         schema:
           type: string
           require: false
+      - name: announce
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: announce
         '400':
           description: Unprocessable Entity
         '401':
@@ -1380,9 +1390,14 @@ paths:
         schema:
           type: string
           require: false
+      - name: announce
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
-          description: successful
+          description: announce test
         '401':
           description: Unauthorized
   "/api/report/parishioner":

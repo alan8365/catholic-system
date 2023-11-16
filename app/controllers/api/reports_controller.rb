@@ -80,6 +80,7 @@ module Api
 
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+      is_announce = ActiveModel::Type::Boolean.new.cast(params[:announce])
 
       unless date&.match?(%r{^\d{4}/\d{1,2}$})
         return render json: { errors: I18n.t('invalid_date') },
@@ -89,7 +90,7 @@ module Api
       require 'axlsx'
       # Date process
       year, month = date.split('/').map(&:to_i)
-      monthly_report_data = get_monthly_rdr_array(year, month)
+      monthly_report_data = get_monthly_rdr_array(year, month, is_announce:)
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
@@ -108,6 +109,7 @@ module Api
 
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+      is_announce = ActiveModel::Type::Boolean.new.cast(params[:announce])
 
       return render json: { errors: I18n.t('invalid_date') }, status: :bad_request unless date&.match?(/^\d{4}$/)
 
@@ -125,14 +127,14 @@ module Api
         month_string = month.to_s.rjust(2, '0')
         date_string = "#{year}/#{month_string}"
 
-        monthly_report_data = get_monthly_rdr_array(year, month)
+        monthly_report_data = get_monthly_rdr_array(year, month, is_announce:)
         every_monthly_report[date_string] = monthly_report_data
 
         rd_monthly_xlsx_fill(monthly_report_data, wb, "#{month}月")
       end
 
       # Results array process
-      yearly_report_data = get_yearly_rdr_array(year)
+      yearly_report_data = get_yearly_rdr_array(year, is_announce:)
 
       wb.add_worksheet(name: '年度奉獻明細') do |sheet|
         sheet_width = yearly_report_data[0].size
@@ -197,6 +199,7 @@ module Api
 
       date = params[:date]
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
+      is_announce = ActiveModel::Type::Boolean.new.cast(params[:announce])
 
       return render json: { errors: I18n.t('invalid_date') }, status: :bad_request unless date&.match?(/^\d{4}$/)
 
@@ -204,7 +207,7 @@ module Api
 
       year = date.to_i
 
-      yearly_report_data, events = get_yearly_sdr_array(year)
+      yearly_report_data, events = get_yearly_sdr_array(year, is_announce:)
 
       axlsx_package = Axlsx::Package.new
       wb = axlsx_package.workbook
@@ -212,7 +215,7 @@ module Api
       events.each do |event|
         event_id = event.id
 
-        event_report_data = get_sdr_array(event_id)
+        event_report_data = get_sdr_array(event_id, is_announce:)
 
         wb.add_worksheet(name: event.name) do |sheet|
           sd_event_worksheet(sheet, wb, event_report_data)
@@ -684,7 +687,7 @@ module Api
     #     tuple: A tuple containing:
     #         - yearly_report_data (list): The generated yearly report data array.
     #         - events (QuerySet): The events related to the generated report data.
-    def get_yearly_sdr_array(year)
+    def get_yearly_sdr_array(year, is_announce: false)
       begin_date = Date.civil(year, 1, 1)
       end_date = Date.civil(year, 12, -1)
 
@@ -698,7 +701,7 @@ module Api
       all_col_name = ['序號', '家號', '姓名', *all_event_name, '總計']
 
       # Yearly report size setting
-      row_hash, col_hash, yearly_report_data = report_data_init(all_col_name)
+      row_hash, col_hash, yearly_report_data = report_data_init(all_col_name, is_announce:)
 
       # Yearly report header setting
       headers = Array.new(2) { Array.new(col_hash.size) }
@@ -822,11 +825,11 @@ household.comment')
       headers + results + footers
     end
 
-    def get_yearly_rdr_array(year)
+    def get_yearly_rdr_array(year, is_announce: false)
       all_month_str = (1..12).to_a.map { |e| "#{e}月" }
 
       all_col_name = ['序號', '家號', '姓名', *all_month_str, '戶年度奉獻總計']
-      row_hash, col_hash, yearly_report_data = report_data_init(all_col_name)
+      row_hash, col_hash, yearly_report_data = report_data_init(all_col_name, is_announce:)
 
       headers = Array.new(2) { Array.new(col_hash.size) }
       headers[0][0] = "#{year}年度主日奉獻資料"
@@ -1077,13 +1080,13 @@ household.comment')
     # @param [Integer] year
     # @param [Integer] month
     # @return [Array]
-    def get_monthly_rdr_array(year, month)
+    def get_monthly_rdr_array(year, month, is_announce: false)
       all_sunday, all_sunday_str = get_all_sunday_in_month(month, year)
 
       # Results array process
       summation_str = "#{month}月份總計"
       all_col_name = ['序號', '家號', '姓名', *all_sunday_str, summation_str]
-      row_hash, col_hash, results = report_data_init(all_col_name)
+      row_hash, col_hash, results = report_data_init(all_col_name, is_announce:)
 
       headers = Array.new(2) { Array.new(col_hash.size) }
       headers[0][0] = "#{year}年度#{month}月份主日奉獻資料"
