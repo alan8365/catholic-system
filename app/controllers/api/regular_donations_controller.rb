@@ -13,13 +13,15 @@ module Api
       date = params[:date]
 
       @regular_donations = RegularDonation
-                           .joins(:household)
+                           .left_joins(household: [:head_of_household])
                            .where(household: { is_archive: false })
 
       if query
         string_filed = %w[
           regular_donations.home_number
           regular_donations.comment
+          household.comment
+          parishioners.last_name||parishioners.first_name
         ]
 
         query_string = string_filed.join(" like ? or \n")
