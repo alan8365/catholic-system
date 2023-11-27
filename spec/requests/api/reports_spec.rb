@@ -214,6 +214,7 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:date) { '2023/07' }
         let(:test) { 'true' }
+        let(:announce) {}
 
         run_test!
       end
@@ -222,6 +223,7 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:authorization) { '' }
         let(:date) { '2023/07' }
         let(:test) { 'true' }
+        let(:announce) {}
 
         run_test!
       end
@@ -404,6 +406,7 @@ For example, "2023" would generate report for donations made in 2023.'
         let(:authorization) { '' }
         let(:date) { 2023 }
         let(:test) { 'true' }
+        let(:announce) {}
 
         run_test!
       end

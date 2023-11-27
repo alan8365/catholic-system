@@ -471,6 +471,18 @@ RSpec.describe 'api/parishioners', type: :request do
         end
       end
 
+      response(204, 'Head of household change home number') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { 1 }
+        let(:"") { { home_number: 'KK520' } }
+
+        run_test! do
+          org_household = Household.find_by_home_number('TT520')
+
+          expect(org_household.head_of_household).to eq(nil)
+        end
+      end
+
       response(204, 'Blank picture value') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:_id) { Parishioner.all[0].id }

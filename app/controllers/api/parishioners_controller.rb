@@ -175,6 +175,15 @@ module Api
         update_params.delete('mother')
       end
 
+      # Head of household change home number clear original head of household
+      if update_params.include?('home_number') && !update_params['home_number'].empty?
+        home_number = @parishioner.home_number
+        household = Household.find_by_home_number(home_number)
+
+        household.head_of_household = nil if household.head_of_household.id == @parishioner.id
+        household.save
+      end
+
       return if @parishioner.update(update_params)
 
       render json: { errors: @parishioner.errors.full_messages },
