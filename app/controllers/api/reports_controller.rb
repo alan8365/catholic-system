@@ -765,7 +765,7 @@ module Api
 
       # Yearly report data summing
       yearly_report_data.each do |row|
-        row[-1] = row[2..].sum(&:to_i)
+        row[-1] = row[3..].sum(&:to_i)
       end
 
       yearly_report_data = exclude_zero_value(yearly_report_data)
@@ -904,7 +904,7 @@ household.comment')
 
       # Parishioner summation added
       yearly_report_data.each do |row|
-        row[-1] = row[2..].sum(&:to_i)
+        row[-1] = row[3..].sum(&:to_i)
       end
 
       col_hash.map do |k, col_index|
@@ -1047,7 +1047,7 @@ household.comment')
 
       # Parishioner donation summation
       yearly_report_data.each_with_index do |row, _index|
-        row[-3] = row[2..13].sum(&:to_i) if row[-3].nil?
+        row[-3] = row[3..13].sum(&:to_i) if row[-3].nil?
         row[-1] = row[-3..-2].sum(&:to_i) if row[-1].nil?
       end
 
@@ -1168,7 +1168,7 @@ household.comment')
 
       # Parishioner summation added
       results.each_with_index do |result, _index|
-        result[-1] = result[2..].sum(&:to_i) if result[-1].nil?
+        result[-1] = result[3..].sum(&:to_i) if result[-1].nil?
       end
 
       # Delete row if summation is 0
