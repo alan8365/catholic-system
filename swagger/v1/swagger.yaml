@@ -916,6 +916,8 @@ paths:
                   type: string
                 birth_at:
                   type: string
+                home_number:
+                  type: string
                 postal_code:
                   type: string
                 address:

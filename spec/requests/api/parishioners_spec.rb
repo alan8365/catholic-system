@@ -416,6 +416,9 @@ RSpec.describe 'api/parishioners', type: :request do
           last_name: { type: :string },
           gender: { type: :string },
           birth_at: { type: :string },
+
+          home_number: { type: :string },
+
           postal_code: { type: :string },
           address: { type: :string },
           picture: { type: :string, format: :binary },
