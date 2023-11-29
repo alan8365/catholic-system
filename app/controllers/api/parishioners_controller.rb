@@ -180,7 +180,7 @@ module Api
         home_number = @parishioner.home_number
         household = Household.find_by_home_number(home_number)
 
-        household.head_of_household = nil if household.head_of_household.id == @parishioner.id
+        household.head_of_household = nil if household.head_of_household&.id == @parishioner.id
         household.save
       end
 
