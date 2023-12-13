@@ -12,6 +12,12 @@ module Api
       query = params[:any_field]
       is_archive = params[:is_archive]
 
+      page = params[:page] || '1'
+      per_page = params[:per_page] || '10'
+
+      page = page.to_i
+      per_page = per_page.to_i
+
       if query
         string_filed = %w[
           home_number
@@ -41,7 +47,8 @@ module Api
                               comment
                             ])
 
-      render json: @households, include: %i[head_of_household parishioners], status: :ok
+      render json: @households.paginate(page:, per_page:),
+             include: %i[head_of_household parishioners], status: :ok
     end
 
     # GET /households/{home_number}

@@ -30,6 +30,16 @@ RSpec.describe 'api/households', type: :request do
         type: :string
       }
 
+      parameter name: :page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      parameter name: :per_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: 'TT'
       }, name: 'query test household', summary: 'Finding all test household'
@@ -38,6 +48,8 @@ RSpec.describe 'api/households', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         run_test! do
           data = JSON.parse(response.body)
@@ -55,6 +67,8 @@ RSpec.describe 'api/households', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:is_archive) { 'true' }
+        let(:page) {}
+        let(:per_page) {}
 
         run_test! do
           data = JSON.parse(response.body)
@@ -73,6 +87,8 @@ RSpec.describe 'api/households', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { 'TT' }
         let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -101,6 +117,8 @@ RSpec.describe 'api/households', type: :request do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
         let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
