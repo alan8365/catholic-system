@@ -13,6 +13,8 @@ class Marriage < ApplicationRecord
   validates :marriage_at, presence: true
   validates :marriage_location, presence: true
 
+  validate :check_foreign_key_existence
+
   def serial_number
     date_range = marriage_at.beginning_of_year..marriage_at.end_of_year
     this_year_array = Marriage
@@ -23,5 +25,17 @@ class Marriage < ApplicationRecord
     number = number.to_s.rjust(2, '0')
 
     "M#{marriage_at.year}#{number}"
+  end
+
+  def check_foreign_key_existence
+    if groom_id.present? && !Parishioner.exists?(groom_id)
+      errors.add(:base, I18n.t('activerecord.errors.models.sacraments.attributes.groom_id.not_found'))
+    end
+
+    if bride_id.present? && !Parishioner.exists?(bride_id)
+      errors.add(:base, I18n.t('activerecord.errors.models.sacraments.attributes.bride_id.not_found'))
+    end
+
+    true
   end
 end

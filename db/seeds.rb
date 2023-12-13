@@ -13,333 +13,119 @@ User.create([
               { name: '普通使用者', username: 'basic', password: 'abc123!', is_modulator: true }
             ])
 
-# Parishioner
-@first_parishioner = Parishioner.create({
-                                          first_name: '大哥',
-                                          last_name: '許',
-                                          gender: '男',
-                                          birth_at: Date.strptime('1990/01/01', '%Y/%m/%d'),
-                                          postal_code: '433',
-                                          address: '台中市北區三民路某段某號',
-                                          father: '許爸爸',
-                                          mother: '張媽媽',
-                                          home_phone: '047221245',
-                                          mobile_phone: '0987372612',
-                                          nationality: '中華民國',
-                                          profession: '資訊',
-                                          company_name: '科技大學',
+file = File.open Rails.root.join('asset', '教會資料.json'), 'r'
+data = JSON.parse(file.read)
+# Household init
+household_data = data['household']
 
-                                          move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
-                                          original_parish: 'ＯＯ堂區',
-
-                                          # move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
-                                          # move_out_reason: '搬家',
-                                          # destination_parish: 'ＸＸ堂區',
-
-                                          comment: '測試用教友一號'
-                                        })
-@first_parishioner.picture.attach(
-  io: File.open(File.join(Rails.root, 'spec/fixtures/files/profile-pic.jpeg')),
-  filename: 'profile-pic.jpeg'
-)
-
-@second_parishioner = Parishioner.create({
-                                           first_name: '某某',
-                                           last_name: '王',
-                                           gender: '女',
-                                           birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
-                                           postal_code: '433',
-                                           address: '台中市北區三民路某段某號',
-                                           father: '王某某',
-                                           mother: '陳某某',
-                                           home_phone: '047221245',
-                                           mobile_phone: '0987372612',
-                                           nationality: '中華民國',
-                                           profession: '資訊',
-                                           company_name: '科技大學',
-
-                                           move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
-                                           original_parish: 'ＯＯ堂區',
-
-                                           # move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
-                                           # move_out_reason: '搬家',
-                                           # destination_parish: 'ＸＸ堂區',
-
-                                           comment: '測試用教友二號'
-                                         })
-@second_parishioner.picture.attach(
-  io: File.open(File.join(Rails.root, 'spec/fixtures/files/profile-pic2.jpeg')),
-  filename: 'profile-pic2.jpeg'
-)
-
-@father_parishioner = Parishioner.create({
-                                           first_name: '爸爸',
-                                           last_name: '許',
-                                           gender: '男',
-                                           birth_at: Date.strptime('1950/02/02', '%Y/%m/%d')
-                                         })
-@mother_parishioner = Parishioner.create({
-                                           first_name: '媽媽',
-                                           last_name: '張',
-                                           gender: '女',
-                                           birth_at: Date.strptime('1950/02/02', '%Y/%m/%d')
-                                         })
-
-@brother_parishioner = Parishioner.create({
-                                            first_name: '小弟',
-                                            last_name: '許',
-                                            gender: '男',
-                                            birth_at: Date.strptime('1991/02/02', '%Y/%m/%d')
-                                          })
-
-@move_out_parishioner = Parishioner.create({
-                                             first_name: '某某',
-                                             last_name: '千',
-                                             gender: '女',
-                                             birth_at: Date.strptime('1990/02/02', '%Y/%m/%d'),
-
-                                             move_in_date: Date.strptime('2013/01/01', '%Y/%m/%d'),
-                                             original_parish: 'ＯＯ堂區',
-
-                                             move_out_date: Date.strptime('2093/01/01', '%Y/%m/%d'),
-                                             move_out_reason: '搬家',
-                                             destination_parish: 'ＸＸ堂區',
-
-                                             comment: '遷出測試用教友'
-                                           })
-
-@first_parishioner.father_instance = @father_parishioner
-@brother_parishioner.father_instance = @father_parishioner
-
-@first_parishioner.mother_instance = @mother_parishioner
-@brother_parishioner.mother_instance = @mother_parishioner
-
-@first_parishioner.save
-@brother_parishioner.save
-
-# Household
-first_household = Household.create({
-                                     home_number: 'CK123'
-                                   })
-second_household = Household.create({
-                                      home_number: 'CK101'
-                                    })
-special_household = Household.create({
-                                       home_number: 'V',
-                                       special: true,
-                                       comment: '越南教友'
-                                     })
-guest_household = Household.create({
-                                     home_number: 'G',
-                                     guest: true,
-                                     comment: '善心人士'
-                                   })
-
-archive_household = Household.create({
-                                       home_number: 'A',
-                                       is_archive: true,
-                                       comment: '封存家號'
-                                     })
-
-# Parishioner association
-@first_parishioner.household = first_household
-@second_parishioner.household = first_household
-
-@father_parishioner.household = second_household
-@mother_parishioner.household = second_household
-@brother_parishioner.household = second_household
-
-@first_parishioner.save
-@second_parishioner.save
-
-@father_parishioner.save
-@mother_parishioner.save
-@brother_parishioner.save
-
-# Household association
-first_household.head_of_household = @first_parishioner
-first_household.save
-
-second_household.head_of_household = @father_parishioner
-second_household.save
-
-# Baptism
-Baptism.create({
-                 baptized_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
-                 baptized_location: '彰化市聖十字架天主堂',
-                 christian_name: '安東尼',
-
-                 godfather: '張00',
-                 presbyter: '黃世明神父',
-
-                 parishioner_id: @first_parishioner.id
-               })
-
-Baptism.create({
-                 baptized_at: Date.strptime('1980/10/30', '%Y/%m/%d'),
-                 baptized_location: '彰化市聖十字架天主堂',
-                 christian_name: '聖畢哲',
-
-                 godfather: '王小華',
-                 presbyter: '黃世明神父',
-
-                 parishioner_id: @second_parishioner.id
-               })
-
-# Confirmation
-Confirmation.create({
-                      confirmed_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
-                      confirmed_location: '彰化市聖十字架天主堂',
-
-                      godfather: '張00',
-                      presbyter: '黃世明神父',
-
-                      parishioner: @first_parishioner
-                    })
-
-# Eucharist
-Eucharist.create({
-                   eucharist_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
-                   eucharist_location: '彰化市聖十字架天主堂',
-
-                   godfather: '張00',
-                   presbyter: '黃世明神父',
-
-                   parishioner: @first_parishioner
-                 })
-
-# Marriage
-Marriage.create({
-                  marriage_at: Date.strptime('1980/10/29', '%Y/%m/%d'),
-                  marriage_location: '彰化市聖十字架天主堂',
-
-                  groom: '許大哥',
-                  bride: '王某某',
-
-                  groom_id: @first_parishioner.id,
-                  bride_id: @second_parishioner.id,
-
-                  witness1: '王哥哥',
-                  witness2: '陳女士',
-
-                  presbyter: '黃世明神父'
-                })
-
-# Regular donation
-RegularDonation.create([
-                         {
-                           home_number: first_household.home_number,
-
-                           donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
-                           donation_amount: 1000
-                         }, {
-                           home_number: first_household.home_number,
-
-                           donation_at: Date.strptime('2023/7/9', '%Y/%m/%d'),
-                           donation_amount: 2000
-                         }, {
-                           home_number: second_household.home_number,
-
-                           donation_at: Date.strptime('2023/7/9', '%Y/%m/%d'),
-                           donation_amount: 3000
-                         }, {
-                           home_number: second_household.home_number,
-
-                           donation_at: Date.strptime('2023/7/23', '%Y/%m/%d'),
-                           donation_amount: 6000
-                         }, {
-                           home_number: guest_household.home_number,
-
-                           donation_at: Date.strptime('2023/7/23', '%Y/%m/%d'),
-                           donation_amount: 3422
-                         }, {
-                           home_number: special_household.home_number,
-
-                           donation_at: Date.strptime('2023/7/23', '%Y/%m/%d'),
-                           donation_amount: 7990
-                         }
-                       ])
-
-# Regular donation random seeds
-begin_date = Date.civil(2022, 1, 1)
-end_date = Date.civil(2022, 12, -1)
-
-date_range = begin_date..end_date
-all_sunday = date_range.to_a.select { |k| k.wday.zero? }
-
-all_household = Household.all
-
-random_regular_donation = []
-50.times do |_|
-  home_number = all_household.sample.home_number
-
-  donation_at = all_sunday.sample
-
-  donation_amount = rand(1000..10_000)
-
-  random_regular_donation << {
-    home_number:,
-    donation_at:,
-    donation_amount:
-  }
-end
-
-RegularDonation.create(random_regular_donation)
-
-# Event
-first_event = Event.create({
-                             name: '聖誕',
-                             start_at: Date.strptime('2023/12/25', '%Y/%m/%d')
-                           })
-
-second_event = Event.create({
-                              name: '復活節',
-                              start_at: Date.strptime('2023/04/09', '%Y/%m/%d')
+household_data.each do |h|
+  household = Household.new({
+                              home_number: h['home_number']
                             })
 
-third_event = Event.create({
-                             name: '聖誕',
-                             start_at: Date.strptime('2022/12/25', '%Y/%m/%d')
-                           })
+  unless household.save
+    puts h['home_number']
+    puts household.errors.full_messages
+  end
+end
+Household.create({
+                   home_number: 'V',
+                   special: true,
+                   comment: '越南教友'
+                 })
+Household.create({
+                   home_number: 'G',
+                   guest: true,
+                   comment: '善心人士'
+                 })
 
-# Special donation
-SpecialDonation.create([{
-                         home_number: first_household.home_number,
-                         donation_at: Date.strptime('2023/12/20', '%Y/%m/%d'),
-                         donation_amount: 5200,
+# Parishioner
+parishioner_data = data['parishioner']
 
-                         event: first_event
-                       }, {
-                         home_number: second_household.home_number,
-                         donation_at: Date.strptime('2023/12/21', '%Y/%m/%d'),
-                         donation_amount: 6200,
+parishioner_data.each do |p|
+  parishioner = Parishioner.new(
+    {
+      id: p['id'],
 
-                         event: first_event
-                       }, {
-                         home_number: guest_household.home_number,
-                         donation_at: Date.strptime('2023/12/24', '%Y/%m/%d'),
-                         donation_amount: 15_000,
+      first_name: p['first_name'],
+      last_name: p['last_name'],
+      gender: p['gender'],
+      birth_at: p['birth_at'],
 
-                         event: first_event
-                       }, {
-                         home_number: second_household.home_number,
-                         donation_at: Date.strptime('2023/04/01', '%Y/%m/%d'),
-                         donation_amount: 9200,
+      home_number: p['home_number'],
 
-                         event: second_event
-                       }])
-4.times do |i|
-  home_number = all_household[i].home_number
+      postal_code: p['postal_code'],
+      address: p['address'],
+      father: p['father'],
+      mother: p['mother'],
 
-  date_range_array = (Date.civil(2022, 12, 1)..Date.civil(2022, 12, -1)).to_a
-  donation_at = date_range_array.sample
-  donation_amount = rand(1000..10_000)
+      home_phone: p['home_phone'],
+      mobile_phone: p['mobile_phone'],
 
-  SpecialDonation.create({
-                           home_number:,
-                           donation_at:,
-                           donation_amount:,
+      nationality: p['nationality'],
+      comment: p['comment']
+    }
+  )
 
-                           event: third_event
-                         })
+  unless parishioner.save
+    puts p['id']
+    puts parishioner.errors.full_messages
+  end
+end
+
+parishioner_data.each do |p|
+  parishioner = Parishioner.find_by_id(p['id'])
+
+  father = Parishioner.find_by_id(p['father_id'])
+  mother = Parishioner.find_by_id(p['mother_id'])
+
+  parishioner.father = father.full_name if father
+  parishioner.mother = mother.full_name if mother
+
+  parishioner.father_id = father.id if father
+  parishioner.mother_id = mother.id if mother
+end
+
+# Head of household
+household_data.each do |h|
+  household = Household.find_by_home_number(h['home_number'])
+
+  household.head_of_household = Parishioner.find_by_id(h['head_of_household_id'])
+  household.save
+end
+
+# Baptism
+baptism_data = data['baptism']
+
+baptism_data.each do |b|
+  baptism = Baptism.new(b)
+
+  unless baptism.save
+    puts b['id']
+    puts baptism.errors.full_messages
+  end
+end
+
+# Confirmation
+confirmation_data = data['confirmation']
+
+confirmation_data.each do |c|
+  confirmation = Confirmation.new(c)
+
+  unless confirmation.save
+    puts c['id']
+    puts confirmation.errors.full_messages
+  end
+end
+
+# Marry
+marry_data = data['marry']
+
+marry_data.each do |m|
+  marriage = Marriage.new(m)
+
+  unless marriage.save
+    puts m['id']
+    puts marriage.errors.full_messages
+  end
 end

@@ -14,5 +14,8 @@ COPY . .
 ENV PORT 3000
 EXPOSE ${PORT}
 
-CMD rails db:prepare
-CMD rails server -b 0.0.0.0 -p $PORT
+#CMD rails db:prepare
+#CMD rails db:seed
+#CMD rails server -b 0.0.0.0 -p $PORT
+#CMD ["/usr/src/app/start.sh", "rails", "server", "-b", "0.0.0.0", "-p", "$PORT"]
+ENTRYPOINT "/usr/src/app/start.sh"

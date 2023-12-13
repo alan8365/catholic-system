@@ -63,8 +63,35 @@ zh_tw:
               not_found: "教友資料中未能找到代母教友資料"
             presbyter_id:
               not_found: "教友資料中未能找到神父資料"
+              blank: '神父不可為空'
             parishioner_id:
               not_found: "教友不存在"
+            groom_id:
+              not_found: "教友資料中未能找到丈夫教友資料"
+            bride_id:
+              not_found: "教友資料中未能找到妻子教友資料"
+        baptism:
+          attributes:
+            presbyter_id:
+              not_found: "教友資料中未能找到神父資料"
+              blank: '神父不可為空'
+            parishioner_id:
+              taken: "教友已領洗"
+              not_found: "教友不存在"
+        confirmation:
+          attributes:
+            parishioner:
+              required: "教友不可為空"
+            parishioner_id:
+              taken: "教友已堅證"
+        marriage:
+          attributes:
+            marriage_location:
+              blank: "結婚地點不可為空"
+        household:
+          attributes:
+            home_number:
+              taken: "該家號已存在"
         parishioners:
           attributes:
             first_name:
