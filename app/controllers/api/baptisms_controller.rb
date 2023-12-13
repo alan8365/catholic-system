@@ -14,6 +14,12 @@ module Api
       query = params[:any_field]
       date = params[:date]
 
+      page = params[:page] || '1'
+      per_page = params[:per_page] || '10'
+
+      page = page.to_i
+      per_page = per_page.to_i
+
       @baptisms = if query.present?
                     string_filed = %w[
                       (last_name||first_name)
@@ -49,7 +55,7 @@ module Api
                                      comment
                                    ])
 
-      render json: @baptisms,
+      render json: @baptisms.paginate(page:, per_page:),
              include: %i[parishioner],
              methods: %i[serial_number],
              status: :ok

@@ -35,6 +35,16 @@ For example, "2023" would search for baptisms made in 2023.'
         require: false
       }
 
+      parameter name: :page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      parameter name: :per_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: '彰化'
       }, name: 'query test parishioner', summary: 'Finding the specific parishioner'
@@ -43,6 +53,8 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) {}
         let(:date) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           content = example.metadata[:response][:content] || {}
@@ -64,6 +76,8 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) { '%E5%BD%B0%E5%8C%96' }
         let(:date) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -94,6 +108,8 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) {}
         let(:date) { '1988' }
+        let(:page) {}
+        let(:per_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -112,6 +128,8 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
         let(:date) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
