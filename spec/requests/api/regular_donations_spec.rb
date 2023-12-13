@@ -36,6 +36,16 @@ For example, "2023/7" would search for donations made in July 2023.'
         require: false
       }
 
+      parameter name: :page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      parameter name: :per_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: 'TT',
         date: '2023/6'
@@ -45,6 +55,8 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:date) {}
+        let(:page) {}
+        let(:per_page) {}
 
         run_test!
       end
@@ -54,6 +66,8 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { 'TT' }
         let(:date) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -81,6 +95,8 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:date) { '2023/6' }
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -110,6 +126,8 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
         let(:date) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {

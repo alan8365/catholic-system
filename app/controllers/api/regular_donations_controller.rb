@@ -12,6 +12,12 @@ module Api
       query = params[:any_field]
       date = params[:date]
 
+      page = params[:page] || '1'
+      per_page = params[:per_page] || '10'
+
+      page = page.to_i
+      per_page = per_page.to_i
+
       @regular_donations = RegularDonation
                            .left_joins(household: [:head_of_household])
                            .where(household: { is_archive: false })
@@ -50,7 +56,7 @@ module Api
                                      comment
                                    ])
 
-      render json: @regular_donations,
+      render json: @regular_donations.paginate(page:, per_page:),
              include: { household: { include: :head_of_household } },
              status: :ok
     end
