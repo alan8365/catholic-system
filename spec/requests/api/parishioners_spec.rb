@@ -68,6 +68,16 @@ RSpec.describe 'api/parishioners', type: :request do
         type: :string
       }
 
+      parameter name: :page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      parameter name: :per_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: '趙爸爸'
       }, name: 'query test parishioner', summary: 'Finding the specific parishioner'
@@ -77,6 +87,8 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:any_field) {}
         let(:name) {}
         let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -99,6 +111,8 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:any_field) {}
         let(:name) {}
         let(:is_archive) { 'true' }
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -121,6 +135,8 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:any_field) { '%E8%B6%99%E7%88%B8%E7%88%B8' }
         let(:name) {}
         let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -174,6 +190,8 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:any_field) {}
         let(:name) { '%E7%88%B8%E7%88%B8' }
         let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -201,6 +219,8 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:any_field) {}
         let(:name) {}
         let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {

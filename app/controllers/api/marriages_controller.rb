@@ -14,6 +14,12 @@ module Api
       query = params[:any_field]
       date = params[:date]
 
+      page = params[:page] || '1'
+      per_page = params[:per_page] || '10'
+
+      page = page.to_i
+      per_page = per_page.to_i
+
       @marriages = if query
                      string_filed = %w[
                        marriage_location groom bride presbyter comment
@@ -46,8 +52,7 @@ module Api
                                        comment
                                      ])
 
-      # render json: @marriages, include: %i[groom_instance bride_instance], status: :ok
-      render json: @marriages,
+      render json: @marriages.paginate(page:, per_page:),
              include: {
                groom_instance: { include: :baptism },
                bride_instance: { include: :baptism }

@@ -18,6 +18,12 @@ module Api
       name_query = params[:name]
       is_archive = params[:is_archive]
 
+      page = params[:page] || '1'
+      per_page = params[:per_page] || '10'
+
+      page = page.to_i
+      per_page = per_page.to_i
+
       if query.present? || name_query.present?
         string_filed = if query.present?
                          %w[
@@ -60,7 +66,7 @@ module Api
                                              move_out_date move_out_reason destination_parish
                                            ])
 
-      render json: @parishioners,
+      render json: @parishioners.paginate(page:, per_page:),
              include: {
                mother_instance: {},
                father_instance: {},

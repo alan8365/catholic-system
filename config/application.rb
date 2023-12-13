@@ -28,6 +28,8 @@ module Catholic
     config.api_only = true
 
     config.i18n.default_locale = :zh_tw
+
+    WillPaginate.per_page = 10
   end
 end
 

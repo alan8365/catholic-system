@@ -42,6 +42,16 @@ For example, "2023" would search for marriages made in 2023.'
         require: false
       }
 
+      parameter name: :page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      parameter name: :per_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: '某某'
       }, name: 'query test parishioner', summary: 'Finding the specific parishioner'
@@ -50,6 +60,8 @@ For example, "2023" would search for marriages made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) {}
         let(:date) {}
+        let(:page) { 1 }
+        let(:per_page) {}
 
         run_test!
       end
@@ -58,6 +70,8 @@ For example, "2023" would search for marriages made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) {}
         let(:date) {}
+        let(:page) { 1 }
+        let(:per_page) {}
 
         run_test! do
           data = JSON.parse(response.body)
@@ -81,6 +95,8 @@ For example, "2023" would search for marriages made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) { '%E8%B6%99%E7%94%B7%E4%BA%BA' }
         let(:date) {}
+        let(:page) { 1 }
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -105,6 +121,8 @@ For example, "2023" would search for marriages made in 2023.'
         let(:authorization) { "Bearer #{authenticated_header 'basic'}" }
         let(:any_field) {}
         let(:date) { 1960 }
+        let(:page) { 1 }
+        let(:per_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -124,6 +142,8 @@ For example, "2023" would search for marriages made in 2023.'
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
         let(:date) {}
+        let(:page) { 1 }
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {

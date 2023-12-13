@@ -660,6 +660,16 @@ paths:
         schema:
           type: string
           require: false
+      - name: page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: Date search
@@ -792,6 +802,16 @@ paths:
         description: Search in archive if the value is "true"
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: Query search name
