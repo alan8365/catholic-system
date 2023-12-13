@@ -13,6 +13,12 @@ module Api
       query = params[:any_field] || ''
       date = params[:date] || ''
 
+      page = params[:page] || '1'
+      per_page = params[:per_page] || '10'
+
+      page = page.to_i
+      per_page = per_page.to_i
+
       @events = Event.all
 
       if date&.match?(/\d{4}/)
@@ -46,7 +52,8 @@ module Api
                           comment
                         ])
 
-      render json: @events, methods: :donation_count, status: :ok
+      render json: @events.paginate(page:, per_page:),
+             methods: :donation_count, status: :ok
     end
 
     # GET /events/{id}

@@ -31,6 +31,16 @@ RSpec.describe 'api/events', type: :request do
         require: false
       }
 
+      parameter name: :page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      parameter name: :per_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: '聖誕',
         date: '2023'
@@ -40,6 +50,9 @@ RSpec.describe 'api/events', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:date) {}
+        let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -55,6 +68,9 @@ RSpec.describe 'api/events', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { '%E8%81%96%E8%AA%95' }
         let(:date) {}
+        let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -72,6 +88,9 @@ RSpec.describe 'api/events', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:date) { 2023 }
+        let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -94,6 +113,9 @@ RSpec.describe 'api/events', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { '%E8%81%96%E8%AA%95' }
         let(:date) { 2023 }
+        let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)
@@ -116,6 +138,9 @@ RSpec.describe 'api/events', type: :request do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
         let(:date) {}
+        let(:is_archive) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
