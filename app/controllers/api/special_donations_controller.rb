@@ -14,6 +14,12 @@ module Api
       date = params[:date] || ''
       event_id = params[:event_id] || ''
 
+      page = params[:page] || '1'
+      per_page = params[:per_page] || '10'
+
+      page = page.to_i
+      per_page = per_page.to_i
+
       @special_donations = SpecialDonation
                            .left_outer_joins(household: :head_of_household)
                            .select(%w[special_donations.* parishioners.last_name parishioners.first_name])
@@ -57,7 +63,9 @@ module Api
                                      comment
                                    ])
 
-      result = @special_donations.as_json(include: { household: { include: :head_of_household } })
+      result = @special_donations
+               .paginate(page:, per_page:)
+               .as_json(include: { household: { include: :head_of_household } })
       result = result.map do |e|
         e['name'] = if e['household']['head_of_household'].nil?
                       e['household']['comment']
@@ -68,7 +76,8 @@ module Api
         e.except('household')
       end
 
-      render json: result, status: :ok
+      render json: result,
+             status: :ok
     end
 
     # GET /special_donations/{id}
