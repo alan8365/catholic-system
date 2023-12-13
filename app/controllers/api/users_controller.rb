@@ -11,6 +11,12 @@ module Api
       authorize! :read, User
       @query = params[:any_field]
 
+      page = params[:page] || '1'
+      per_page = params[:per_page] || '10'
+
+      page = page.to_i
+      per_page = per_page.to_i
+
       @users = if @query
                  User
                    .where(['name like ? or username like ? or comment like ?', "%#{@query}%", "%#{@query}%",
@@ -23,7 +29,8 @@ module Api
                .select(*%w[username name comment is_admin is_modulator])
                .as_json(except: :id)
 
-      render json: @users, status: :ok
+      render json: @users.paginate(page:, per_page:),
+             status: :ok
     end
 
     # GET /users/{username}

@@ -28,6 +28,16 @@ RSpec.describe 'api/users', type: :request do
         require: false
       }
 
+      parameter name: :page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
+      parameter name: :per_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: 'test'
       }, name: 'query test user', summary: 'Finding all test user'
@@ -35,6 +45,8 @@ RSpec.describe 'api/users', type: :request do
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -50,6 +62,8 @@ RSpec.describe 'api/users', type: :request do
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { 'test' }
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -70,6 +84,8 @@ RSpec.describe 'api/users', type: :request do
       response(401, 'unauthorized') do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
+        let(:page) {}
+        let(:per_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
