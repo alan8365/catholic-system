@@ -250,6 +250,7 @@ GEM
     websocket-driver (0.7.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
+    will_paginate (4.0.0)
     zeitwerk (2.6.7)
     zip-zip (0.3)
       rubyzip (>= 1.0.0)
@@ -282,6 +283,7 @@ DEPENDENCIES
   sunspot_rails
   sunspot_solr
   tzinfo-data
+  will_paginate (~> 4.0)
   zip-zip
 
 RUBY VERSION
