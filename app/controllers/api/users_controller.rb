@@ -11,8 +11,16 @@ module Api
       authorize! :read, User
       @query = params[:any_field]
 
-      page = params[:page] || '1'
-      per_page = params[:per_page] || '10'
+      page = if params[:page].present?
+               params[:page]
+             else
+               '1'
+             end
+      per_page = if params[:per_page].present?
+                   params[:per_page]
+                 else
+                   '10'
+                 end
 
       page = page.to_i
       per_page = per_page.to_i

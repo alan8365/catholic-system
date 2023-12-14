@@ -58,6 +58,16 @@ paths:
         schema:
           type: string
           require: false
+      - name: page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: Query search any_field with year
@@ -180,6 +190,16 @@ paths:
         description: |-
           The date field accepts the yyyy format string for confirmation searches.
           For example, "2023" would search for confirmations made in 2023.
+        schema:
+          type: string
+          require: false
+      - name: page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: per_page
+        in: query
         schema:
           type: string
           require: false
@@ -315,6 +335,16 @@ paths:
         schema:
           type: string
           require: false
+      - name: page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: Date search
@@ -444,6 +474,16 @@ paths:
         schema:
           type: string
           require: false
+      - name: page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: date & any_field mix test
@@ -549,6 +589,16 @@ paths:
         description: Search in archive if the value is "true"
         schema:
           type: string
+      - name: page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: Find TT in text field
@@ -1141,6 +1191,16 @@ paths:
         schema:
           type: string
           require: false
+      - name: page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: successful
@@ -1543,6 +1603,16 @@ paths:
         schema:
           type: string
           require: false
+      - name: page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: event_id and any_field query
@@ -1645,6 +1715,16 @@ paths:
         schema:
           type: string
           description: aaa
+          require: false
+      - name: page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: per_page
+        in: query
+        schema:
+          type: string
           require: false
       responses:
         '200':
