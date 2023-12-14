@@ -35,9 +35,10 @@ module Api
 
       @users = @users
                .select(*%w[username name comment is_admin is_modulator])
+               .paginate(page:, per_page:)
                .as_json(except: :id)
 
-      render json: @users.paginate(page:, per_page:),
+      render json: @users,
              status: :ok
     end
 
