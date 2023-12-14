@@ -88,7 +88,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:per_page) {}
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           @special_donations = SpecialDonation.where(home_number: 'TT520')
           special_donation_hash = @special_donations.as_json
@@ -120,7 +120,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:per_page) {}
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           @special_donations = SpecialDonation.where(home_number: 'TT520')
           special_donation_hash = @special_donations.as_json
@@ -160,7 +160,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         end
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           date_range = Date.civil(2023, 6, 1)..Date.civil(2023, 6, -1)
           @special_donations = SpecialDonation.where(donation_at: date_range)
@@ -197,7 +197,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         end
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           @special_donations = Event.find_by_id(1).special_donations
           special_donation_hash = @special_donations.as_json
@@ -232,7 +232,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         end
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           @special_donations = Event.find_by_id(1).special_donations.where(home_number: 'TT520')
           special_donation_hash = @special_donations.as_json

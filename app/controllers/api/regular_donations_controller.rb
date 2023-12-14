@@ -63,9 +63,16 @@ module Api
                                      receipt
                                      comment
                                    ])
+      result = @regular_donations.paginate(page:, per_page:)
+                                 .as_json(
+                                   include: { household: { include: :head_of_household } }
+                                 )
+      result = {
+        data: result,
+        total_page: @regular_donations.paginate(page:, per_page:).total_pages
+      }
 
-      render json: @regular_donations.paginate(page:, per_page:),
-             include: { household: { include: :head_of_household } },
+      render json: result,
              status: :ok
     end
 

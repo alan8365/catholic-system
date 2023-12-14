@@ -589,6 +589,16 @@ paths:
         description: Search in archive if the value is "true"
         schema:
           type: string
+      - name: is_guest
+        in: query
+        description: Search in guest if the value is "true"
+        schema:
+          type: string
+      - name: is_special
+        in: query
+        description: Search in special if the value is "true"
+        schema:
+          type: string
       - name: page
         in: query
         schema:

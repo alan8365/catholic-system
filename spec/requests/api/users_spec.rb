@@ -74,7 +74,7 @@ RSpec.describe 'api/users', type: :request do
         end
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
           expect(data).to eq([{
                                'comment' => 'The CRUD test user', 'is_admin' => false, 'is_modulator' => false, 'name' => '測試', 'username' => 'test1'
                              }])

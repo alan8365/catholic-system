@@ -63,9 +63,18 @@ module Api
                                          comment
                                        ])
 
-      render json: @eucharists.paginate(page:, per_page:),
-             include: { parishioner: { include: :baptism } },
-             methods: %i[serial_number],
+      result = @eucharists.paginate(page:, per_page:)
+                          .as_json(
+                            include: { parishioner: { include: :baptism } },
+                            methods: %i[serial_number]
+                          )
+
+      result = {
+        data: result,
+        total_page: @eucharists.paginate(page:, per_page:).total_pages
+      }
+
+      render json: result,
              status: :ok
     end
 

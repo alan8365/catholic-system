@@ -62,9 +62,18 @@ module Api
                                                comment
                                              ])
 
-      render json: @confirmations.paginate(page:, per_page:),
-             include: { parishioner: { include: :baptism } },
-             methods: %i[serial_number],
+      result = @confirmations.paginate(page:, per_page:)
+                             .as_json(
+                               include: { parishioner: { include: :baptism } },
+                               methods: %i[serial_number]
+                             )
+
+      result = {
+        data: result,
+        total_page: @confirmations.paginate(page:, per_page:)
+      }
+
+      render json: result,
              status: :ok
     end
 

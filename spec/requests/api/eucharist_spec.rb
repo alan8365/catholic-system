@@ -73,7 +73,7 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:per_page) {}
 
         run_test! do
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           @eucharists = Eucharist
                         .all
@@ -97,7 +97,7 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:per_page) {}
 
         run_test! do
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
           data = data.map { |hash| hash['id'] }
 
           eucharist_hash = Eucharist
@@ -116,7 +116,7 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:per_page) {}
 
         run_test! do
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
           data = data.map { |hash| hash['id'] }
 
           date_range = Date.civil(1988, 1, 1)..Date.civil(1988, 12, 31)

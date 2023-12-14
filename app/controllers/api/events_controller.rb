@@ -60,8 +60,17 @@ module Api
                           comment
                         ])
 
-      render json: @events.paginate(page:, per_page:),
-             methods: :donation_count, status: :ok
+      result = @events.paginate(page:, per_page:)
+                      .as_json(
+                        methods: :donation_count
+                      )
+      result = {
+        data: result,
+        total_page: @events.paginate(page:, per_page:).total_pages
+      }
+
+      render json: result,
+             status: :ok
     end
 
     # GET /events/{id}

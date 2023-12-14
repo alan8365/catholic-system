@@ -73,7 +73,7 @@ RSpec.describe 'api/events', type: :request do
         let(:per_page) {}
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           event_hash = @event.as_json(methods: :donation_count)
           event_hash.except!(*%w[
@@ -93,7 +93,7 @@ RSpec.describe 'api/events', type: :request do
         let(:per_page) {}
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           date_range = Date.civil(2023, 1, 1)..Date.civil(2023, 12, 31)
           event_hash = Event.where(start_at: date_range).as_json(methods: :donation_count)
@@ -118,7 +118,7 @@ RSpec.describe 'api/events', type: :request do
         let(:per_page) {}
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           date_range = Date.civil(2023, 1, 1)..Date.civil(2023, 12, 31)
           event_hash = Event.where(start_at: date_range).where(name: '聖誕').as_json(methods: :donation_count)

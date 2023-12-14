@@ -84,6 +84,11 @@ module Api
         e.except('household')
       end
 
+      result = {
+        data: result,
+        total_page: @special_donations.paginate(page:, per_page:).total_pages
+      }
+
       render json: result,
              status: :ok
     end

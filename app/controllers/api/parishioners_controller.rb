@@ -74,17 +74,26 @@ module Api
                                              move_out_date move_out_reason destination_parish
                                            ])
 
-      render json: @parishioners.paginate(page:, per_page:),
-             include: {
-               mother_instance: {},
-               father_instance: {},
-               baptism: { methods: [:serial_number] },
-               confirmation: { methods: [:serial_number] },
-               eucharist: { methods: [:serial_number] },
-               wife: {},
-               husband: {}
-             },
-             methods: %i[children sibling],
+      result = @parishioners.paginate(page:, per_page:)
+                            .as_json(
+                              include: {
+                                mother_instance: {},
+                                father_instance: {},
+                                baptism: { methods: [:serial_number] },
+                                confirmation: { methods: [:serial_number] },
+                                eucharist: { methods: [:serial_number] },
+                                wife: {},
+                                husband: {}
+                              },
+                              methods: %i[children sibling]
+                            )
+
+      result = {
+        data: result,
+        total_page: @parishioners.paginate(page:, per_page:).total_pages
+      }
+
+      render json: result,
              status: :ok
     end
 

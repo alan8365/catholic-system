@@ -78,7 +78,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         end
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           regular_donation_hash = @regular_donation.as_json
           regular_donation_hash.except!(*%w[
@@ -107,7 +107,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         end
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           regular_donation_hash = @regular_donation.as_json
           regular_donation_hash.except!(*%w[

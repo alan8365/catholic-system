@@ -74,7 +74,7 @@ For example, "2023" would search for marriages made in 2023.'
         let(:per_page) {}
 
         run_test! do
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           marriages_hash = Marriage
                            .all
@@ -107,7 +107,7 @@ For example, "2023" would search for marriages made in 2023.'
         end
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
           data = data.map { |hash| hash['id'] }
 
           # ApplicationRecord to hash
@@ -125,7 +125,7 @@ For example, "2023" would search for marriages made in 2023.'
         let(:per_page) {}
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
           data = data.map { |hash| hash['id'] }
 
           date_range = Date.civil(1960, 1, 1)..Date.civil(1960, 12, 31)

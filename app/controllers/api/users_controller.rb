@@ -33,12 +33,16 @@ module Api
                  User.all
                end
 
-      @users = @users
+      result = @users
                .select(*%w[username name comment is_admin is_modulator])
                .paginate(page:, per_page:)
                .as_json(except: :id)
+      result = {
+        data: result,
+        total_page: @users.paginate(page:, per_page:).total_pages
+      }
 
-      render json: @users,
+      render json: result,
              status: :ok
     end
 

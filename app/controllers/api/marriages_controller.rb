@@ -59,13 +59,21 @@ module Api
                                        presbyter presbyter_id
                                        comment
                                      ])
+      result = @marriages.paginate(page:, per_page:)
+                         .as_json(
+                           include: {
+                             groom_instance: { include: :baptism },
+                             bride_instance: { include: :baptism }
+                           },
+                           methods: %i[serial_number]
+                         )
 
-      render json: @marriages.paginate(page:, per_page:),
-             include: {
-               groom_instance: { include: :baptism },
-               bride_instance: { include: :baptism }
-             },
-             methods: %i[serial_number],
+      result = {
+        data: result,
+        total_page: @marriages.paginate(page:, per_page:).total_pages
+      }
+
+      render json: result,
              status: :ok
     end
 

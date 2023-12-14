@@ -11,6 +11,8 @@ module Api
       authorize! :read, Household
       query = params[:any_field]
       is_archive = params[:is_archive]
+      is_special = ActiveModel::Type::Boolean.new.cast(params[:is_special])
+      is_guest = ActiveModel::Type::Boolean.new.cast(params[:is_guest])
 
       page = if params[:page].present?
                params[:page]
@@ -48,15 +50,26 @@ module Api
                       @households.where('is_archive' => false)
                     end
 
+      @households = @households.where('is_guest' => is_guest) if is_guest.present?
+      @households = @households.where('is_special' => is_special) if is_special.present?
+
       @households = @households
                     .select(*%w[
                               home_number head_of_household
                               special guest is_archive
                               comment
                             ])
+      result = @households.paginate(page:, per_page:)
+                          .as_json(
+                            include: %i[head_of_household parishioners]
+                          )
+      result = {
+        data: result,
+        total_page: @households.paginate(page:, per_page:).total_pages
+      }
 
-      render json: @households.paginate(page:, per_page:),
-             include: %i[head_of_household parishioners], status: :ok
+      render json: result,
+             status: :ok
     end
 
     # GET /households/{home_number}

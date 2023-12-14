@@ -30,6 +30,14 @@ RSpec.describe 'api/households', type: :request do
         type: :string
       }
 
+      parameter name: :is_guest, in: :query, description: 'Search in guest if the value is "true"', schema: {
+        type: :string
+      }
+
+      parameter name: :is_special, in: :query, description: 'Search in special if the value is "true"', schema: {
+        type: :string
+      }
+
       parameter name: :page, in: :query, schema: {
         type: :string,
         require: false
@@ -48,11 +56,13 @@ RSpec.describe 'api/households', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:is_archive) {}
+        let(:is_guest) {}
+        let(:is_special) {}
         let(:page) {}
         let(:per_page) {}
 
         run_test! do
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           @household_archive = Household.where(is_archive: false)
 
@@ -67,11 +77,13 @@ RSpec.describe 'api/households', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:is_archive) { 'true' }
+        let(:is_guest) {}
+        let(:is_special) {}
         let(:page) {}
         let(:per_page) {}
 
         run_test! do
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           @household_archive = Household.where(is_archive: true)
 
@@ -87,6 +99,8 @@ RSpec.describe 'api/households', type: :request do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) { 'TT' }
         let(:is_archive) {}
+        let(:is_guest) {}
+        let(:is_special) {}
         let(:page) {}
         let(:per_page) {}
 
@@ -99,7 +113,7 @@ RSpec.describe 'api/households', type: :request do
         end
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           household_hash = @household.as_json
           household_hash['head_of_household'] = @household.head_of_household.as_json
@@ -117,6 +131,8 @@ RSpec.describe 'api/households', type: :request do
         let(:authorization) { 'Bearer error token' }
         let(:any_field) {}
         let(:is_archive) {}
+        let(:is_guest) {}
+        let(:is_special) {}
         let(:page) {}
         let(:per_page) {}
 

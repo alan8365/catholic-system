@@ -98,7 +98,7 @@ RSpec.describe 'api/parishioners', type: :request do
           }
         end
         run_test! do
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           @parishioner_archive = Parishioner.where('move_out_date is not null')
 
@@ -122,7 +122,7 @@ RSpec.describe 'api/parishioners', type: :request do
           }
         end
         run_test! do
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           @parishioner_archive = Parishioner.where('move_out_date is not null')
 
@@ -147,7 +147,7 @@ RSpec.describe 'api/parishioners', type: :request do
         end
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
 
           @parishioner2 = Parishioner.find_by_id(5)
 
@@ -202,7 +202,7 @@ RSpec.describe 'api/parishioners', type: :request do
         end
 
         run_test! do |response|
-          data = JSON.parse(response.body)
+          data = JSON.parse(response.body)['data']
           data = data.map { |hash| hash['id'] }
 
           @parishioner2 = Parishioner.where('first_name LIKE ?', '爸爸').pluck('id')
