@@ -6,8 +6,8 @@ module Api
     before_action :authorize_request, except: %i[picture]
     before_action :find_parishioner, except: %i[create index id_card_pdf letterhead]
     before_action :find_baptism, only: %i[id_card certificate]
-    before_action :find_eucharist, only: %i[certificate]
-    before_action :find_confirmation, only: %i[certificate]
+    # before_action :find_eucharist, only: %i[certificate]
+    # before_action :find_confirmation, only: %i[certificate]
 
     include ActionController::MimeResponds
 
@@ -367,27 +367,29 @@ module Api
       doc.replace('$BapGP$', @baptism.godparent)
 
       # Eucharist info
-      eucharist_at = @eucharist.eucharist_at
-      doc.replace('$EucD$', eucharist_at.day)
-      doc.replace('$EucM$', eucharist_at.month)
-      doc.replace('$EucY$', eucharist_at.year)
+      eucharist = Eucharist.find_by(parishioner_id: @parishioner.id)
+      eucharist_at = eucharist&.eucharist_at
+      doc.replace('$EucD$', eucharist_at&.day)
+      doc.replace('$EucM$', eucharist_at&.month)
+      doc.replace('$EucY$', eucharist_at&.year)
 
-      doc.replace('$EucCh$', @eucharist.eucharist_location)
-      doc.replace('$EucNum$', @eucharist.serial_number)
+      doc.replace('$EucCh$', eucharist&.eucharist_location)
+      doc.replace('$EucNum$', eucharist&.serial_number)
 
-      doc.replace('$EucPre$', @eucharist.presbyter)
+      doc.replace('$EucPre$', eucharist&.presbyter)
 
       # Confirmation info
-      confirmed_at = @confirmation.confirmed_at
-      doc.replace('$ConD$', confirmed_at.day)
-      doc.replace('$ConM$', confirmed_at.month)
-      doc.replace('$ConY$', confirmed_at.year)
+      confirmation = Confirmation.find_by(parishioner_id: @parishioner.id)
+      confirmed_at = confirmation&.confirmed_at
+      doc.replace('$ConD$', confirmed_at&.day)
+      doc.replace('$ConM$', confirmed_at&.month)
+      doc.replace('$ConY$', confirmed_at&.year)
 
-      doc.replace('$ConCh$', @confirmation.confirmed_location)
-      doc.replace('$ConNum$', @confirmation.serial_number)
+      doc.replace('$ConCh$', confirmation&.confirmed_location)
+      doc.replace('$ConNum$', confirmation&.serial_number)
 
-      doc.replace('$ConPre$', @confirmation.presbyter)
-      doc.replace('$ConGP$', @confirmation.godparent)
+      doc.replace('$ConPre$', confirmation&.presbyter)
+      doc.replace('$ConGP$', confirmation&.godparent)
 
       # Marriage info
       married = @parishioner.married?
