@@ -41,6 +41,11 @@ RSpec.describe 'api/events', type: :request do
         require: false
       }
 
+      parameter name: :non_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: '聖誕',
         date: '2023'
@@ -53,6 +58,7 @@ RSpec.describe 'api/events', type: :request do
         let(:is_archive) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -71,6 +77,7 @@ RSpec.describe 'api/events', type: :request do
         let(:is_archive) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)['data']
@@ -91,6 +98,7 @@ RSpec.describe 'api/events', type: :request do
         let(:is_archive) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)['data']
@@ -116,6 +124,7 @@ RSpec.describe 'api/events', type: :request do
         let(:is_archive) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)['data']
@@ -141,6 +150,7 @@ RSpec.describe 'api/events', type: :request do
         let(:is_archive) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {

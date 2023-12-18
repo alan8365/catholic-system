@@ -28,6 +28,8 @@ module Api
       page = page.to_i
       per_page = per_page.to_i
 
+      non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
+
       @special_donations = SpecialDonation
                            .left_outer_joins(household: :head_of_household)
                            .select(%w[special_donations.* parishioners.last_name parishioners.first_name])
@@ -71,8 +73,15 @@ module Api
                                      comment
                                    ])
 
-      result = @special_donations
-               .paginate(page:, per_page:)
+      if non_page
+        result = @special_donations
+        total_page = 1
+      else
+        result = @special_donations.paginate(page:, per_page:)
+        total_page = result.total_pages
+      end
+
+      result = result
                .as_json(include: { household: { include: :head_of_household } })
       result = result.map do |e|
         e['name'] = if e['household']['head_of_household'].nil?
@@ -84,12 +93,10 @@ module Api
         e.except('household')
       end
 
-      result = {
-        data: result,
-        total_page: @special_donations.paginate(page:, per_page:).total_pages
-      }
-
-      render json: result,
+      render json: {
+               data: result,
+               total_page:
+             },
              status: :ok
     end
 

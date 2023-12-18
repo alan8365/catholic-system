@@ -28,6 +28,8 @@ module Api
       page = page.to_i
       per_page = per_page.to_i
 
+      non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
+
       if query
         string_filed = %w[
           home_number
@@ -59,16 +61,24 @@ module Api
                               special guest is_archive
                               comment
                             ])
-      result = @households.paginate(page:, per_page:)
-                          .as_json(
-                            include: %i[head_of_household parishioners]
-                          )
-      result = {
-        data: result,
-        total_page: @households.paginate(page:, per_page:).total_pages
-      }
 
-      render json: result,
+      if non_page
+        result = @households
+        total_page = 1
+      else
+        result = @households.paginate(page:, per_page:)
+        total_page = result.total_pages
+      end
+
+      result = result
+               .as_json(
+                 include: %i[head_of_household parishioners]
+               )
+
+      render json: {
+               data: result,
+               total_page:
+             },
              status: :ok
     end
 

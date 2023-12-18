@@ -26,6 +26,8 @@ module Api
       page = page.to_i
       per_page = per_page.to_i
 
+      non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
+
       @regular_donations = RegularDonation
                            .left_joins(household: [:head_of_household])
                            .where(household: { is_archive: false })
@@ -63,16 +65,24 @@ module Api
                                      receipt
                                      comment
                                    ])
-      result = @regular_donations.paginate(page:, per_page:)
-                                 .as_json(
-                                   include: { household: { include: :head_of_household } }
-                                 )
-      result = {
-        data: result,
-        total_page: @regular_donations.paginate(page:, per_page:).total_pages
-      }
 
-      render json: result,
+      if non_page
+        result = @regular_donations
+        total_page = 1
+      else
+        result = @regular_donations.paginate(page:, per_page:)
+        total_page = result.total_pages
+      end
+
+      result = result
+               .as_json(
+                 include: { household: { include: :head_of_household } }
+               )
+
+      render json: {
+               data: result,
+               total_page:
+             },
              status: :ok
     end
 

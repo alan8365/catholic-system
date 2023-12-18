@@ -28,6 +28,8 @@ module Api
       page = page.to_i
       per_page = per_page.to_i
 
+      non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
+
       @eucharists = if query
                       string_filed = %w[
                         (last_name||first_name)
@@ -63,18 +65,24 @@ module Api
                                          comment
                                        ])
 
-      result = @eucharists.paginate(page:, per_page:)
-                          .as_json(
-                            include: { parishioner: { include: :baptism } },
-                            methods: %i[serial_number]
-                          )
+      if non_page
+        result = @eucharists
+        total_page = 1
+      else
+        result = @eucharists.paginate(page:, per_page:)
+        total_page = result.total_pages
+      end
 
-      result = {
-        data: result,
-        total_page: @eucharists.paginate(page:, per_page:).total_pages
-      }
+      result = result
+               .as_json(
+                 include: { parishioner: { include: :baptism } },
+                 methods: %i[serial_number]
+               )
 
-      render json: result,
+      render json: {
+               data: result,
+               total_page:
+             },
              status: :ok
     end
 

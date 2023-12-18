@@ -64,6 +64,11 @@ For example, "2023/7" would search for donations made in July 2023.'
         require: false
       }
 
+      parameter name: :non_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         date: '2023/6'
       }, name: 'query test special_donation', summary: 'Finding all test special_donation'
@@ -75,6 +80,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:event_id) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         run_test!
       end
@@ -86,6 +92,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:event_id) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)['data']
@@ -118,6 +125,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:event_id) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)['data']
@@ -150,6 +158,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:event_id) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -187,6 +196,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:event_id) { 1 }
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -222,6 +232,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:event_id) { 1 }
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -257,6 +268,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:event_id) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {

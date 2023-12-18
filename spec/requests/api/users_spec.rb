@@ -42,11 +42,17 @@ RSpec.describe 'api/users', type: :request do
         any_field: 'test'
       }, name: 'query test user', summary: 'Finding all test user'
 
+      parameter name: :non_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       response(200, 'successful') do
         let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
         let(:any_field) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -64,6 +70,7 @@ RSpec.describe 'api/users', type: :request do
         let(:any_field) { 'test' }
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -86,6 +93,7 @@ RSpec.describe 'api/users', type: :request do
         let(:any_field) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {

@@ -25,6 +25,8 @@ module Api
       page = page.to_i
       per_page = per_page.to_i
 
+      non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
+
       @users = if @query
                  User
                    .where(['name like ? or username like ? or comment like ?', "%#{@query}%", "%#{@query}%",
@@ -33,16 +35,22 @@ module Api
                  User.all
                end
 
-      result = @users
-               .select(*%w[username name comment is_admin is_modulator])
-               .paginate(page:, per_page:)
-               .as_json(except: :id)
-      result = {
-        data: result,
-        total_page: @users.paginate(page:, per_page:).total_pages
-      }
+      if non_page
+        result = @users
+        total_page = 1
+      else
+        result = @users.paginate(page:, per_page:)
+        total_page = result.total_pages
+      end
 
-      render json: result,
+      result = result
+               .select(*%w[username name comment is_admin is_modulator])
+               .as_json(except: :id)
+
+      render json: {
+               data: result,
+               total_page:
+             },
              status: :ok
     end
 

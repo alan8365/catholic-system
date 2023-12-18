@@ -27,6 +27,8 @@ module Api
       page = page.to_i
       per_page = per_page.to_i
 
+      non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
+
       @events = Event.all
 
       if date&.match?(/\d{4}/)
@@ -60,16 +62,23 @@ module Api
                           comment
                         ])
 
-      result = @events.paginate(page:, per_page:)
-                      .as_json(
-                        methods: :donation_count
-                      )
-      result = {
-        data: result,
-        total_page: @events.paginate(page:, per_page:).total_pages
-      }
+      if non_page
+        result = @events
+        total_page = 1
+      else
+        result = @events.paginate(page:, per_page:)
+        total_page = result.total_pages
+      end
 
-      render json: result,
+      result = result
+               .as_json(
+                 methods: :donation_count
+               )
+
+      render json: {
+               data: result,
+               total_page:
+             },
              status: :ok
     end
 

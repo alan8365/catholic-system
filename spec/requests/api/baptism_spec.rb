@@ -45,6 +45,11 @@ For example, "2023" would search for baptisms made in 2023.'
         require: false
       }
 
+      parameter name: :non_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: '彰化'
       }, name: 'query test parishioner', summary: 'Finding the specific parishioner'
@@ -55,6 +60,7 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:date) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           content = example.metadata[:response][:content] || {}
@@ -78,6 +84,7 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:date) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -110,6 +117,7 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:date) { '1988' }
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         run_test! do |response|
           data = JSON.parse(response.body)['data']
@@ -130,6 +138,7 @@ For example, "2023" would search for baptisms made in 2023.'
         let(:date) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {

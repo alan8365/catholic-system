@@ -78,6 +78,11 @@ RSpec.describe 'api/parishioners', type: :request do
         require: false
       }
 
+      parameter name: :non_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: '趙爸爸'
       }, name: 'query test parishioner', summary: 'Finding the specific parishioner'
@@ -89,6 +94,7 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:is_archive) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -113,6 +119,7 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:is_archive) { 'true' }
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -137,6 +144,7 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:is_archive) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -192,6 +200,7 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:is_archive) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -221,6 +230,7 @@ RSpec.describe 'api/parishioners', type: :request do
         let(:is_archive) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {

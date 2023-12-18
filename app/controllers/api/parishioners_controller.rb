@@ -18,16 +18,8 @@ module Api
       name_query = params[:name]
       is_archive = params[:is_archive]
 
-      page = if params[:page].present?
-               params[:page]
-             else
-               '1'
-             end
-      per_page = if params[:per_page].present?
-                   params[:per_page]
-                 else
-                   '10'
-                 end
+      page, per_page = page_param
+      non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
 
       page = page.to_i
       per_page = per_page.to_i
@@ -74,26 +66,32 @@ module Api
                                              move_out_date move_out_reason destination_parish
                                            ])
 
-      result = @parishioners.paginate(page:, per_page:)
-                            .as_json(
-                              include: {
-                                mother_instance: {},
-                                father_instance: {},
-                                baptism: { methods: [:serial_number] },
-                                confirmation: { methods: [:serial_number] },
-                                eucharist: { methods: [:serial_number] },
-                                wife: {},
-                                husband: {}
-                              },
-                              methods: %i[children sibling]
-                            )
+      if non_page
+        result = @parishioners
+        total_page = 1
+      else
+        result = @parishioners.paginate(page:, per_page:)
+        total_page = result.total_pages
+      end
 
-      result = {
-        data: result,
-        total_page: @parishioners.paginate(page:, per_page:).total_pages
-      }
+      result = result
+               .as_json(
+                 include: {
+                   mother_instance: {},
+                   father_instance: {},
+                   baptism: { methods: [:serial_number] },
+                   confirmation: { methods: [:serial_number] },
+                   eucharist: { methods: [:serial_number] },
+                   wife: {},
+                   husband: {}
+                 },
+                 methods: %i[children sibling]
+               )
 
-      render json: result,
+      render json: {
+               data: result,
+               total_page:
+             },
              status: :ok
     end
 
@@ -589,6 +587,20 @@ module Api
     end
 
     private
+
+    def page_param
+      page = if params[:page].present?
+               params[:page]
+             else
+               '1'
+             end
+      per_page = if params[:per_page].present?
+                   params[:per_page]
+                 else
+                   '10'
+                 end
+      [page, per_page]
+    end
 
     def get_text_draw(font_path, point_size: 18, gravity: Magick::NorthWestGravity)
       title_draw = Magick::Draw.new

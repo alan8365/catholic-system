@@ -68,6 +68,11 @@ paths:
         schema:
           type: string
           require: false
+      - name: non_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: Query search any_field with year
@@ -199,6 +204,11 @@ paths:
           type: string
           require: false
       - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: non_page
         in: query
         schema:
           type: string
@@ -345,6 +355,11 @@ paths:
         schema:
           type: string
           require: false
+      - name: non_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: Date search
@@ -484,6 +499,11 @@ paths:
         schema:
           type: string
           require: false
+      - name: non_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: date & any_field mix test
@@ -609,6 +629,11 @@ paths:
         schema:
           type: string
           require: false
+      - name: non_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: Find TT in text field
@@ -726,6 +751,11 @@ paths:
           type: string
           require: false
       - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: non_page
         in: query
         schema:
           type: string
@@ -868,6 +898,11 @@ paths:
           type: string
           require: false
       - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: non_page
         in: query
         schema:
           type: string
@@ -1207,6 +1242,11 @@ paths:
           type: string
           require: false
       - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: non_page
         in: query
         schema:
           type: string
@@ -1623,6 +1663,11 @@ paths:
         schema:
           type: string
           require: false
+      - name: non_page
+        in: query
+        schema:
+          type: string
+          require: false
       responses:
         '200':
           description: event_id and any_field query
@@ -1732,6 +1777,11 @@ paths:
           type: string
           require: false
       - name: per_page
+        in: query
+        schema:
+          type: string
+          require: false
+      - name: non_page
         in: query
         schema:
           type: string

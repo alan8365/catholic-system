@@ -46,6 +46,11 @@ For example, "2023/7" would search for donations made in July 2023.'
         require: false
       }
 
+      parameter name: :non_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: 'TT',
         date: '2023/6'
@@ -57,6 +62,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:date) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         run_test!
       end
@@ -68,6 +74,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:date) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -97,6 +104,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:date) { '2023/6' }
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -128,6 +136,7 @@ For example, "2023/7" would search for donations made in July 2023.'
         let(:date) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {

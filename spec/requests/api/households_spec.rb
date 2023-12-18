@@ -48,6 +48,11 @@ RSpec.describe 'api/households', type: :request do
         require: false
       }
 
+      parameter name: :non_page, in: :query, schema: {
+        type: :string,
+        require: false
+      }
+
       request_body_example value: {
         any_field: 'TT'
       }, name: 'query test household', summary: 'Finding all test household'
@@ -60,6 +65,7 @@ RSpec.describe 'api/households', type: :request do
         let(:is_special) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         run_test! do
           data = JSON.parse(response.body)['data']
@@ -81,6 +87,7 @@ RSpec.describe 'api/households', type: :request do
         let(:is_special) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         run_test! do
           data = JSON.parse(response.body)['data']
@@ -103,6 +110,7 @@ RSpec.describe 'api/households', type: :request do
         let(:is_special) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
@@ -135,6 +143,7 @@ RSpec.describe 'api/households', type: :request do
         let(:is_special) {}
         let(:page) {}
         let(:per_page) {}
+        let(:non_page) {}
 
         after do |example|
           example.metadata[:response][:content] = {
