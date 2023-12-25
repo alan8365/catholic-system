@@ -388,7 +388,7 @@ module Api
       is_test = ActiveModel::Type::Boolean.new.cast(params[:test])
       finding_params = params['pid'] || []
 
-      @parishioners = Parishioner.all
+      @parishioners = Parishioner.includes([:baptism]).all
 
       @parishioners = @parishioners.where(id: finding_params) if finding_params.present?
 
@@ -1103,10 +1103,24 @@ household.comment')
 
       # Donation amount
       regular_donations_base = RegularDonation
+                               .includes(:household)
                                .joins(:household)
                                .where(general_where_rule_hash)
                                .where(general_where_rule_array)
                                .where(donation_at: all_sunday)
+
+      donation_summations = regular_donations_base
+                            .joins(:household)
+                            .where('household.guest' => false)
+                            .group('donation_at')
+                            .order('donation_at')
+                            .pluck('donation_at, sum(donation_amount)')
+
+      guest_donation_summations = regular_donations_base
+                                  .where('household.guest' => true)
+                                  .group('donation_at')
+                                  .order('donation_at')
+                                  .pluck('donation_at, sum(donation_amount)')
 
       regular_donations = regular_donations_base
 
@@ -1126,19 +1140,6 @@ household.comment')
 
         results[row_index][col_index] = donation_amount
       end
-
-      donation_summations = regular_donations_base
-                            .joins(:household)
-                            .where('household.guest' => false)
-                            .group('donation_at')
-                            .order('donation_at')
-                            .pluck('donation_at, sum(donation_amount)')
-
-      guest_donation_summations = regular_donations_base
-                                  .where('household.guest' => true)
-                                  .group('donation_at')
-                                  .order('donation_at')
-                                  .pluck('donation_at, sum(donation_amount)')
 
       donation_summations.map do |e|
         col_index = col_hash[e[0].strftime('%m/%d')]
@@ -1194,6 +1195,7 @@ household.comment')
     # An array containing the row hash, column hash, and results.
     def report_data_init(all_col_name, is_announce: false, col_index: { home_number: 1, name: 2 })
       all_household = Household
+                      .includes(:head_of_household)
                       .order('home_number')
       all_home_number = all_household.map { |e| e['home_number'] }
       home_number_index = all_home_number.each_index.to_a
