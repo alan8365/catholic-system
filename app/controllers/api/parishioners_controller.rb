@@ -75,18 +75,7 @@ module Api
       end
 
       result = result
-               .as_json(
-                 include: {
-                   mother_instance: {},
-                   father_instance: {},
-                   baptism: { methods: [:serial_number] },
-                   confirmation: { methods: [:serial_number] },
-                   eucharist: { methods: [:serial_number] },
-                   wife: {},
-                   husband: {}
-                 },
-                 methods: %i[children sibling]
-               )
+               .as_json
 
       render json: {
                data: result,

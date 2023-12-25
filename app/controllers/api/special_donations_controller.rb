@@ -30,7 +30,17 @@ module Api
 
       non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
 
+      include_models = {
+        household: :head_of_household
+      }
+      include_models_json = {
+        household: {
+          include: :head_of_household
+        }
+      }
+
       @special_donations = SpecialDonation
+                           .includes(include_models)
                            .left_outer_joins(household: :head_of_household)
                            .select(%w[special_donations.* parishioners.last_name parishioners.first_name])
 
@@ -82,7 +92,7 @@ module Api
       end
 
       result = result
-               .as_json(include: { household: { include: :head_of_household } })
+               .as_json(include: include_models_json)
       result = result.map do |e|
         e['name'] = if e['household']['head_of_household'].nil?
                       e['household']['comment']

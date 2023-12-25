@@ -71,10 +71,6 @@ module Api
 
       result = result
                .as_json(
-                 include: {
-                   groom_instance: { include: :baptism },
-                   bride_instance: { include: :baptism }
-                 },
                  methods: %i[serial_number]
                )
 

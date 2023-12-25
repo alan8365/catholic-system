@@ -30,6 +30,15 @@ module Api
 
       non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
 
+      include_model = {
+        parishioner: :baptism
+      }
+      include_model_json = {
+        parishioner: {
+          include: :baptism
+        }
+      }
+
       @eucharists = if query
                       string_filed = %w[
                         (last_name||first_name)
@@ -43,9 +52,9 @@ module Api
 
                       query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-                      Eucharist.joins(:parishioner).where([query_string, *query_array])
+                      Eucharist.includes(include_model).joins(:parishioner).where([query_string, *query_array])
                     else
-                      Eucharist.all
+                      Eucharist.includes(include_model).all
                     end
 
       if date&.match?(/\d{4}/)
@@ -75,7 +84,7 @@ module Api
 
       result = result
                .as_json(
-                 include: { parishioner: { include: :baptism } },
+                 include: include_model_json,
                  methods: %i[serial_number]
                )
 

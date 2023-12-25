@@ -30,6 +30,15 @@ module Api
 
       non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
 
+      include_models = {
+        parishioner: :baptism
+      }
+      include_models_json = {
+        parishioner: {
+          include: :baptism
+        }
+      }
+
       @confirmations = if query
                          string_filed = %w[
                            (last_name||first_name)
@@ -42,9 +51,9 @@ module Api
                          query_string += ' like ?'
 
                          query_array = string_filed.map { |_| "%#{query}%" }.compact
-                         Confirmation.joins(:parishioner).where([query_string, *query_array])
+                         Confirmation.includes(include_models).joins(:parishioner).where([query_string, *query_array])
                        else
-                         Confirmation.all
+                         Confirmation.includes(include_models).all
                        end
 
       if date&.match?(/\d{4}/)
@@ -73,7 +82,7 @@ module Api
       end
       result = result
                .as_json(
-                 include: { parishioner: { include: :baptism } },
+                 include: include_models_json,
                  methods: %i[serial_number]
                )
 

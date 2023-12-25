@@ -4,7 +4,7 @@ module Api
   # Controller for JWT auth
   class AuthenticationController < ApplicationController
     before_action :cors_setting
-    before_action :authorize_request, except: :login
+    # before_action :authorize_request, except: :login
 
     # POST /auth/login
     def login

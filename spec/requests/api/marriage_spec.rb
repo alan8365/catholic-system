@@ -86,10 +86,10 @@ For example, "2023" would search for marriages made in 2023.'
           marriages_hash = Marriage
                            .all
                            .as_json(
-                             include: {
-                               groom_instance: { include: :baptism },
-                               bride_instance: { include: :baptism }
-                             },
+                             # include: {
+                             #   groom_instance: { include: :baptism },
+                             #   bride_instance: { include: :baptism }
+                             # },
                              methods: %i[serial_number],
                              except: %w[created_at updated_at]
                            )

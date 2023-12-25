@@ -79,14 +79,6 @@ For example, "2023" would search for confirmations made in 2023.'
         let(:per_page) {}
         let(:non_page) {}
 
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
-
         run_test! do
           data = JSON.parse(response.body)['data']
           data = data.map { |hash| hash['id'] }

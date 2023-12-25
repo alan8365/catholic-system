@@ -135,7 +135,6 @@ class Parishioner < ApplicationRecord
     data.each do |item|
       next unless item['name'] == name
 
-      puts item
       district = item['districts']
       district = district.map { |e| e['name'] }
 

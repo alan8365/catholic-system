@@ -28,6 +28,8 @@ module Api
       page = page.to_i
       per_page = per_page.to_i
 
+      include_model = %i[head_of_household parishioners]
+
       non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
 
       if query
@@ -41,9 +43,9 @@ module Api
 
         query_array = string_filed.map { |_| "%#{query}%" }.compact
 
-        @households = Household.where([query_string, *query_array])
+        @households = Household.includes(include_model).where([query_string, *query_array])
       else
-        @households = Household.all
+        @households = Household.includes(include_model).all
       end
 
       @households = if is_archive == 'true'
@@ -72,7 +74,7 @@ module Api
 
       result = result
                .as_json(
-                 include: %i[head_of_household parishioners]
+                 include: include_model
                )
 
       render json: {

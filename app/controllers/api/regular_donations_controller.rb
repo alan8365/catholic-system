@@ -28,7 +28,17 @@ module Api
 
       non_page = ActiveRecord::Type::Boolean.new.cast(params[:non_page])
 
+      include_models = {
+        household: :head_of_household
+      }
+      include_models_json = {
+        household: {
+          include: :head_of_household
+        }
+      }
+
       @regular_donations = RegularDonation
+                           .includes(include_models)
                            .left_joins(household: [:head_of_household])
                            .where(household: { is_archive: false })
 
@@ -76,7 +86,7 @@ module Api
 
       result = result
                .as_json(
-                 include: { household: { include: :head_of_household } }
+                 include: include_models_json
                )
 
       render json: {
