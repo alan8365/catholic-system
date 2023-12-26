@@ -43,3 +43,7 @@ solr/default/data
 solr/pids
 
 .xlsx
+/db/sqlite3/development.sqlite3.bak
+/db/sqlite3/development.sqlite3.new.bak
+/start.sh
+/asset/教會資料.json

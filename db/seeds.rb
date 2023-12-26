@@ -28,16 +28,6 @@ household_data.each do |h|
     puts household.errors.full_messages
   end
 end
-Household.create({
-                   home_number: 'V',
-                   special: true,
-                   comment: '越南教友'
-                 })
-Household.create({
-                   home_number: 'G',
-                   guest: true,
-                   comment: '善心人士'
-                 })
 
 # Parishioner
 parishioner_data = data['parishioner']
@@ -73,7 +63,7 @@ parishioner_data.each do |p|
   end
 end
 
-parishioner_data.each do |p|
+parishioner_data.each_with_index do |p, _i|
   parishioner = Parishioner.find_by_id(p['id'])
 
   father = Parishioner.find_by_id(p['father_id'])
@@ -84,6 +74,8 @@ parishioner_data.each do |p|
 
   parishioner.father_id = father.id if father
   parishioner.mother_id = mother.id if mother
+
+  parishioner.save
 end
 
 # Head of household
@@ -93,6 +85,23 @@ household_data.each do |h|
   household.head_of_household = Parishioner.find_by_id(h['head_of_household_id'])
   household.save
 end
+
+# Archive unuse household
+Household.all.each do |h|
+  h.is_archive = true unless h.parishioners.any?
+  h.save
+end
+
+special_household = Household.create({
+                                       home_number: 'V',
+                                       special: true,
+                                       comment: '越南教友'
+                                     })
+guest_household = Household.create({
+                                     home_number: 'G',
+                                     guest: true,
+                                     comment: '善心人士'
+                                   })
 
 # Baptism
 baptism_data = data['baptism']
@@ -128,4 +137,72 @@ marry_data.each do |m|
     puts m['id']
     puts marriage.errors.full_messages
   end
+end
+
+# Regular donation
+
+# Regular donation random seeds
+begin_date = Date.civil(2022, 1, 1)
+end_date = Date.civil(2022, 12, -1)
+
+date_range = begin_date..end_date
+all_sunday = date_range.to_a.select { |k| k.wday.zero? }
+
+all_household = Household.all
+
+random_regular_donation = []
+50.times do |_|
+  home_number = all_household.sample.home_number
+
+  donation_at = all_sunday.sample
+
+  donation_amount = rand(1000..10_000)
+
+  random_regular_donation << {
+    home_number:,
+    donation_at:,
+    donation_amount:
+  }
+end
+
+RegularDonation.create(random_regular_donation)
+
+# Event
+first_event = Event.create({
+                             name: '聖誕',
+                             start_at: Date.strptime('2023/12/25', '%Y/%m/%d')
+                           })
+
+second_event = Event.create({
+                              name: '復活節',
+                              start_at: Date.strptime('2023/04/09', '%Y/%m/%d')
+                            })
+
+third_event = Event.create({
+                             name: '聖誕',
+                             start_at: Date.strptime('2022/12/25', '%Y/%m/%d')
+                           })
+
+# Special donation
+SpecialDonation.create([{
+                         home_number: guest_household.home_number,
+                         donation_at: Date.strptime('2023/12/24', '%Y/%m/%d'),
+                         donation_amount: 15_000,
+
+                         event: first_event
+                       }])
+50.times do |_i|
+  home_number = all_household.sample.home_number
+
+  date_range_array = (Date.civil(2022, 12, 1)..Date.civil(2022, 12, -1)).to_a
+  donation_at = date_range_array.sample
+  donation_amount = rand(1000..10_000)
+
+  SpecialDonation.create({
+                           home_number:,
+                           donation_at:,
+                           donation_amount:,
+
+                           event: third_event
+                         })
 end
