@@ -296,8 +296,10 @@ RSpec.describe 'api/events', type: :request do
       }
 
       request_body_example value: {
-        home_number: 'TT521',
-        head_of_event_id: 2
+        name: '聖誕',
+        start_at: '2023/12/25',
+
+        comment: '測試用活動'
       }, name: 'test home number change', summary: 'Test event update'
 
       response(204, 'No Content') do
@@ -309,6 +311,17 @@ RSpec.describe 'api/events', type: :request do
           @event_updated = Event.find_by_id(@event.id)
           expect(@event_updated.name).to eq('六月花')
           expect(@event_updated.start_at).to eq(Date.strptime('2023/6/2', '%Y/%m/%d'))
+        end
+      end
+
+      response(204, 'No Content') do
+        let(:authorization) { "Bearer #{authenticated_header 'admin'}" }
+        let(:_id) { @event.id }
+        let(:event) { { comment: 'aaa' } }
+
+        run_test! do
+          @event_updated = Event.find_by_id(@event.id)
+          expect(@event_updated.comment).to eq('aaa')
         end
       end
 

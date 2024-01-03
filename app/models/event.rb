@@ -16,7 +16,7 @@ class Event < ApplicationRecord
 
   def name_unique_this_year
     this_year = start_at&.beginning_of_year..start_at&.end_of_year
-    return unless Event.where(name:, start_at: this_year).exists?
+    return unless Event.where(name:, start_at: this_year).where.not(id:).exists?
 
     errors.add(:name, I18n.t('this_name_of_event_is_already_exists_in_this_year'))
   end

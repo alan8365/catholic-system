@@ -58,7 +58,7 @@ parishioner_data.each do |p|
   )
 
   unless parishioner.save
-    puts p['id']
+    puts "par_id: #{p['id']}"
     puts parishioner.errors.full_messages
   end
 end
@@ -110,7 +110,7 @@ baptism_data.each do |b|
   baptism = Baptism.new(b)
 
   unless baptism.save
-    puts b['id']
+    puts "b_id: #{b['id']}, p_id: #{b['parishioner_id']}"
     puts baptism.errors.full_messages
   end
 end
@@ -122,7 +122,7 @@ confirmation_data.each do |c|
   confirmation = Confirmation.new(c)
 
   unless confirmation.save
-    puts c['id']
+    puts "c_id: #{c['id']}, p_id: #{c['parishioner_id']}"
     puts confirmation.errors.full_messages
   end
 end
@@ -134,7 +134,7 @@ marry_data.each do |m|
   marriage = Marriage.new(m)
 
   unless marriage.save
-    puts m['id']
+    puts "m_id: #{m['id']}, p_id: #{m['parishioner_id']}"
     puts marriage.errors.full_messages
   end
 end

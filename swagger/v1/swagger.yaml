@@ -577,8 +577,9 @@ paths:
               test home number change:
                 summary: Test event update
                 value:
-                  home_number: TT521
-                  head_of_event_id: 2
+                  name: 聖誕
+                  start_at: 2023/12/25
+                  comment: 測試用活動
     delete:
       summary: delete event
       tags:

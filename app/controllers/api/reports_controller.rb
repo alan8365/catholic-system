@@ -57,7 +57,7 @@ module Api
           end
 
           style = get_xlsx_style(wb, sheet_width, style_type_index)
-          sheet.add_row row, style:
+          sheet.add_row row, style:, widths: [10, 10]
         end
 
         sheet.merge_cells(sheet.rows[0].cells[(0..sheet_width)])
@@ -147,7 +147,7 @@ module Api
             style_type_index = ['', '', '', *currency_array]
           end
           style = get_xlsx_style(wb, sheet_width, style_type_index)
-          sheet.add_row row, style:
+          sheet.add_row row, style:, widths: [10, 10]
         end
 
         sheet.merge_cells sheet.rows[0].cells[(0..sheet_width)]
@@ -232,7 +232,7 @@ module Api
             style_type_index = ['', '', '', *currency_array]
           end
           style = get_xlsx_style(wb, sheet_width, style_type_index)
-          sheet.add_row row, style:
+          sheet.add_row row, style:, widths: [10, 10]
         end
 
         # Merge cell of summation
@@ -594,7 +594,7 @@ module Api
                            end
 
         style = get_xlsx_style(workbook, sheet_width, style_type_index)
-        sheet.add_row row, style:
+        sheet.add_row row, style:, widths: [10, 10]
       end
 
       sheet.merge_cells sheet.rows[0].cells[(0..sheet_width)]
@@ -667,7 +667,7 @@ module Api
           end
 
           style = get_xlsx_style(workbook, sheet_width, style_type_index)
-          sheet.add_row row, style:
+          sheet.add_row row, style:, widths: [10, 10]
         end
 
         sheet.merge_cells sheet.rows[0].cells[(0..sheet_width)]
