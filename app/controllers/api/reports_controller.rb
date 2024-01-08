@@ -781,12 +781,18 @@ module Api
     end
 
     def get_sdr_array(event_id, is_announce: false)
-      event_donation = SpecialDonation
-                       .left_joins(:event, household: :head_of_household)
-                       .where('event.id' => event_id)
-                       .where(general_where_rule_hash)
-                       .where(general_where_rule_array)
-                       .where('household.is_archive' => false)
+      donation_base = SpecialDonation
+                      .left_joins(:event, household: :head_of_household)
+                      .where('event.id' => event_id)
+                      .where(general_where_rule_hash)
+                      .where(general_where_rule_array)
+                      .where('household.is_archive' => false)
+
+      multi_date_donation = donation_base
+                            .pluck('special_donations.home_number, donation_at')
+                            .sort
+
+      event_donation = donation_base
                        .order(:donation_at)
                        .pluck('special_donations.home_number, donation_at,
 parishioners.last_name, parishioners.first_name,
@@ -795,6 +801,25 @@ household.comment')
 
       all_col_name = %w[序號 家號 日期 姓名 金額 備註]
       row_hash, col_hash, results = report_data_init(all_col_name, is_announce:, col_index: { home_number: 1, name: 3 })
+
+      all_home_number_donation_at = multi_date_donation.map { |e| [e[0], e[1].strftime('%m/%d')] }
+      new_row_index = all_home_number_donation_at.each_index.to_a
+
+      new_row_hash = Hash[all_home_number_donation_at.zip(new_row_index)]
+      new_results = Array.new(new_row_hash.size) { Array.new(col_hash.size) }
+
+      all_home_number_donation_at.each do |e|
+        home_number = e[0]
+        donation_at = e[1]
+        key = [home_number, donation_at]
+
+        old_row_id = row_hash[home_number]
+        old_row = results[old_row_id].clone
+        old_row[2] = donation_at
+
+        new_row_id = new_row_hash[key]
+        new_results[new_row_id] = old_row
+      end
 
       headers = Array.new(2) { Array.new(col_hash.size) }
       headers[0][0] = "#{Event.find_by_id(event_id).name}奉獻"
@@ -806,23 +831,24 @@ household.comment')
 
       event_donation.each do |e|
         home_number = e[0]
-        row_index = row_hash[home_number]
+        donation_at = e[1].strftime('%m/%d') # e[1] is donation_at
+        row_index = new_row_hash[[home_number, donation_at]]
 
-        results[row_index][2] = e[1].strftime('%m/%d') # e[1] is donation_at
-        results[row_index][4] = e[4] # e[4] is donation amount
-        results[row_index][5] = e[5] # e[5] is comment
+        new_results[row_index][2] = donation_at
+        new_results[row_index][4] = e[4] # e[4] is donation amount
+        new_results[row_index][5] = e[5] # e[5] is comment
 
         footers[1][4] += e[4]
       end
 
-      results = exclude_zero_value(results, -2)
+      new_results = exclude_zero_value(new_results, -2)
 
       # Fill serial number
-      results.each_with_index do |row, i|
+      new_results.each_with_index do |row, i|
         row[0] = i + 1
       end
 
-      headers + results + footers
+      headers + new_results + footers
     end
 
     def get_yearly_rdr_array(year, is_announce: false)

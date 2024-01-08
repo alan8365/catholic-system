@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SpecialDonation < ApplicationRecord
-  validates :event_id, presence: true, uniqueness: { scope: :home_number }
+  validates :event_id, presence: true, uniqueness: { scope: %i[home_number donation_at] }
   validates :home_number, presence: true
   validates :donation_at, presence: true
   validates :donation_amount, presence: true
@@ -10,7 +10,7 @@ class SpecialDonation < ApplicationRecord
   belongs_to :event, class_name: 'Event', foreign_key: 'event_id'
 
   def pair_unique
-    sd = SpecialDonation.where(event_id:, home_number:)
+    sd = SpecialDonation.where(event_id:, home_number:, donation_at:)
 
     return if sd.empty?
 

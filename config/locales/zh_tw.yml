@@ -50,7 +50,7 @@ zh_tw:
   unauthorized: "認證資訊錯誤：帳號或密碼錯誤"
   parishioner:
     picture_extension_error: "圖片格式不屬於 %s"
-  event_and_home_number_pair_unique: "該家號在該活動已有奉獻，活動編號：%<event_id>s、家號：%<home_number>s"
+  event_and_home_number_pair_unique: "該家號在該天已有奉獻，活動編號：%<event_id>s、家號：%<home_number>s"
   activerecord:
     # TODO add more error messages
     errors:
@@ -112,7 +112,7 @@ zh_tw:
           attributes:
             event_id:
               blank: "活動編號不可為空"
-              taken: "該家號在該活動已有奉獻"
+              taken: "活動中該家號在該天已有奉獻"
             home_number:
               blank: "家號不可為空"
             donation_at:
