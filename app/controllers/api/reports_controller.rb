@@ -57,7 +57,7 @@ module Api
           end
 
           style = get_xlsx_style(wb, sheet_width, style_type_index)
-          sheet.add_row row, style:, widths: [10, 10]
+          sheet.add_row row, style:, widths: [10, 10], types: %i[string string]
         end
 
         sheet.merge_cells(sheet.rows[0].cells[(0..sheet_width)])
@@ -147,7 +147,7 @@ module Api
             style_type_index = ['', '', '', *currency_array]
           end
           style = get_xlsx_style(wb, sheet_width, style_type_index)
-          sheet.add_row row, style:, widths: [10, 10]
+          sheet.add_row row, style:, widths: [10, 10], types: %i[string string]
         end
 
         sheet.merge_cells sheet.rows[0].cells[(0..sheet_width)]
@@ -232,7 +232,7 @@ module Api
             style_type_index = ['', '', '', *currency_array]
           end
           style = get_xlsx_style(wb, sheet_width, style_type_index)
-          sheet.add_row row, style:, widths: [10, 10]
+          sheet.add_row row, style:, widths: [10, 10], types: %i[string string]
         end
 
         # Merge cell of summation
@@ -363,7 +363,7 @@ module Api
                                %w[no-border no-border no-border no-border]
                              end
           style = get_xlsx_style(wb, row.size, style_type_index)
-          sheet.add_row row, style:, height: 27, widths: [10, 30, 20, 40]
+          sheet.add_row row, style:, height: 27, widths: [10, 30, 20, 40], types: %i[string string]
         end
 
         sheet.merge_cells sheet.rows[0].cells[(0..3)]
@@ -594,7 +594,7 @@ module Api
                            end
 
         style = get_xlsx_style(workbook, sheet_width, style_type_index)
-        sheet.add_row row, style:, widths: [10, 10]
+        sheet.add_row row, style:, widths: [10, 10], types: %i[string string]
       end
 
       sheet.merge_cells sheet.rows[0].cells[(0..sheet_width)]
@@ -616,7 +616,7 @@ module Api
                                                    border:,
                                                    font_name:,
                                                    sz: })
-      normal_style = workbook.styles.add_style({ num_fmt: 1,
+      normal_style = workbook.styles.add_style({ types: :string,
                                                  alignment: { horizontal: :left, vertical: :center },
                                                  border:,
                                                  font_name:,
@@ -667,7 +667,7 @@ module Api
           end
 
           style = get_xlsx_style(workbook, sheet_width, style_type_index)
-          sheet.add_row row, style:, widths: [10, 10]
+          sheet.add_row row, style:, widths: [10, 10], types: %i[string string string]
         end
 
         sheet.merge_cells sheet.rows[0].cells[(0..sheet_width)]
