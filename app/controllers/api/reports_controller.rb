@@ -1199,7 +1199,7 @@ household.comment')
       all_household = Household
                       .includes(:head_of_household)
                       .order('home_number')
-      all_home_number = all_household.map { |e| e['home_number'] }
+      all_home_number = all_household.map { |e| e['home_number'] }.sort
       home_number_index = all_home_number.each_index.to_a
 
       col_name_index = all_col_name.each_index.to_a
