@@ -47,3 +47,5 @@ solr/pids
 /db/sqlite3/development.sqlite3.new.bak
 /start.sh
 /asset/教會資料.json
+/db/sqlite3/*.bak
+/db/sqlite3/csv/*
