@@ -1123,14 +1123,16 @@ household.comment')
                                   .pluck('donation_at, sum(donation_amount)')
 
       regular_donations = regular_donations_base
+                          .group('strftime("%d", donation_at), household.home_number')
+                          .pluck('household.home_number, donation_at, sum(donation_amount)')
 
       regular_donations.each do |regular_donation|
-        home_number = regular_donation['home_number']
+        home_number = regular_donation[0]
 
-        donation_at = regular_donation['donation_at'].strftime('%m/%d')
+        donation_at = regular_donation[1].strftime('%m/%d')
         donation_at[2] = '/'
 
-        donation_amount = regular_donation['donation_amount']
+        donation_amount = regular_donation[2]
 
         # FIXME: donation_at not in all_sunday_str
         col_index = col_hash[donation_at]
