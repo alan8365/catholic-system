@@ -365,7 +365,7 @@ For example, "2023/7" would search for donations made in July 2023.'
             event_id: 1,
             home_number: 'TT520',
 
-            donation_at: Date.strptime('2023/7/2', '%Y/%m/%d'),
+            donation_at: Date.strptime('2023/6/29', '%Y/%m/%d'),
             donation_amount: 1000
           }
         end

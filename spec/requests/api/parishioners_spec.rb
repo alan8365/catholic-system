@@ -351,8 +351,6 @@ RSpec.describe 'api/parishioners', type: :request do
         run_test! do |response|
           data = JSON.parse(response.body)
 
-          puts data
-
           expect(data['errors']).to eq(['教友資料中未能找到母親教友資料'])
         end
       end
