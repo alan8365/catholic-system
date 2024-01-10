@@ -40,13 +40,12 @@ module Api
       @regular_donations = RegularDonation
                            .includes(include_models)
                            .left_joins(household: [:head_of_household])
-                           .where(household: { is_archive: false })
 
       if query
         string_filed = %w[
           regular_donations.home_number
           regular_donations.comment
-          household.comment
+          households.comment
           parishioners.last_name||parishioners.first_name
         ]
 

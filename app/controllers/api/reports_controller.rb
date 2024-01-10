@@ -291,7 +291,7 @@ module Api
       col_str = %w[編號 收據開立姓名或公司行號 金額 身分證字號或統一編號]
       col_str_index = col_str.each_index
 
-      all_home_number = Household.where('is_archive' => false).map(&:home_number)
+      all_home_number = Household.all.map(&:home_number)
       all_home_number_index = all_home_number.each_index
 
       row_hash = Hash[all_home_number.zip(all_home_number_index)]
@@ -786,7 +786,6 @@ module Api
                       .where('event.id' => event_id)
                       .where(general_where_rule_hash)
                       .where(general_where_rule_array)
-                      .where('household.is_archive' => false)
 
       multi_date_donation = donation_base
                             .pluck('special_donations.home_number, donation_at')
@@ -1282,7 +1281,7 @@ household.comment')
 
     def general_where_rule_hash
       {
-        'household.is_archive' => false
+        'household.is_archive' => [true, false]
       }
     end
 

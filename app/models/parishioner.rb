@@ -95,7 +95,12 @@ class Parishioner < ApplicationRecord
   end
 
   def address_divided
-    if address.present?
+    pattern = /.{2}[市縣]/
+    address_valid = address&.match(pattern)
+
+    puts address
+
+    if address_valid
       divide_address(address)
     else
       ['', '']
@@ -126,6 +131,9 @@ class Parishioner < ApplicationRecord
 
     pattern = /(?<name>.{2}[市縣])/
     m = address.match(pattern)
+
+    return ['', ''] if m.nil?
+
     name = m[:name]
     prefix = name
 
@@ -140,6 +148,8 @@ class Parishioner < ApplicationRecord
 
       district_pattern = "(?<district>#{district.join('|')})"
       m = address.match(district_pattern)
+      break if m.nil?
+
       district = m[:district]
 
       prefix += district

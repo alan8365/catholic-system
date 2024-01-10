@@ -83,7 +83,7 @@ zh_tw:
             parishioner:
               required: "教友不可為空"
             parishioner_id:
-              taken: "教友已堅證"
+              taken: "教友已堅振"
         marriage:
           attributes:
             marriage_location:

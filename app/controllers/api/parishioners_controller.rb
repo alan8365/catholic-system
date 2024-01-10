@@ -547,7 +547,9 @@ module Api
         page_top = cursor
 
         parishioners.each_with_index do |parishioner, index|
-          y_position = page_top - (height * (index / 3))
+          start_new_page if (index % 24).zero? && (index != 0)
+
+          y_position = page_top - (height * (index % 24 / 3))
           x_position = width * (index % 3)
 
           margin_top = 0.4.in
